@@ -1,0 +1,19 @@
+# Virtual environment
+venv/
+
+# Bytecode & Python cache
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Jupyter checkpoints
+.ipynb_checkpoints/
+
+# Data directories (ignore all nested files, but track folder structure via .gitkeep)
+/data/**
+!/data/**/
+!/data/**/.gitkeep
+
+# Cached features
+/features/*.npy
+!/features/.gitkeep
