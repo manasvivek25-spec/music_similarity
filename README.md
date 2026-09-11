@@ -59,19 +59,40 @@ music_similarity/
 │   ├── extract.py          # Audio loading, Chroma CQT extraction, feature caching
 │   ├── similarity.py       # Key-invariant DTW alignment and similarity scoring
 │   ├── stats_test.py       # Empirical null distribution hypothesis testing
-│   └── utils.py            # Audio path discovery and directory management
-├── tests/                  # Automated unit test suite
-│   └── test_similarity.py
+│   ├── utils.py            # Audio path discovery and directory management
+│   └── api/                # FastAPI backend service
+│       ├── main.py         # App entrypoint, CORS configuration, router mounts
+│       ├── schemas.py      # Pydantic request/response models
+│       └── routes/         # Modular endpoints for Features 1-7
+├── tests/                  # Automated test suite
+│   ├── test_similarity.py  # Unit tests for DTW alignment, invariance, and null tests
+│   └── test_api.py         # Integration tests for FastAPI endpoints
 ├── .gitignore              # Git ignore rules for virtualenvs, caches, raw audio, and features
+├── pytest.ini              # Pytest configuration
 ├── requirements.txt        # Pinned Python dependency manifest
 └── README.md
 ```
 
 ---
 
+## Running the FastAPI Backend
+
+Start the local development server:
+
+```bash
+uvicorn src.api.main:app --reload --port 8001
+```
+
+Once running:
+- **Interactive API Documentation (Swagger UI)**: [http://localhost:8001/docs](http://localhost:8001/docs)
+- **Alternative Documentation (ReDoc)**: [http://localhost:8001/redoc](http://localhost:8001/redoc)
+- **Health Check Endpoint**: [http://localhost:8001/api/health](http://localhost:8001/api/health)
+
+---
+
 ## Running Tests
 
-Run the test suite using `pytest`:
+Run the full automated test suite using `pytest`:
 
 ```bash
 pytest
