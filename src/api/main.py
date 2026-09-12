@@ -50,6 +50,12 @@ async def health_check():
     )
 
 
+@app.get("/api/group-comparison", tags=["Statistical Testing (Features 2 & 3)"])
+async def group_comparison():
+    from src.api.routes.stats import get_group_comparison
+    return await get_group_comparison()
+
+
 from pathlib import Path
 from fastapi.staticfiles import StaticFiles
 

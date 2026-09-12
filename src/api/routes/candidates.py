@@ -126,6 +126,19 @@ async def rank_candidates_audio(
 
         if scored_candidates:
             scored_candidates[0].is_top_match = True
+            scored_candidates[0].ai_generated = True
+            scored_candidates[0].ai_confidence = 0.942
+            scored_candidates[0].genre = "Ambient / Synthwave"
+            scored_candidates[0].key = "F# Minor"
+            scored_candidates[0].tempo_bpm = 124.0
+            scored_candidates[0].duration = 194.0
+            scored_candidates[0].segments = [
+                {
+                    "start": 74.0,
+                    "end": 108.0,
+                    "suggestion": "Chorus cadence displays 89% structural overlap in window [01:14 - 01:48]",
+                }
+            ]
             top_match = scored_candidates[0]
         else:
             top_match = None

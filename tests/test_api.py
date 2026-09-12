@@ -190,3 +190,19 @@ def test_candidate_ranking_audio_dataset():
     assert data["top_match"]["candidate_id"] == "match_exact"
     assert data["top_match"]["is_top_match"] is True
     assert data["top_match"]["similarity"] > data["candidates"][1]["similarity"]
+    assert "ai_generated" in data["top_match"]
+    assert "genre" in data["top_match"]
+    assert "segments" in data["top_match"]
+
+
+def test_group_comparison_get_endpoint():
+    response = client.get("/api/group-comparison")
+    assert response.status_code == 200
+    data = response.json()
+    assert "human_median" in data
+    assert "ai_median" in data
+    assert "p_value" in data
+    assert "human_scores" in data
+    assert "ai_scores" in data
+    assert len(data["human_scores"]) >= 2
+    assert len(data["ai_scores"]) >= 2

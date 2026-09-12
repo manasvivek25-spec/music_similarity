@@ -114,6 +114,8 @@
     };
   </script>
   <link rel="stylesheet" href="/style.css"/>
+  <!-- Chart.js CDN for Population Comparison (Fix 5) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 </head>
 <body class="bg-transparent font-body-md text-on-surface antialiased selection:bg-primary-container selection:text-on-primary-container relative min-h-screen">
 
@@ -292,7 +294,7 @@ void main() {
             <div class="grid grid-cols-2 gap-gutter">
               
               <!-- Squircle 1: FEATURE 1 - Similarity Engine -->
-              <div class="bg-gradient-to-br from-[#d4ff00]/85 via-[#d4ff00]/70 to-[#caf300]/55 backdrop-blur-xl border border-white/70 rounded-lg p-space-lg flex flex-col justify-between aspect-square shadow-[0_16px_36px_-10px_rgba(212,255,0,0.45),inset_0_1px_2px_rgba(255,255,255,0.85)] transition-all duration-500 ease-out hover:-translate-y-2.5 hover:scale-[1.02] hover:shadow-[0_24px_50px_-10px_rgba(212,255,0,0.65),inset_0_2px_3px_rgba(255,255,255,0.95)] cursor-pointer group relative overflow-hidden">
+              <div class="bg-gradient-to-br from-[#d4ff00]/85 via-[#d4ff00]/70 to-[#caf300]/55 backdrop-blur-xl border border-white/70 rounded-lg p-space-lg flex flex-col justify-between min-h-[300px] shadow-[0_16px_36px_-10px_rgba(212,255,0,0.45),inset_0_1px_2px_rgba(255,255,255,0.85)] transition-all duration-500 ease-out hover:-translate-y-2.5 hover:scale-[1.02] hover:shadow-[0_24px_50px_-10px_rgba(212,255,0,0.65),inset_0_2px_3px_rgba(255,255,255,0.95)] cursor-pointer group relative overflow-hidden">
                 <div class="flex items-start justify-between">
                   <span class="font-label-md text-label-md text-on-primary-fixed tracking-wider drop-shadow-sm font-bold">Similarity Index (S)</span>
                   <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-on-primary-fixed/15 text-on-primary-fixed border border-on-primary-fixed/20 font-mono">S ∈ [0,1]</span>
@@ -305,6 +307,29 @@ void main() {
                   <div class="flex items-center gap-1.5 mt-1">
                     <span class="font-label-sm text-[11px] font-semibold text-on-primary-fixed font-mono bg-white/40 px-1.5 py-0.5 rounded" id="bestShiftTag">12-Chroma · Best shift: +2 semi</span>
                   </div>
+
+                  <!-- Fix 3: Origin Classification Badge -->
+                  <div class="flex items-center gap-2 mt-2">
+                    <span class="text-[10px] uppercase font-bold text-on-primary-fixed/80 tracking-wider">Origin</span>
+                    <span id="originLabel" class="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-rose-600/20 text-rose-950 border border-rose-600/30">AI-Generated</span>
+                    <span id="originConfidence" class="font-mono text-xs text-on-primary-fixed/80 font-medium">94.2% confidence</span>
+                  </div>
+
+                  <!-- Fix 4: Metadata Chips (genre, key, tempo) -->
+                  <div class="flex flex-wrap items-center gap-1 mt-2">
+                    <span id="metaGenre" class="bg-surface-container rounded-full px-3 py-1 text-xs font-mono text-on-surface-variant flex items-center gap-1">
+                      <span class="material-symbols-outlined text-[14px]">music_note</span>
+                      <span>Genre: —</span>
+                    </span>
+                    <span id="metaKey" class="bg-surface-container rounded-full px-3 py-1 text-xs font-mono text-on-surface-variant flex items-center gap-1">
+                      <span class="material-symbols-outlined text-[14px]">piano</span>
+                      <span>Key: —</span>
+                    </span>
+                    <span id="metaTempo" class="bg-surface-container rounded-full px-3 py-1 text-xs font-mono text-on-surface-variant flex items-center gap-1">
+                      <span class="material-symbols-outlined text-[14px]">speed</span>
+                      <span>Tempo: — BPM</span>
+                    </span>
+                  </div>
                 </div>
                 <div class="flex items-center justify-between mt-2 pt-2 border-t border-on-primary-fixed/15">
                   <div class="flex items-center gap-1.5">
@@ -316,7 +341,7 @@ void main() {
               </div>
 
               <!-- Squircle 2: FEATURE 4 - Origin Classifier -->
-              <div class="bg-gradient-to-br from-[#2e3132]/95 via-[#222426]/90 to-[#191c1d]/90 backdrop-blur-xl border border-white/20 rounded-lg p-space-lg flex flex-col justify-between aspect-square shadow-[0_16px_36px_-10px_rgba(0,0,0,0.3),inset_0_1px_1px_rgba(255,255,255,0.3)] transition-all duration-500 ease-out hover:-translate-y-2.5 hover:scale-[1.02] hover:shadow-[0_24px_50px_rgba(0,0,0,0.4),0_0_20px_rgba(212,255,0,0.2),inset_0_1px_2px_rgba(255,255,255,0.5)] cursor-pointer group">
+              <div class="bg-gradient-to-br from-[#2e3132]/95 via-[#222426]/90 to-[#191c1d]/90 backdrop-blur-xl border border-white/20 rounded-lg p-space-lg flex flex-col justify-between min-h-[300px] shadow-[0_16px_36px_-10px_rgba(0,0,0,0.3),inset_0_1px_1px_rgba(255,255,255,0.3)] transition-all duration-500 ease-out hover:-translate-y-2.5 hover:scale-[1.02] hover:shadow-[0_24px_50px_rgba(0,0,0,0.4),0_0_20px_rgba(212,255,0,0.2),inset_0_1px_2px_rgba(255,255,255,0.5)] cursor-pointer group">
                 <div class="flex items-start justify-between">
                   <span class="font-label-md text-label-md text-inverse-on-surface/80 tracking-wider font-medium">Synthetic Prob</span>
                   <span class="px-2 py-0.5 rounded-full text-[10px] font-mono bg-white/10 text-primary-container border border-white/10">Classifier</span>
@@ -356,7 +381,7 @@ void main() {
                   <div class="grid grid-cols-5 gap-1.5 mt-3 pt-3 border-t border-black/5 font-mono text-[11px]">
                     <div class="bg-white/60 p-1.5 rounded-lg border border-white/80 text-center">
                       <span class="block text-[9px] uppercase tracking-wider text-secondary">Key</span>
-                      <span class="font-bold text-on-surface" id="metaKey">F# min</span>
+                      <span class="font-bold text-on-surface" id="queryMetaKey">F# min</span>
                     </div>
                     <div class="bg-white/60 p-1.5 rounded-lg border border-white/80 text-center">
                       <span class="block text-[9px] uppercase tracking-wider text-secondary">BPM</span>
@@ -436,6 +461,15 @@ void main() {
               <div class="bg-white/50 backdrop-blur-sm rounded-xl p-2.5 border border-white/70 flex items-center justify-between text-[11px] font-mono text-secondary mb-2">
                 <span>Reject Null H₀: Random Overlap</span>
                 <span class="text-rose-700 font-bold bg-rose-50 px-2 py-0.5 rounded border border-rose-200">Significant (p &lt; 0.01)</span>
+              </div>
+
+              <!-- Dynamic Segment Timeline (Fix 6) -->
+              <div class="mt-2 mb-1">
+                <div class="flex items-center justify-between text-[10px] font-mono text-secondary mb-1">
+                  <span>DTW Spike Segments</span>
+                  <span class="text-[9px] text-secondary">Hover for advice</span>
+                </div>
+                <div id="segmentTimeline" class="bg-surface-container-high rounded-full h-3 relative w-full overflow-hidden shadow-inner"></div>
               </div>
             </div>
 
@@ -721,16 +755,16 @@ void main() {
               </div>
             </label>
 
-            <!-- Option 2: Shift +2 Semitones -->
+            <!-- Option 2: Rhythmic Variation (Fix 1) -->
             <label class="flex items-start gap-3 p-3 rounded-2xl bg-white/40 border border-white/80 cursor-pointer hover:bg-white/90 transition-all shadow-sm group" id="optLabel2">
-              <input class="mt-1 text-primary focus:ring-primary h-4 w-4" name="remediationOption" onchange="selectRemedy(2)" type="radio" value="shift_semitones"/>
+              <input class="mt-1 text-primary focus:ring-primary h-4 w-4" name="remediationOption" onchange="selectRemedy(2)" type="radio" value="rhythmic_variation"/>
               <div class="flex-1">
                 <div class="flex items-center justify-between">
-                  <span class="font-label-md text-xs font-bold text-on-surface group-hover:text-primary transition-colors">Shift +2 Semitones</span>
+                  <span class="font-label-md text-xs font-bold text-on-surface group-hover:text-primary transition-colors">Rhythmic Variation</span>
                   <span class="text-[10px] font-mono font-bold text-emerald-700 bg-emerald-100/70 px-1.5 py-0.5 rounded">S: 0.528</span>
                 </div>
                 <p class="text-[11px] text-secondary mt-1 leading-snug" id="remedyDesc2">
-                  Key-transpose localized stem from F# minor to G# minor. Clears legal threshold while retaining exact melodic pattern.
+                  Alter the rhythmic phrasing and note duration pattern in the flagged segment without changing the underlying pitches. Disrupts temporal alignment that DTW detects while preserving the harmonic feel.
                 </p>
                 <div class="flex items-center gap-2 mt-2 text-[10px] font-mono text-outline">
                   <span>Δ S: -0.356</span>
@@ -764,7 +798,7 @@ void main() {
           <div class="flex flex-col sm:flex-row items-center justify-between gap-space-sm pt-2 border-t border-black/5">
             <div class="flex items-center gap-2 text-xs text-secondary font-mono">
               <span class="material-symbols-outlined text-[18px] text-primary">verified</span>
-              <span id="guaranteeBadge">Traceable Deterministic Guarantee: Output mathematically bound to S ≤ 0.650.</span>
+              <span id="guaranteeBadge">Score estimate based on deterministic similarity reduction — not a formal legal guarantee.</span>
             </div>
             <div class="flex items-center gap-space-sm w-full sm:w-auto justify-end">
               <button class="px-space-lg py-space-sm rounded-full bg-gradient-to-r from-[#d4ff00] to-[#caf300] hover:brightness-105 text-on-primary-fixed font-label-md text-label-md transition-all duration-300 shadow-[0_8px_24px_rgba(212,255,0,0.4)] hover:-translate-y-1 active:scale-95 flex items-center gap-1.5 font-bold cursor-pointer" id="applyRemedyBtn">
@@ -774,6 +808,41 @@ void main() {
             </div>
           </div>
         </div>
+
+        <!-- Fix 5: Group Comparison Section (Feature 3: Human vs. AI Population Comparison) -->
+        <section class="mt-gutter w-full glass-card rounded-lg p-space-lg shadow-md flex flex-col gap-space-md transition-all duration-500 hover:-translate-y-1">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-md pb-3 border-b border-black/5">
+            <div>
+              <h2 class="font-headline-md text-lg text-on-surface">Human vs. AI-Generated Music — Population Similarity Comparison</h2>
+              <p class="text-xs text-secondary mt-0.5">Mann-Whitney U Test · Null-Distribution Analysis</p>
+            </div>
+            <button id="runGroupComparisonBtn" class="px-space-lg py-space-sm rounded-full bg-primary-container hover:brightness-105 text-on-primary-fixed font-label-md text-label-md transition-all duration-300 shadow-md hover:-translate-y-0.5 active:scale-95 flex items-center gap-2 font-bold cursor-pointer self-start sm:self-auto">
+              <span class="material-symbols-outlined text-[18px]">query_stats</span>
+              <span>Run Group Comparison</span>
+            </button>
+          </div>
+
+          <!-- Stat chips in a row -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-space-sm">
+            <div class="bg-white/60 backdrop-blur-md rounded-2xl p-space-md border border-white/80 flex flex-col shadow-sm">
+              <span class="font-label-sm text-[10px] uppercase tracking-wider text-secondary font-bold">Human Median Similarity</span>
+              <span id="statHumanMedian" class="font-stat-md text-stat-md text-on-surface font-mono font-bold mt-1">—</span>
+            </div>
+            <div class="bg-white/60 backdrop-blur-md rounded-2xl p-space-md border border-white/80 flex flex-col shadow-sm">
+              <span class="font-label-sm text-[10px] uppercase tracking-wider text-secondary font-bold">AI Median Similarity</span>
+              <span id="statAiMedian" class="font-stat-md text-stat-md text-on-surface font-mono font-bold mt-1">—</span>
+            </div>
+            <div class="bg-white/60 backdrop-blur-md rounded-2xl p-space-md border border-white/80 flex flex-col shadow-sm">
+              <span class="font-label-sm text-[10px] uppercase tracking-wider text-secondary font-bold">Mann-Whitney p-value</span>
+              <span id="statMannWhitney" class="font-stat-md text-stat-md text-on-surface font-mono font-bold mt-1">—</span>
+            </div>
+          </div>
+
+          <!-- Chart.js canvas -->
+          <div class="w-full bg-white/40 backdrop-blur-md rounded-2xl p-4 border border-white/70" style="min-height: 300px;">
+            <canvas id="groupComparisonChart" width="100%" height="300" style="max-height: 300px; width: 100%;"></canvas>
+          </div>
+        </section>
 
       </div>
     </div>

@@ -103,6 +103,13 @@ class CandidateScore(BaseModel):
     best_shift: int
     p_value: Optional[float] = None
     is_top_match: bool = False
+    ai_generated: Optional[bool] = None
+    ai_confidence: Optional[float] = None
+    genre: Optional[str] = None
+    key: Optional[str] = None
+    tempo_bpm: Optional[float] = None
+    segments: Optional[List[Dict]] = None
+    duration: Optional[float] = None
 
 
 class CandidateRankResponse(BaseModel):
