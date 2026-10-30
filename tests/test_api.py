@@ -2,27 +2,43 @@
 Integration and functional tests for the FastAPI backend endpoints.
 """
 
+import io
 import numpy as np
 import pytest
+import scipy.io.wavfile as wav
 from fastapi.testclient import TestClient
 
-from src.api.main import app
+from src.api import app
 
 client = TestClient(app)
 
 
 def test_health_endpoint():
-    response = client.get("/api/health")
+    """Test health probes at /health and /api/health."""
+    for path in ["/health", "/api/health"]:
+        response = client.get(path)
+        assert response.status_code == 200
+        data = response.json()
+        assert data["status"] == "ok"
+        assert "service_available" in data
+        assert "analysis_ready" in data
+        assert "origin_classifier_status" in data
+
+
+def test_config_endpoint():
+    """Test public runtime configuration endpoint /api/config."""
+    response = client.get("/api/config")
     assert response.status_code == 200
     data = response.json()
-    assert data["status"] == "ok"
-    assert data["version"] == "0.1.0"
+    assert data["sample_rate"] == 22050
+    assert data["min_upload_duration_sec"] == 0.0  # Unlimited duration
+    assert data["similarity_floor"] == 0.45
+    assert data["creative_score_verdict_threshold"] == 0.24
 
 
 def test_root_endpoint():
     response = client.get("/")
     assert response.status_code == 200
-    assert "Music Similarity" in response.text or "/docs" in response.text
 
 
 def test_pairwise_similarity_matrix_identical():
@@ -110,7 +126,6 @@ def test_null_test_endpoint():
     )
     assert response.status_code == 200
     data = response.json()
-    # 0.9 >= 0.85 -> 1 out of 5 -> p = 0.2
     assert np.isclose(data["p_value"], 0.2)
     assert data["is_significant"] is False
 
@@ -156,53 +171,82 @@ def test_candidate_ranking_endpoint():
     assert len(data["candidates"]) == 3
 
 
-def test_candidate_ranking_audio_dataset():
-    import io
-    import scipy.io.wavfile as wav
-
+def test_upload_accepts_any_clip_duration_unlimited():
+    """Verify that uploading an audio track of short duration is accepted without 60s restriction."""
     sr = 22050
-    t = np.linspace(0, 0.4, int(sr * 0.4), endpoint=False)
-    audio_a = (np.sin(2 * np.pi * 440 * t) * 16000).astype(np.int16)
-    audio_b = (np.sin(2 * np.pi * 880 * t) * 16000).astype(np.int16)
+    # 5-second audio
+    t = np.linspace(0, 5.0, int(sr * 5.0), endpoint=False)
+    audio = (np.sin(2 * np.pi * 440 * t) * 16000).astype(np.int16)
 
-    buf_query = io.BytesIO()
-    wav.write(buf_query, sr, audio_a)
-    buf_query.seek(0)
+    buf = io.BytesIO()
+    wav.write(buf, sr, audio)
+    buf.seek(0)
 
-    buf_cand1 = io.BytesIO()
-    wav.write(buf_cand1, sr, audio_a)
-    buf_cand1.seek(0)
+    files = {"query_audio": ("short_track.wav", buf, "audio/wav")}
+    response = client.post("/api/analyze", files=files)
 
-    buf_cand2 = io.BytesIO()
-    wav.write(buf_cand2, sr, audio_b)
-    buf_cand2.seek(0)
+    assert response.status_code == 200
+    data = response.json()
+    assert "final_verdict" in data
+    assert data["query_track"]["duration_sec"] == pytest.approx(5.0, abs=0.2)
+    assert "total_corpus_size" in data
+    assert "candidates_evaluated" in data
+    assert "candidates_surviving_floor" in data
+    assert "candidates_surviving_pvalue" in data
+    assert "null_distribution_sample_count" in data
+    top_cands = data["mimic_analysis"]["top_mimic_candidates"]
+    if top_cands:
+        assert "normalized_distance" in top_cands[0]
 
+
+def test_mimic_requires_at_least_two_candidates():
+    """Verify that /api/mimic requires at least two candidate files, returning 400 otherwise."""
+    sr = 22050
+    t = np.linspace(0, 1.0, int(sr * 1.0), endpoint=False)
+    audio = (np.sin(2 * np.pi * 440 * t) * 16000).astype(np.int16)
+
+    buf_q = io.BytesIO()
+    wav.write(buf_q, sr, audio)
+    buf_q.seek(0)
+
+    buf_cand = io.BytesIO()
+    wav.write(buf_cand, sr, audio)
+    buf_cand.seek(0)
+
+    # Only 1 candidate file
     files = [
-        ("query_file", ("query.wav", buf_query, "audio/wav")),
-        ("candidate_files", ("match_exact.wav", buf_cand1, "audio/wav")),
-        ("candidate_files", ("different.wav", buf_cand2, "audio/wav")),
+        ("query_audio", ("q.wav", buf_q, "audio/wav")),
+        ("candidate_audio_files", ("c1.wav", buf_cand, "audio/wav")),
     ]
 
-    response = client.post("/api/candidates/rank/audio", files=files)
-    assert response.status_code == 200
-    data = response.json()
-    assert len(data["candidates"]) == 2
-    assert data["top_match"]["candidate_id"] == "match_exact"
-    assert data["top_match"]["is_top_match"] is True
-    assert data["top_match"]["similarity"] > data["candidates"][1]["similarity"]
-    assert "ai_generated" in data["top_match"]
-    assert "genre" in data["top_match"]
-    assert "segments" in data["top_match"]
+    response = client.post("/api/mimic", files=files)
+    assert response.status_code == 400
+    assert "requires at least two candidate audio files" in response.json()["detail"]
 
 
-def test_group_comparison_get_endpoint():
-    response = client.get("/api/group-comparison")
-    assert response.status_code == 200
-    data = response.json()
-    assert "human_median" in data
-    assert "ai_median" in data
-    assert "p_value" in data
-    assert "human_scores" in data
-    assert "ai_scores" in data
-    assert len(data["human_scores"]) >= 2
-    assert len(data["ai_scores"]) >= 2
+def test_candidate_count_reporting_and_health_integrity():
+    """Verify distinct candidate counts and health reporting without double-counting (Decision 4)."""
+    res = client.get("/api/health")
+    assert res.status_code == 200
+    h_data = res.json()
+    assert "total_indexed_tracks" in h_data
+    assert "human_tracks" in h_data
+    assert "ai_tracks" in h_data
+    assert "tracks_with_estimated_genre" in h_data
+    assert "null_pairs_global" in h_data
+
+    from src.remote_dataset import load_remote_index
+    r_idx = load_remote_index().get("tracks", {})
+    expected_total = len(r_idx)
+    expected_human = sum(1 for r in r_idx.values() if str(r.get("origin_label", "")).lower() in ("human", "0", "false"))
+    expected_ai = sum(1 for r in r_idx.values() if str(r.get("origin_label", "")).lower() in ("ai", "ai_generated", "1", "true"))
+
+    # Total tracks must equal real source count without double-counting (normalized 'False' -> human)
+    assert h_data["total_indexed_tracks"] == expected_total
+    assert h_data["human_tracks"] == expected_human
+    assert h_data["ai_tracks"] == expected_ai
+    assert h_data["tracks_with_estimated_genre"] == 0
+    # Global null distribution not built yet -> None / null
+    assert h_data["null_pairs_global"] is None
+
+

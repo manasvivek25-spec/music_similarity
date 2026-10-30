@@ -1,0 +1,5 @@
+track_id,file_path,title,artist,genre,source_type,origin_label,key,tempo
+human_track_001,data/human_songs/human_track_001.wav,Midnight Sonata,Classical Ensemble,Classical,acoustic,Human,C Minor,120.0
+human_track_002,data/human_songs/human_track_002.wav,Autumn Breeze,Jazz Trio,Jazz,acoustic,Human,Bb Major,95.5
+ai_track_001,data/ai_generated/ai_track_001.wav,Synthetic Dawn,Neural Synth,Electronic,generative,AI,A Minor,128.0
+ref_track_001,data/reference_pool/ref_track_001.wav,Ocean Waves,Ambient Project,Ambient,field_recording,Human,D Major,72.0

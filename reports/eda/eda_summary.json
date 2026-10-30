@@ -1,0 +1,25 @@
+{
+  "total_indexed_tracks": 3,
+  "human_tracks": 3,
+  "ai_tracks": 0,
+  "unknown_origin_tracks": 0,
+  "verified_genre_tracks": 0,
+  "estimated_genre_tracks": 0,
+  "unknown_genre_tracks": 3,
+  "duration_mean_sec": 1453.55,
+  "duration_median_sec": 1984.19,
+  "duration_min_sec": 392.26,
+  "duration_max_sec": 1984.19,
+  "failed_or_unresolved_count": 0,
+  "missing_artist_count": 3,
+  "unique_artists_count": 0,
+  "duplicate_records_detected": 0,
+  "generated_at": "2026-10-30 18:39:22 UTC",
+  "plots_generated": [
+    "origin_distribution.png",
+    "duration_distribution.png",
+    "chroma_feature_distributions.png",
+    "pca_projection.png"
+  ],
+  "limitations": "PCA and UMAP projections are descriptive tools for visual data exploration only, not empirical proof of musical similarity, melodic copying, or plagiarism."
+}

@@ -1,0 +1,10 @@
+field,data_type,required,description,example
+track_id,string,yes,Unique identifier for the audio file (alphanumeric or stem),human_track_001
+file_path,string,yes,Audio path relative to repository root (must be forward-slash or standard Windows path),data/human_songs/human_track_001.wav
+title,string,no,Official song title or composition name,Midnight Sonata
+artist,string,no,Performing artist or composer (used for Feature 6 same-artist check),Classical Ensemble
+genre,string,no,Musical genre label (used for Stage 3 Influence Map and genre-specific null tests),Classical
+source_type,string,no,Compositional mechanism: acoustic / electronic / generative / field_recording,acoustic
+origin_label,string,no,Ground-truth origin label: Human / AI (used for training Feature 4 classifier),Human
+key,string,no,Ground-truth musical key if known (e.g. C Major or A Minor),C Minor
+tempo,float,no,Ground-truth tempo in beats per minute (BPM),120.0

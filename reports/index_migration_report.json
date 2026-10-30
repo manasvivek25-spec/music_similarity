@@ -1,0 +1,12 @@
+{
+  "total_records": 3,
+  "existing_human_count": 3,
+  "existing_ai_count": 0,
+  "existing_unknown_count": 0,
+  "corrected_human_count": 3,
+  "corrected_ai_count": 0,
+  "corrected_unknown_count": 0,
+  "contradictory_records": [],
+  "backup_file_path": "C:\\Users\\len\\music_similarity\\music_similarity\\features\\remote_index.migration_backup.json",
+  "migration_timestamp": "2026-10-30T18:15:40Z"
+}
