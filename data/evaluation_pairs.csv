@@ -1,0 +1,12 @@
+query_track_id,reference_track_id,ground_truth_label,category,notes
+track_query_orig,track_ref_identical,1,identical,Identical acoustic content
+track_query_orig,track_ref_pitch_shift_1,1,pitch_shifted,One semitone transposed variation
+track_query_orig,track_ref_pitch_shift_6,1,pitch_shifted,Tritone (6 semitones) transposed variation
+track_query_orig,track_ref_tempo_09,1,tempo_altered,Tempo slowed by 10% (0.9x)
+track_query_orig,track_ref_tempo_12,1,tempo_altered,Tempo accelerated by 20% (1.2x)
+track_query_orig,track_ref_noisy_20db,1,noisy,Additive Gaussian noise with 20dB SNR
+track_query_orig,track_ref_unrelated_1,0,unrelated,Independent musical composition
+track_query_orig,track_ref_unrelated_2,0,unrelated,Independent harmonic structure
+track_query_orig,track_ref_unrelated_3,0,unrelated,Different genre and key composition
+track_query_orig,track_ref_unrelated_4,0,unrelated,Uncorrelated acoustic signal
+

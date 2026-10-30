@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>Statistical Analysis of Audio Similarity in Human- and AI-Generated Music</title>
+  
+  <!-- Modern Typography & Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet"/>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "background": "#0f1113",
+            "surface": "#191c1d",
+            "surface-container": "#202325",
+            "surface-container-high": "#2a2d30",
+            "primary": "#d4ff00",
+            "primary-container": "#d4ff00",
+            "on-primary": "#171e00",
+            "on-primary-fixed": "#171e00",
+            "secondary": "#9ba1a6",
+            "on-surface": "#f0f1f2",
+            "error": "#ff5449",
+            "error-container": "#93000a",
+          },
+          fontFamily: {
+            "stat-md": ["Plus Jakarta Sans", "sans-serif"],
+            "stat-lg": ["Plus Jakarta Sans", "sans-serif"],
+            "headline-lg": ["Plus Jakarta Sans", "sans-serif"],
+            "headline-md": ["Plus Jakarta Sans", "sans-serif"],
+            "body-md": ["Inter", "sans-serif"],
+            "body-sm": ["Inter", "sans-serif"],
+            "mono": ["JetBrains Mono", "monospace"]
+          }
+        }
+      }
+    };
+  </script>
+  <link rel="stylesheet" href="/styles.css"/>
+  <link rel="stylesheet" href="/style.css"/>
+  <!-- Chart.js CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+</head>
+<body class="bg-[#0f1113] text-[#f0f1f2] font-body-md antialiased selection:bg-[#d4ff00] selection:text-black min-h-screen relative overflow-x-hidden">
+
+  <!-- Interactive WebGL Space-Time Warping Shader Background -->
+  <div class="fixed inset-0 w-full h-full pointer-events-none -z-10 webgl-fallback">
+    <canvas id="webgl-background"></canvas>
+    <script>
+      (function() {
+        const canvas = document.getElementById('webgl-background');
+        if (!canvas) return;
+        function syncSize() {
+          const w = window.innerWidth || 1280;
+          const h = window.innerHeight || 720;
+          if (canvas.width !== w || canvas.height !== h) {
+            canvas.width  = w;
+            canvas.height = h;
+          }
+        }
+        window.addEventListener('resize', syncSize);
+        syncSize();
+
+        const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+        if (!gl) return;
+        const vs = `attribute vec2 a_position;
+varying vec2 v_texCoord;
+void main() {
+  v_texCoord = a_position * 0.5 + 0.5;
+  gl_Position = vec4(a_position, 0.0, 1.0);
+}`;
+        const fs = `precision highp float;
+uniform vec2 u_resolution;
+uniform vec2 u_mouse;
+uniform float u_time;
+varying vec2 v_texCoord;
+
+void main() {
+    vec2 st = gl_FragCoord.xy / u_resolution.xy;
+    vec2 uv = (gl_FragCoord.xy - 0.5 * u_resolution.xy) / min(u_resolution.x, u_resolution.y);
+    vec2 mouse = (u_mouse - 0.5 * u_resolution.xy) / min(u_resolution.x, u_resolution.y);
+    if (length(u_mouse) < 1.0) {
+        mouse = vec2(sin(u_time * 0.35) * 0.22, cos(u_time * 0.3) * 0.15);
+    }
+    vec2 toMouse = uv - mouse;
+    float dist = length(toMouse);
+    float falloff = smoothstep(0.12, 0.0, dist);
+    vec2 warpedUV = uv - normalize(toMouse + 0.00001) * 0.015 * falloff;
+    vec2 gridPos = warpedUV * 8.0;
+    vec2 gridFract = abs(fract(gridPos - 0.5) - 0.5);
+    vec2 gridAA = smoothstep(vec2(0.015), vec2(0.0), gridFract);
+    float gridLine = max(gridAA.x, gridAA.y);
+    
+    vec3 darkBg = vec3(0.06, 0.07, 0.08);
+    vec3 neonAccent = vec3(0.83, 1.0, 0.0) * falloff * 0.35;
+    vec3 gridColor = vec3(0.16, 0.18, 0.22) + neonAccent;
+    vec3 color = mix(darkBg, gridColor, gridLine * 0.7);
+    gl_FragColor = vec4(color, 0.85);
+}`;
+        function cs(type, src) {
+          const s = gl.createShader(type);
+          gl.shaderSource(s, src);
+          gl.compileShader(s);
+          return s;
+        }
+        const prog = gl.createProgram();
+        gl.attachShader(prog, cs(gl.VERTEX_SHADER, vs));
+        gl.attachShader(prog, cs(gl.FRAGMENT_SHADER, fs));
+        gl.linkProgram(prog);
+        gl.useProgram(prog);
+        const buf = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+        const pos = gl.getAttribLocation(prog, 'a_position');
+        gl.enableVertexAttribArray(pos);
+        gl.vertexAttribPointer(pos, 2, gl.FLOAT, false, 0, 0);
+        const uTime = gl.getUniformLocation(prog, 'u_time');
+        const uRes = gl.getUniformLocation(prog, 'u_resolution');
+        const uMouse = gl.getUniformLocation(prog, 'u_mouse');
+
+        let mouse = { x: canvas.width / 2, y: canvas.height / 2 };
+        window.addEventListener('mousemove', (event) => {
+          mouse.x = event.clientX;
+          mouse.y = canvas.height - event.clientY;
+        });
+
+        function render(t) {
+          gl.viewport(0, 0, canvas.width, canvas.height);
+          if (uTime) gl.uniform1f(uTime, t * 0.001);
+          if (uRes) gl.uniform2f(uRes, canvas.width, canvas.height);
+          if (uMouse) gl.uniform2f(uMouse, mouse.x, mouse.y);
+          gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+          requestAnimationFrame(render);
+        }
+        render(0);
+      })();
+    </script>
+  </div>
+
+  <!-- Top Navigation Header -->
+  <header class="fixed top-0 w-full z-50 bg-[#14171a]/80 backdrop-blur-xl border-b border-white/10 shadow-lg">
+    <div class="h-20 w-full px-6 md:px-12 flex items-center justify-between gap-4 max-w-[1600px] mx-auto">
+      <div class="flex items-center gap-6">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-[#d4ff00] to-[#a3cc00] flex items-center justify-center text-black font-bold shadow-[0_0_15px_rgba(212,255,0,0.4)]">
+            <span class="material-symbols-outlined text-[24px]">graphic_eq</span>
+          </div>
+          <div class="flex flex-col">
+            <span class="font-headline-md text-lg text-white font-bold leading-tight">Music Similarity</span>
+            <span class="font-mono text-[10px] text-[#9ba1a6] uppercase tracking-widest">Research &amp; Diagnostics Platform</span>
+          </div>
+        </div>
+        <nav class="hidden md:flex items-center gap-2 bg-white/5 border border-white/10 p-1.5 rounded-full text-xs">
+          <a class="px-3 py-1 bg-white/15 rounded-full text-white font-medium" href="#">Dashboard</a>
+          <a class="px-3 py-1 hover:text-white text-[#9ba1a6] transition-colors" href="/docs" target="_blank">FastAPI Docs</a>
+          <a class="px-3 py-1 hover:text-white text-[#9ba1a6] transition-colors" href="/api/reports/download?report_type=evaluation" target="_blank">Evaluation Report</a>
+          <a class="px-3 py-1 hover:text-white text-[#9ba1a6] transition-colors" href="/api/reports/download?report_type=eda" target="_blank">EDA Report</a>
+          <a class="px-3 py-1 hover:text-white text-[#9ba1a6] transition-colors" href="#dataset-section">Datasets</a>
+        </nav>
+      </div>
+
+      <!-- Right System Health Badges -->
+      <div class="flex items-center gap-3">
+        <div class="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs text-[#9ba1a6]">
+          <span id="backendStatusDot" class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span id="backendStatusText">Connecting...</span>
+        </div>
+        <div id="classifierStatusBadge" class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-mono text-[#d4ff00]">
+          <span class="material-symbols-outlined text-[16px]">psychology</span>
+          <span id="classifierStatusText">Classifier: Checking</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="w-full pt-28 pb-20 px-6 md:px-12 max-w-[1600px] mx-auto space-y-8">
+
+    <!-- Hero Title & Mode Toggle -->
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+      <div>
+        <div class="flex items-center gap-2 text-xs font-mono text-[#d4ff00] mb-1">
+          <span class="w-2 h-2 rounded-full bg-[#d4ff00]"></span>
+          <span>IDSE RESEARCH PROJECT · V1.0 COMPLETE</span>
+        </div>
+        <h1 class="font-headline-lg text-3xl md:text-4xl font-extrabold text-white tracking-tight">
+          Statistical Analysis of Audio Similarity
+        </h1>
+        <p class="text-sm text-[#9ba1a6] mt-1">
+          Harmonic pitch space alignment, empirical null distributions, and creative novelty diagnostics.
+        </p>
+      </div>
+      <div class="flex items-center gap-3">
+        <!-- Connected Hugging Face Dataset Badge -->
+        <div class="px-3.5 py-1.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-xs font-mono text-emerald-400 font-bold flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span>Live Dataset: SleepyJesse/ai_music_large</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 1: Audio Analysis Intake & Control Panel -->
+    <section class="glass-card rounded-2xl p-6 border border-white/10 shadow-xl space-y-4">
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-white/10 pb-4">
+        <div>
+          <h2 class="font-headline-md text-lg text-white font-bold flex items-center gap-2">
+            <span class="material-symbols-outlined text-[#d4ff00]">upload_file</span>
+            Query Audio Track Input
+          </h2>
+          <p class="text-xs text-[#9ba1a6]">
+            Upload an audio file (.wav, .mp3, .flac) to execute the complete statistical similarity pipeline against SleepyJesse/ai_music_large.
+          </p>
+        </div>
+        <div class="flex items-center gap-2 text-xs font-mono text-emerald-400 bg-emerald-400/10 px-3 py-1.5 rounded-lg border border-emerald-400/20">
+          <span class="material-symbols-outlined text-[16px]">all_inclusive</span>
+          <span>Unlimited Audio Duration · Any length clip accepted</span>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <!-- Audio File Input -->
+        <div class="md:col-span-2 border-2 border-dashed border-white/20 hover:border-[#d4ff00] transition-colors rounded-xl p-4 flex flex-col justify-center items-center text-center bg-white/5 cursor-pointer relative group">
+          <input type="file" id="mainQueryFileInput" accept="audio/*" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10"/>
+          <span class="material-symbols-outlined text-3xl text-[#d4ff00] group-hover:scale-110 transition-transform">audio_file</span>
+          <span class="text-xs font-semibold text-white mt-1" id="mainQueryFileLabel">Select or Drag Query Audio File</span>
+          <span class="text-[11px] text-[#9ba1a6] mt-0.5">WAV, MP3, FLAC, OGG, M4A · Unlimited Duration</span>
+        </div>
+
+        <!-- Metadata Form Inputs -->
+        <div class="space-y-2">
+          <div>
+            <label class="text-[11px] font-mono uppercase tracking-wider text-[#9ba1a6] block mb-1">Track Title</label>
+            <input type="text" id="queryTitleInput" placeholder="e.g. Synthetic Horizons" class="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-[#d4ff00] font-mono"/>
+          </div>
+          <div>
+            <label class="text-[11px] font-mono uppercase tracking-wider text-[#9ba1a6] block mb-1">Artist / Composer</label>
+            <input type="text" id="queryArtistInput" placeholder="e.g. Studio Ensemble" class="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-[#d4ff00] font-mono"/>
+          </div>
+        </div>
+
+        <div class="space-y-2 flex flex-col justify-between">
+          <div>
+            <label class="text-[11px] font-mono uppercase tracking-wider text-[#9ba1a6] block mb-1">Declared Genre</label>
+            <input type="text" id="queryGenreInput" placeholder="e.g. Classical / Electronic" class="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-[#d4ff00] font-mono"/>
+          </div>
+          <button id="runFullAnalysisBtn" class="w-full py-2.5 px-4 rounded-xl bg-[#d4ff00] text-black font-bold text-xs flex items-center justify-center gap-2 hover:brightness-110 transition-all shadow-md active:scale-95 cursor-pointer">
+            <span class="material-symbols-outlined text-[18px]" id="runAnalysisBtnIcon">play_circle</span>
+            <span id="runAnalysisBtnText">Execute Pipeline Analysis</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Analysis Status Feedback Line -->
+      <div id="pipelineStatusFeedback" class="text-xs font-mono min-h-[20px] text-center text-[#9ba1a6] pt-1"></div>
+
+      <!-- Real 13-Stage Analysis Live Progress Container -->
+      <div id="liveProgressContainer" class="hidden mt-4 p-4 rounded-xl bg-white/5 border border-white/10 space-y-3 font-mono">
+        <div class="flex items-center justify-between text-xs">
+          <div class="flex items-center gap-2">
+            <span id="liveProgressSpinner" class="material-symbols-outlined text-base text-[#d4ff00] animate-spin">progress_activity</span>
+            <span id="liveProgressStageName" class="text-white font-bold">Stage 1/13: Audio Decoding</span>
+          </div>
+          <span id="liveProgressPercent" class="text-[#d4ff00] font-black text-sm">0.0%</span>
+        </div>
+
+        <!-- Progress Bar Track -->
+        <div class="w-full bg-white/10 rounded-full h-2.5 overflow-hidden">
+          <div id="liveProgressBar" class="h-full bg-gradient-to-r from-[#d4ff00] to-emerald-400 rounded-full transition-all duration-300 shadow-[0_0_12px_rgba(212,255,0,0.5)]" style="width: 0%"></div>
+        </div>
+
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-[11px] text-[#9ba1a6]">
+          <span id="liveProgressMessage" class="truncate">Initializing pipeline execution...</span>
+          <span id="liveProgressCounts" class="flex-shrink-0 text-[#d4ff00]">0 / 0 items</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Corpus Coverage & Candidate Accounting Breakdown -->
+    <div id="corpusCoverageContainer" class="hidden glass-card rounded-2xl p-4 border border-white/10 font-mono text-xs space-y-3">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/10 pb-3">
+        <div class="flex items-center gap-2">
+          <span id="corpusStatusBadge" class="px-2.5 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-white/10 text-white">
+            Corpus Status: Checking...
+          </span>
+          <span id="corpusSummaryText" class="text-white font-medium">Dataset Coverage Accounting</span>
+        </div>
+        <div class="text-[11px] text-[#9ba1a6]" id="corpusCoverageNote">
+          Dataset: SleepyJesse/ai_music_large
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 text-[11px]">
+        <div class="bg-white/5 p-2.5 rounded-lg border border-white/10">
+          <span class="text-[#9ba1a6] block text-[10px] uppercase">Total Corpus</span>
+          <span id="accTotalCorpus" class="text-white font-bold text-sm block mt-0.5">0</span>
+          <span class="text-[9px] text-[#9ba1a6]">Indexed tracks</span>
+        </div>
+        <div class="bg-white/5 p-2.5 rounded-lg border border-white/10">
+          <span class="text-[#9ba1a6] block text-[10px] uppercase">Prefilter Checked</span>
+          <span id="accPrefilterChecked" class="text-white font-bold text-sm block mt-0.5">0</span>
+          <span class="text-[9px] text-cyan-400">100% evaluated</span>
+        </div>
+        <div class="bg-white/5 p-2.5 rounded-lg border border-white/10">
+          <span class="text-[#9ba1a6] block text-[10px] uppercase">Prefilter Retained</span>
+          <span id="accPrefilterRetained" class="text-emerald-400 font-bold text-sm block mt-0.5">0</span>
+          <span class="text-[9px] text-[#9ba1a6]">≥ 0.30 Cosine</span>
+        </div>
+        <div class="bg-white/5 p-2.5 rounded-lg border border-white/10">
+          <span class="text-[#9ba1a6] block text-[10px] uppercase">Prefilter Discarded</span>
+          <span id="accPrefilterDiscarded" class="text-[#9ba1a6] font-bold text-sm block mt-0.5">0</span>
+          <span class="text-[9px] text-[#9ba1a6]">&lt; 0.30 Cosine</span>
+        </div>
+        <div class="bg-white/5 p-2.5 rounded-lg border border-white/10">
+          <span class="text-[#9ba1a6] block text-[10px] uppercase">DTW Evaluated</span>
+          <span id="accDtwEvaluated" class="text-[#d4ff00] font-bold text-sm block mt-0.5">0</span>
+          <span class="text-[9px] text-[#9ba1a6]">12-shift alignment</span>
+        </div>
+        <div class="bg-white/5 p-2.5 rounded-lg border border-white/10">
+          <span class="text-[#9ba1a6] block text-[10px] uppercase">Load Failures</span>
+          <span id="accLoadFailures" class="text-white font-bold text-sm block mt-0.5">0</span>
+          <span id="accLoadFailuresSub" class="text-[9px] text-[#9ba1a6]">Zero missing</span>
+        </div>
+      </div>
+
+      <div id="corpusFailureWarning" class="hidden px-3 py-2 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs">
+        <span class="font-bold">⚠️ Warning:</span> <span id="corpusFailureDetails">Some candidate feature files could not be loaded and were accounted for.</span>
+      </div>
+    </div>
+
+    <!-- SECTION 2: OVERALL RESEARCH VERDICT BANNER -->
+    <section id="verdictBannerSection" class="glass-card rounded-2xl p-6 border-2 border-white/10 shadow-2xl relative overflow-hidden transition-all duration-500">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2">
+            <span id="verdictCodeBadge" class="px-3 py-1 rounded-full text-xs font-mono font-bold uppercase tracking-wider bg-white/10 text-white">
+              Status: Ready
+            </span>
+            <span id="caseRoutingBadge" class="px-3 py-1 rounded-full text-xs font-mono font-semibold bg-white/5 text-[#9ba1a6] border border-white/10">
+              Case Routing: Pending Analysis
+            </span>
+          </div>
+          <h2 id="verdictLabelText" class="font-headline-md text-xl md:text-2xl font-extrabold text-white">
+            Awaiting Pipeline Analysis Run
+          </h2>
+          <p id="verdictExplanationText" class="text-xs text-[#9ba1a6] max-w-3xl leading-relaxed">
+            Upload an audio track above or trigger Demo Mode to evaluate the three primary analytical indicators (DTW Similarity, Empirical P-Value, and Normalized Creative Score).
+          </p>
+          <div id="verdictConfidenceNotice" class="hidden mt-3 px-3.5 py-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-mono flex items-start gap-2">
+            <span class="text-sm">⚠️</span>
+            <span id="verdictConfidenceText">Low Statistical Confidence: Sample size is insufficient for reliable population-level conclusions.</span>
+          </div>
+        </div>
+
+        <!-- 3 Indicators Checklist Badges -->
+        <div class="flex flex-col gap-1.5 self-start md:self-auto min-w-[280px]">
+          <div class="text-[11px] font-mono uppercase tracking-wider text-[#9ba1a6] mb-0.5">3-Indicator Gate</div>
+          <div id="indSimBadge" class="flex items-center justify-between px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-xs font-mono">
+            <span>1. Similarity ≥ 0.85</span>
+            <span class="text-[#9ba1a6]">—</span>
+          </div>
+          <div id="indPvalBadge" class="flex items-center justify-between px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-xs font-mono">
+            <span>2. Empirical p ≤ 0.01</span>
+            <span class="text-[#9ba1a6]">—</span>
+          </div>
+          <div id="indCreatBadge" class="flex items-center justify-between px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-xs font-mono">
+            <span>3. Creative Score ≤ 0.24</span>
+            <span class="text-[#9ba1a6]">—</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 3: TOP 4 ANALYTICAL PILLARS (FEATURES 1, 2, 3, 4) -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      
+      <!-- Card 1: Feature 1 Audio Similarity -->
+      <div class="glass-card rounded-2xl p-6 border border-white/10 flex flex-col justify-between min-h-[220px] transition-all hover:-translate-y-1">
+        <div class="flex items-start justify-between">
+          <span class="text-xs font-mono uppercase tracking-wider text-[#9ba1a6]">1. Similarity Engine</span>
+          <span id="card1ShiftBadge" class="px-2 py-0.5 rounded text-[10px] font-mono bg-white/10 text-[#d4ff00]">12-Shift DTW</span>
+        </div>
+        <div>
+          <div class="flex items-baseline gap-2">
+            <span id="card1SimScore" class="font-stat-lg text-4xl font-black text-white">0.000</span>
+            <span class="font-mono text-xs text-[#9ba1a6]">/ 1.0</span>
+          </div>
+          <div id="card1TierLabel" class="text-xs font-semibold text-[#d4ff00] mt-1">Negligible</div>
+          <p class="text-[11px] text-[#9ba1a6] mt-2">Beat-synchronized 12-bin Chroma CQT with ±1 shift boundary verification.</p>
+        </div>
+        <div class="pt-3 border-t border-white/10 flex items-center justify-between text-[11px] font-mono text-[#9ba1a6]">
+          <span id="card1DistLabel">Norm Dist: —</span>
+          <span id="card1FilterLabel">Prefilter: Active</span>
+        </div>
+      </div>
+
+      <!-- Card 2: Feature 2 Statistical Gateway -->
+      <div class="glass-card rounded-2xl p-6 border border-white/10 flex flex-col justify-between min-h-[220px] transition-all hover:-translate-y-1">
+        <div class="flex items-start justify-between">
+          <span class="text-xs font-mono uppercase tracking-wider text-[#9ba1a6]">2. Statistical Gateway</span>
+          <span id="card2ConfidenceBadge" class="px-2 py-0.5 rounded text-[10px] font-mono bg-white/10 text-white">Conf: —</span>
+        </div>
+        <div>
+          <div class="flex items-baseline justify-between">
+            <span id="card2Pval" class="font-stat-lg text-4xl font-black text-white">—</span>
+            <span id="card2AdjPval" class="text-[10px] font-mono text-cyan-300">FDR q: —</span>
+          </div>
+          <div id="card2SeverityLabel" class="text-xs font-semibold text-[#9ba1a6] mt-1">Awaiting Data</div>
+          <p class="text-[11px] text-[#9ba1a6] mt-2">Empirical p-value computed against reference pool null distribution.</p>
+        </div>
+        <div class="pt-3 border-t border-white/10 flex items-center justify-between text-[11px] font-mono text-[#9ba1a6]">
+          <span id="card2SampleCount">Null Pairs: —</span>
+          <span id="card2FallbackSource">Source: —</span>
+        </div>
+      </div>
+
+      <!-- Card 3: Feature 3 Creative Novelty -->
+      <div class="glass-card rounded-2xl p-6 border border-white/10 flex flex-col justify-between min-h-[220px] transition-all hover:-translate-y-1">
+        <div class="flex items-start justify-between">
+          <span class="text-xs font-mono uppercase tracking-wider text-[#9ba1a6]">3. Creative Novelty</span>
+          <span id="card3TierBadge" class="px-2 py-0.5 rounded text-[10px] font-mono bg-white/10 text-white">Score Tier</span>
+        </div>
+        <div>
+          <div class="flex items-baseline gap-2">
+            <span id="card3BroadScore" class="font-stat-lg text-4xl font-black text-white">—</span>
+            <span class="font-mono text-xs text-[#9ba1a6]">%</span>
+          </div>
+          <div id="card3NoveltyTier" class="text-xs font-semibold text-[#9ba1a6] mt-1">Unavailable</div>
+          <p class="text-[11px] text-[#9ba1a6] mt-2">Z-score relative to genre population distribution (1 - CDF(z)).</p>
+        </div>
+        <div class="pt-3 border-t border-white/10 flex items-center justify-between text-[11px] font-mono text-[#9ba1a6]">
+          <span id="card3NarrowScore">Narrow: —</span>
+          <span id="card3NormScore">Norm: —</span>
+        </div>
+      </div>
+
+      <!-- Card 4: Feature 4 Origin Classifier -->
+      <div class="glass-card rounded-2xl p-6 border border-white/10 flex flex-col justify-between min-h-[220px] transition-all hover:-translate-y-1">
+        <div class="flex items-start justify-between">
+          <span class="text-xs font-mono uppercase tracking-wider text-[#9ba1a6]">4. Origin Classifier</span>
+          <span id="card4StatusTag" class="px-2 py-0.5 rounded text-[10px] font-mono bg-white/10 text-white">Status</span>
+        </div>
+        <div>
+          <div class="flex items-baseline gap-2">
+            <span id="card4PredictedOrigin" class="font-stat-lg text-4xl font-black text-white">Unconfigured</span>
+          </div>
+          <div id="card4ConfidenceLabel" class="text-xs font-semibold text-[#9ba1a6] mt-1">Independent Model</div>
+          <p class="text-[11px] text-[#9ba1a6] mt-2">Decoupled 56-feature acoustic classifier (MFCCs &amp; spectral profiles).</p>
+        </div>
+        <div class="pt-3 border-t border-white/10 flex items-center justify-between text-[11px] font-mono text-[#9ba1a6]">
+          <span id="card4ProbAi">AI Prob: —</span>
+          <span id="card4Version">v1.0.0</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- SECTION 4: STAGE 3 GENRE INFLUENCE MAP & METADATA CONTEXT -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      
+      <!-- Stage 3 Genre Influence Map (Cols 1-7) -->
+      <section class="lg:col-span-7 glass-card rounded-2xl p-6 border border-white/10 shadow-lg space-y-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="font-headline-md text-base text-white font-bold flex items-center gap-2">
+              <span class="material-symbols-outlined text-[#d4ff00]">pie_chart</span>
+              Stage 3: Genre Influence Map
+            </h3>
+            <p class="text-xs text-[#9ba1a6]">Calculated post-cosine prefilter on surviving candidate corpus.</p>
+          </div>
+          <span id="genreCrossBadge" class="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-white/10 text-white border border-white/10">
+            Cross-Genre: —
+          </span>
+        </div>
+
+        <div id="genreDistributionContainer" class="space-y-3 pt-2">
+          <div class="text-xs font-mono text-[#9ba1a6] text-center py-6">
+            Run an analysis or demo mode to visualize genre percentage breakdown.
+          </div>
+        </div>
+      </section>
+
+      <!-- Feature 5 Musical Context & Audio Estimates (Cols 8-12) -->
+      <section class="lg:col-span-5 glass-card rounded-2xl p-6 border border-white/10 shadow-lg space-y-4">
+        <div>
+          <h3 class="font-headline-md text-base text-white font-bold flex items-center gap-2">
+            <span class="material-symbols-outlined text-[#d4ff00]">piano</span>
+            Feature 5: Musical Context Estimation
+          </h3>
+          <p class="text-xs text-[#9ba1a6]">Krumhansl-Schmuckler harmonic key correlation &amp; tempo tracking.</p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3 pt-2 font-mono text-xs">
+          <div class="bg-white/5 p-3 rounded-xl border border-white/10">
+            <span class="text-[#9ba1a6] text-[10px] uppercase block">Estimated Key</span>
+            <span id="ctxEstimatedKey" class="text-white text-base font-bold block mt-1">—</span>
+            <span class="text-[#9ba1a6] text-[10px] block mt-0.5">K-S 24-Profile</span>
+          </div>
+          <div class="bg-white/5 p-3 rounded-xl border border-white/10">
+            <span class="text-[#9ba1a6] text-[10px] uppercase block">Estimated Tempo</span>
+            <span id="ctxEstimatedTempo" class="text-white text-base font-bold block mt-1">— BPM</span>
+            <span class="text-[#9ba1a6] text-[10px] block mt-0.5">Beat-Tracking Hop</span>
+          </div>
+          <div class="bg-white/5 p-3 rounded-xl border border-white/10">
+            <span class="text-[#9ba1a6] text-[10px] uppercase block">Audio Duration</span>
+            <span id="ctxDuration" class="text-white text-base font-bold block mt-1">—</span>
+            <span class="text-[#9ba1a6] text-[10px] block mt-0.5">Full Clip Duration</span>
+          </div>
+          <div class="bg-white/5 p-3 rounded-xl border border-white/10">
+            <span class="text-[#9ba1a6] text-[10px] uppercase block">Cosine Filter</span>
+            <span id="ctxCosineReduction" class="text-white text-base font-bold block mt-1">—</span>
+            <span class="text-[#9ba1a6] text-[10px] block mt-0.5">Cutoff ≥ 0.30</span>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- SECTION 4B: DATA SCIENCE UPGRADES: MERT & EXTRA FEATURES -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+      <!-- Additional Audio Feature Engineering -->
+      <section class="glass-card rounded-2xl p-6 border border-white/10 shadow-lg space-y-4">
+        <div class="flex items-center justify-between border-b border-white/10 pb-3">
+          <div>
+            <h3 class="font-headline-md text-base text-white font-bold flex items-center gap-2">
+              <span class="material-symbols-outlined text-[#d4ff00]">tune</span>
+              Audio Feature Engineering
+            </h3>
+            <p class="text-xs text-[#9ba1a6]">Independent acoustic descriptors (MFCCs, HPSS energy, and spectral shape).</p>
+          </div>
+          <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-white/10 text-white border border-white/10">v1.0 Extractor</span>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 font-mono text-xs">
+          <div class="bg-white/5 p-3 rounded-xl border border-white/10">
+            <span class="text-[#9ba1a6] text-[10px] uppercase block">Harmonic Ratio</span>
+            <span id="extraHarmonicRatio" class="text-white text-base font-bold block mt-1">—</span>
+            <span class="text-[#9ba1a6] text-[10px] block mt-0.5">HPSS Energy</span>
+          </div>
+          <div class="bg-white/5 p-3 rounded-xl border border-white/10">
+            <span class="text-[#9ba1a6] text-[10px] uppercase block">Percussive Ratio</span>
+            <span id="extraPercussiveRatio" class="text-white text-base font-bold block mt-1">—</span>
+            <span class="text-[#9ba1a6] text-[10px] block mt-0.5">Rhythmic Drive</span>
+          </div>
+          <div class="bg-white/5 p-3 rounded-xl border border-white/10">
+            <span class="text-[#9ba1a6] text-[10px] uppercase block">Spectral Rolloff</span>
+            <span id="extraRolloff" class="text-white text-base font-bold block mt-1">— Hz</span>
+            <span class="text-[#9ba1a6] text-[10px] block mt-0.5">85% Energy Cutoff</span>
+          </div>
+          <div class="bg-white/5 p-3 rounded-xl border border-white/10">
+            <span class="text-[#9ba1a6] text-[10px] uppercase block">Rhythm Regularity</span>
+            <span id="extraRhythmRegularity" class="text-white text-base font-bold block mt-1">—</span>
+            <span class="text-[#9ba1a6] text-[10px] block mt-0.5">Tempogram Peak</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- MERT Learned Representation -->
+      <section class="glass-card rounded-2xl p-6 border border-white/10 shadow-lg space-y-4">
+        <div class="flex items-center justify-between border-b border-white/10 pb-3">
+          <div>
+            <h3 class="font-headline-md text-base text-white font-bold flex items-center gap-2">
+              <span class="material-symbols-outlined text-[#d4ff00]">neurology</span>
+              MERT Neural Representation
+            </h3>
+            <p class="text-xs text-[#9ba1a6]">Pretrained music transformer (m-a-p/MERT-v1-95M) learned embeddings.</p>
+          </div>
+          <span id="mertStatusBadge" class="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold bg-white/10 text-white border border-white/10">Checking...</span>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 font-mono text-xs">
+          <div class="bg-white/5 p-3 rounded-xl border border-white/10">
+            <span class="text-[#9ba1a6] text-[10px] uppercase block">Embedding Dim</span>
+            <span class="text-white text-base font-bold block mt-1">768</span>
+            <span class="text-[#9ba1a6] text-[10px] block mt-0.5">Hidden Vectors</span>
+          </div>
+          <div class="bg-white/5 p-3 rounded-xl border border-white/10">
+            <span class="text-[#9ba1a6] text-[10px] uppercase block">Sample Rate</span>
+            <span class="text-white text-base font-bold block mt-1">24 kHz</span>
+            <span class="text-[#9ba1a6] text-[10px] block mt-0.5">MERT Native</span>
+          </div>
+          <div class="bg-white/5 p-3 rounded-xl border border-white/10">
+            <span class="text-[#9ba1a6] text-[10px] uppercase block">Chunk Context</span>
+            <span class="text-white text-base font-bold block mt-1">5.0s</span>
+            <span class="text-[#9ba1a6] text-[10px] block mt-0.5">Window Size</span>
+          </div>
+          <div class="bg-white/5 p-3 rounded-xl border border-white/10">
+            <span class="text-[#9ba1a6] text-[10px] uppercase block">License</span>
+            <span class="text-white text-base font-bold block mt-1">CC-BY-NC</span>
+            <span class="text-[#9ba1a6] text-[10px] block mt-0.5">Academic/Research</span>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- SECTION 5: FEATURE 6 MIMIC IDENTIFICATION TABLE -->
+    <section class="glass-card rounded-2xl p-6 border border-white/10 shadow-lg space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/10 pb-4">
+        <div>
+          <h3 class="font-headline-md text-base text-white font-bold flex items-center gap-2">
+            <span class="material-symbols-outlined text-[#d4ff00]">group_search</span>
+            Feature 6: Mimic / Candidate Identification
+          </h3>
+          <p class="text-xs text-[#9ba1a6]">
+            Ranked strictly by ascending empirical p-value. Same-artist candidates are suppressed as 'Consistent Artist Style'.
+          </p>
+        </div>
+        <div id="mimicCandidateCountBadge" class="text-xs font-mono px-3 py-1 rounded-full bg-white/5 border border-white/10 text-white self-start sm:self-auto">
+          0 Candidates
+        </div>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left font-mono text-xs">
+          <thead>
+            <tr class="border-b border-white/10 text-[#9ba1a6] text-[10px] uppercase">
+              <th class="py-2.5 px-3">Rank / Candidate</th>
+              <th class="py-2.5 px-3">Similarity (S)</th>
+              <th class="py-2.5 px-3">Alignment Coverage</th>
+              <th class="py-2.5 px-3">Empirical p-value</th>
+              <th class="py-2.5 px-3">Pitch Shift</th>
+              <th class="py-2.5 px-3">Artist Relationship</th>
+              <th class="py-2.5 px-3">Mimic Warning</th>
+            </tr>
+          </thead>
+          <tbody id="mimicCandidateTableBody" class="divide-y divide-white/5">
+            <tr>
+              <td colspan="7" class="text-center py-6 text-[#9ba1a6]">
+                No candidate comparisons evaluated yet. Run an analysis above.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- SECTION 6: FEATURE 7 SUGGESTOR BOX & EVIDENCE TIMELINE -->
+    <section id="suggestor-box" class="glass-card rounded-2xl p-6 border border-white/10 shadow-lg space-y-4">
+      <div class="flex items-center justify-between border-b border-white/10 pb-4">
+        <div>
+          <h3 class="font-headline-md text-base text-white font-bold flex items-center gap-2">
+            <span class="material-symbols-outlined text-[#d4ff00]">auto_fix_high</span>
+            Feature 7: Suggestor Box &amp; Evidence Timeline
+          </h3>
+          <p class="text-xs text-[#9ba1a6]">
+            DTW alignment warping path reuse without recomputation. Timestamped localized high-similarity segments.
+          </p>
+        </div>
+        <div class="flex items-center gap-2 text-xs font-mono text-[#9ba1a6]">
+          <span class="material-symbols-outlined text-[16px] text-[#d4ff00]">verified</span>
+          <span>Studio Recommendations</span>
+        </div>
+      </div>
+
+      <div id="evidenceTimelineContainer" class="space-y-4 pt-2">
+        <div class="text-xs font-mono text-[#9ba1a6] text-center py-6">
+          Evidence timeline and studio suggestions will render when qualifying survivors are identified.
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 7: DATASET INVENTORY & READINESS -->
+    <section id="dataset-section" class="glass-card rounded-2xl p-6 border border-white/10 shadow-lg space-y-4">
+      <div class="flex items-center justify-between border-b border-white/10 pb-4">
+        <div>
+          <h3 class="font-headline-md text-base text-white font-bold flex items-center gap-2">
+            <span class="material-symbols-outlined text-[#d4ff00]">inventory_2</span>
+            Dataset Readiness &amp; Local Corpus Status
+          </h3>
+          <p class="text-xs text-[#9ba1a6]">
+            Indexed audio files inside data/ folders. The platform distinguishes code readiness from missing data.
+          </p>
+        </div>
+        <button id="refreshHealthBtn" class="px-3 py-1 rounded-lg bg-white/5 border border-white/10 text-xs font-mono text-[#9ba1a6] hover:text-white transition-colors flex items-center gap-1.5">
+          <span class="material-symbols-outlined text-[14px]">refresh</span>
+          <span>Refresh</span>
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 font-mono text-xs">
+        <div class="bg-white/5 p-4 rounded-xl border border-white/10 flex flex-col justify-between">
+          <div>
+            <span class="text-[#9ba1a6] uppercase text-[10px] block">Total Indexed</span>
+            <span class="text-white text-2xl font-bold block mt-1" id="invTotalIndexed">0</span>
+            <span class="text-[10px] text-[#9ba1a6] mt-1 block">Local + Remote Catalog</span>
+          </div>
+          <span class="text-[10px] text-cyan-400 mt-2 block">Indexed tracks</span>
+        </div>
+
+        <div class="bg-white/5 p-4 rounded-xl border border-white/10 flex flex-col justify-between">
+          <div>
+            <span class="text-[#9ba1a6] uppercase text-[10px] block">Human Tracks</span>
+            <span class="text-white text-2xl font-bold block mt-1" id="invHumanCount">0</span>
+            <span class="text-[10px] text-[#9ba1a6] mt-1 block">Verified Human</span>
+          </div>
+          <span class="text-[10px] text-emerald-400 mt-2 block">Human baseline</span>
+        </div>
+
+        <div class="bg-white/5 p-4 rounded-xl border border-white/10 flex flex-col justify-between">
+          <div>
+            <span class="text-[#9ba1a6] uppercase text-[10px] block">AI Tracks</span>
+            <span class="text-white text-2xl font-bold block mt-1" id="invAiCount">0</span>
+            <span class="text-[10px] text-[#9ba1a6] mt-1 block">AI-Generated Pool</span>
+          </div>
+          <span class="text-[10px] text-rose-400 mt-2 block">AI candidate pool</span>
+        </div>
+
+        <div class="bg-white/5 p-4 rounded-xl border border-white/10 flex flex-col justify-between">
+          <div>
+            <span class="text-[#9ba1a6] uppercase text-[10px] block">Estimated Genre</span>
+            <span class="text-white text-2xl font-bold block mt-1" id="invEstGenreCount">0</span>
+            <span class="text-[10px] text-[#9ba1a6] mt-1 block">Model Predicted</span>
+          </div>
+          <span class="text-[10px] text-purple-400 mt-2 block">Classifier estimates</span>
+        </div>
+
+        <div class="bg-white/5 p-4 rounded-xl border border-white/10 flex flex-col justify-between">
+          <div>
+            <span class="text-[#9ba1a6] uppercase text-[10px] block">Global Null Pairs</span>
+            <span class="text-white text-2xl font-bold block mt-1" id="invNullPairsCount">—</span>
+            <span class="text-[10px] text-[#9ba1a6] mt-1 block">Precomputed Null Pool</span>
+          </div>
+          <span class="text-[10px] text-amber-400 mt-2 block">Null distribution</span>
+        </div>
+      </div>
+
+      <!-- Dataset Streaming & Background Scanner Controls -->
+      <div class="mt-4 p-4 rounded-xl bg-white/5 border border-white/10 space-y-3 font-mono">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/10 pb-3">
+          <div class="flex items-center gap-2">
+            <span id="dsScanStatusBadge" class="px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-white/10 text-white">
+              Status: Checking...
+            </span>
+            <span id="dsCurrentOpText" class="text-xs text-[#9ba1a6]">SleepyJesse/ai_music_large (train)</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <button id="dsScanSampleBtn" class="px-3 py-1.5 rounded-lg bg-white/10 border border-white/20 text-xs font-semibold text-white hover:bg-white/20 transition-all flex items-center gap-1.5 cursor-pointer">
+              <span class="material-symbols-outlined text-[16px]">play_arrow</span>
+              <span>Scan Sample (20)</span>
+            </button>
+            <button id="dsScanFullBtn" class="px-3 py-1.5 rounded-lg bg-[#d4ff00] text-black text-xs font-bold hover:brightness-110 transition-all flex items-center gap-1.5 shadow-md cursor-pointer">
+              <span class="material-symbols-outlined text-[16px]">cloud_download</span>
+              <span>Resume Full Scan</span>
+            </button>
+            <button id="dsScanStopBtn" class="hidden px-3 py-1.5 rounded-lg bg-rose-500/20 border border-rose-500/40 text-xs font-semibold text-rose-300 hover:bg-rose-500/30 transition-all flex items-center gap-1.5 cursor-pointer">
+              <span class="material-symbols-outlined text-[16px]">stop</span>
+              <span>Stop Scan</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Scanner Live Progress Bar (visible during scanning) -->
+        <div id="dsProgressBarContainer" class="hidden space-y-2">
+          <div class="flex items-center justify-between text-xs">
+            <div class="flex items-center gap-2">
+              <span id="dsScanSpinner" class="material-symbols-outlined text-sm text-[#d4ff00] animate-spin">progress_activity</span>
+              <span id="dsScanMsgText" class="text-white">Streaming remote dataset records...</span>
+            </div>
+            <span id="dsScanStatsText" class="text-[#d4ff00] font-bold">0 records</span>
+          </div>
+          <div class="w-full bg-white/10 rounded-full h-2 overflow-hidden">
+            <div id="dsProgressBar" class="h-full bg-gradient-to-r from-[#d4ff00] to-emerald-400 rounded-full transition-all duration-300" style="width: 100%"></div>
+          </div>
+        </div>
+
+        <!-- Detailed Manifest Metrics -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2 text-[11px] pt-1">
+          <div class="bg-black/20 p-2 rounded-lg border border-white/5">
+            <span class="text-[#9ba1a6] block text-[9px] uppercase">Scanned</span>
+            <span class="text-white font-bold block mt-0.5" id="dsScannedCount">0</span>
+          </div>
+          <div class="bg-black/20 p-2 rounded-lg border border-white/5">
+            <span class="text-[#9ba1a6] block text-[9px] uppercase">Indexed</span>
+            <span class="text-emerald-400 font-bold block mt-0.5" id="dsAudioIndexedCount">0</span>
+          </div>
+          <div class="bg-black/20 p-2 rounded-lg border border-white/5">
+            <span class="text-[#9ba1a6] block text-[9px] uppercase">Reused (Cache)</span>
+            <span class="text-cyan-400 font-bold block mt-0.5" id="dsReusedCount">0</span>
+          </div>
+          <div class="bg-black/20 p-2 rounded-lg border border-white/5">
+            <span class="text-[#9ba1a6] block text-[9px] uppercase">Duplicates</span>
+            <span class="text-amber-400 font-bold block mt-0.5" id="dsDuplicateCount">0</span>
+          </div>
+          <div class="bg-black/20 p-2 rounded-lg border border-white/5">
+            <span class="text-[#9ba1a6] block text-[9px] uppercase">Failures</span>
+            <span class="text-rose-400 font-bold block mt-0.5" id="dsFailedCount">0</span>
+          </div>
+          <div class="bg-black/20 p-2 rounded-lg border border-white/5">
+            <span class="text-[#9ba1a6] block text-[9px] uppercase">Human / AI</span>
+            <span class="text-white font-bold block mt-0.5" id="dsOriginBreakdown">0 / 0</span>
+          </div>
+          <div class="bg-black/20 p-2 rounded-lg border border-white/5">
+            <span class="text-[#9ba1a6] block text-[9px] uppercase">Genres (V/E/U)</span>
+            <span class="text-purple-400 font-bold block mt-0.5" id="dsGenreBreakdown">0 / 0 / 0</span>
+          </div>
+          <div class="bg-black/20 p-2 rounded-lg border border-white/5">
+            <span class="text-[#9ba1a6] block text-[9px] uppercase">Elapsed Time</span>
+            <span class="text-[#d4ff00] font-bold block mt-0.5" id="dsElapsedText">0.0s</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Required Exact Footer Disclaimer -->
+  <footer class="w-full bg-[#14171a]/90 backdrop-blur-xl border-t border-white/10 py-8 px-6 md:px-12 relative z-10">
+    <div class="max-w-[1600px] mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
+      <div class="space-y-1 max-w-4xl">
+        <div class="text-xs font-semibold text-white">
+          Statistical Analysis of Audio Similarity in Human- and AI-Generated Music · IDSE Research Platform
+        </div>
+        <p class="text-[11px] text-[#9ba1a6] leading-relaxed">
+          System parameters focus exclusively on harmonic and melodic pitch space. Rhythmic-only mimicry, timbral similarity, production style, and lyrical content fall outside active analytical boundaries. Results indicate statistical similarity — not legal plagiarism, copyright infringement, or AI training-data memorization.
+        </p>
+      </div>
+      <div class="flex items-center gap-4 text-xs font-mono text-[#9ba1a6]">
+        <a href="/docs" target="_blank" class="hover:text-white transition-colors">FastAPI Docs</a>
+        <span>·</span>
+        <a href="/health" target="_blank" class="hover:text-white transition-colors">API Health</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/app.js"></script>
+</body>
+</html>

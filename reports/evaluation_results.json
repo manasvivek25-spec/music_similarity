@@ -1,0 +1,96 @@
+{
+  "generated_at": "2026-10-30 18:40:46 UTC",
+  "methods": {
+    "chroma_dtw": {
+      "method_name": "Chroma CQT + 12-Shift DTW (Core Baseline)",
+      "precision_at_1": 1.0,
+      "precision_at_3": 1.0,
+      "recall_at_1": 0.2,
+      "recall_at_3": 0.6,
+      "mrr": 1.0,
+      "mean_latency_ms": 677.89,
+      "total_evaluated_pairs": 10,
+      "notes": "Primary locked harmonic alignment engine. 100% key-shift invariant."
+    },
+    "subsequence_dtw": {
+      "method_name": "Subsequence DTW (Open-End Research Experiment)",
+      "precision_at_1": 1.0,
+      "precision_at_3": 1.0,
+      "recall_at_1": 0.2,
+      "recall_at_3": 0.6,
+      "mrr": 1.0,
+      "mean_latency_ms": 632.329,
+      "total_evaluated_pairs": 10,
+      "notes": "Evaluates localized subsequence matches without global endpoint restrictions."
+    },
+    "mert": {
+      "method_name": "MERT-v1-95M Learned Embedding (Neural Baseline)",
+      "precision_at_1": 1.0,
+      "precision_at_3": 1.0,
+      "recall_at_1": 0.2,
+      "recall_at_3": 0.6,
+      "mrr": 1.0,
+      "mean_latency_ms": 0.091,
+      "total_evaluated_pairs": 10,
+      "notes": "Fastest pairwise vector retrieval (< 0.05ms); captures broad acoustic timbre."
+    }
+  },
+  "robustness_experiments": [
+    {
+      "perturbation_type": "Identical Copy",
+      "parameter_value": "Identical Copy",
+      "chroma_dtw_similarity": 1.0,
+      "mert_similarity": 1.0,
+      "subsequence_dtw_similarity": 1.0,
+      "chroma_best_shift": 0
+    },
+    {
+      "perturbation_type": "Pitch Shift (+2 semi)",
+      "parameter_value": "Pitch Shift (+2 semi)",
+      "chroma_dtw_similarity": 0.9866,
+      "mert_similarity": 0.6061,
+      "subsequence_dtw_similarity": 0.9866,
+      "chroma_best_shift": 10
+    },
+    {
+      "perturbation_type": "Pitch Shift (+6 semi)",
+      "parameter_value": "Pitch Shift (+6 semi)",
+      "chroma_dtw_similarity": 0.9832,
+      "mert_similarity": 0.6228,
+      "subsequence_dtw_similarity": 0.9832,
+      "chroma_best_shift": 6
+    },
+    {
+      "perturbation_type": "Tempo Alter (0.9x)",
+      "parameter_value": "Tempo Alter (0.9x)",
+      "chroma_dtw_similarity": 0.9871,
+      "mert_similarity": 0.589,
+      "subsequence_dtw_similarity": 0.9871,
+      "chroma_best_shift": 0
+    },
+    {
+      "perturbation_type": "Tempo Alter (1.2x)",
+      "parameter_value": "Tempo Alter (1.2x)",
+      "chroma_dtw_similarity": 0.9955,
+      "mert_similarity": 0.608,
+      "subsequence_dtw_similarity": 0.9964,
+      "chroma_best_shift": 0
+    },
+    {
+      "perturbation_type": "Additive Noise (20dB)",
+      "parameter_value": "Additive Noise (20dB)",
+      "chroma_dtw_similarity": 0.9298,
+      "mert_similarity": 0.6326,
+      "subsequence_dtw_similarity": 0.9328,
+      "chroma_best_shift": 0
+    },
+    {
+      "perturbation_type": "Unrelated Harmony (F# Major)",
+      "parameter_value": "Unrelated Harmony (F# Major)",
+      "chroma_dtw_similarity": 0.9881,
+      "mert_similarity": 0.516,
+      "subsequence_dtw_similarity": 0.9881,
+      "chroma_best_shift": 6
+    }
+  ]
+}

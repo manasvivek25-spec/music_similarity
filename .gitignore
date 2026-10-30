@@ -1,19 +1,49 @@
 # Virtual environment
 venv/
+ENV/
+env/
 
 # Bytecode & Python cache
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
 .pytest_cache/
+*.swp
+*.swo
 
 # Jupyter checkpoints
 .ipynb_checkpoints/
 
-# Data directories (ignore all nested files, but track folder structure via .gitkeep)
-/data/**
-!/data/**/
-!/data/**/.gitkeep
+# Raw audio datasets & metadata (preserve folder structure via .gitkeep and track templates)
+data/*
+!data/**/
+!data/**/.gitkeep
+!data/metadata_template.csv
+!data/evaluation_pairs.csv
 
-# Cached features
-/features/*.npy
-!/features/.gitkeep
+# Cached feature matrices
+features/*
+!features/**/
+!features/.gitkeep
+features/extra/*
+!features/extra/.gitkeep
+
+# Trained model artifacts & configs
+models/*
+!models/**/
+!models/.gitkeep
+
+# Results and experimental outputs
+results/*
+!results/**/
+!results/.gitkeep
+
+# Temporary uploads & local runtime files
+temp_uploads/
+*.tmp
+*.log
+*.bak
+
+# Environment variables & secrets
+.env
+.env.local
