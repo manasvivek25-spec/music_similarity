@@ -1,0 +1,188 @@
+[
+  {
+    "query_label": "Query 1 (7s Short Clip)",
+    "elapsed_sec": 45.748,
+    "feature1": {
+      "total_corpus_considered": 71,
+      "candidates_retained_prefilter": 27,
+      "candidates_evaluated": 27,
+      "candidates_surviving_floor": 24,
+      "best_similarity": 0.6999321388825547
+    },
+    "feature2": {
+      "p_value": 0.021021021021021023,
+      "exceedance_count_k": 14,
+      "null_sample_size_N": 666,
+      "confidence": "Moderate",
+      "null_distribution_sample_count": 666
+    },
+    "feature3": {
+      "broad_score_percent": 1.32,
+      "score_tier": "High Structural Imitation",
+      "case_type": "Case B",
+      "case_name": "Undetermined Genre"
+    },
+    "feature4": {
+      "origin_prediction": null,
+      "confidence": 1.0,
+      "model_status": "Trained & Active"
+    },
+    "feature5": {
+      "estimated_key": "A Major",
+      "estimated_tempo": null,
+      "duration_sec": 7.5
+    },
+    "feature6": {
+      "top_candidate_count": 3,
+      "top_candidate_id": "haim_human_06006",
+      "top_similarity": 0.6999321388825547,
+      "normalized_distance": 0.4287,
+      "best_shift": 0,
+      "alignment_coverage_pct": 0.3,
+      "coverage_interpretation": "Isolated passage"
+    },
+    "feature7": {
+      "timeline_items_count": 3
+    },
+    "verdict": {
+      "verdict_code": "advisory",
+      "verdict_label": "Advisory \u2014 Single indicator, likely genre convention"
+    },
+    "mert_status": {
+      "is_supported": true,
+      "torch_available": true,
+      "transformers_available": true,
+      "cuda_available": true,
+      "device": "cuda",
+      "device_name": "NVIDIA GeForce RTX 3050 6GB Laptop GPU",
+      "model_id": "m-a-p/MERT-v1-95M",
+      "embedding_dim": 768,
+      "sample_rate": 24000,
+      "status_message": "Ready on CUDA (NVIDIA GeForce RTX 3050 6GB Laptop GPU)"
+    }
+  },
+  {
+    "query_label": "Query 2 (Pitch Shifted 3 Semitones)",
+    "elapsed_sec": 37.886,
+    "feature1": {
+      "total_corpus_considered": 71,
+      "candidates_retained_prefilter": 36,
+      "candidates_evaluated": 36,
+      "candidates_surviving_floor": 30,
+      "best_similarity": 0.7230053406748691
+    },
+    "feature2": {
+      "p_value": 0.016516516516516516,
+      "exceedance_count_k": 11,
+      "null_sample_size_N": 666,
+      "confidence": "Moderate",
+      "null_distribution_sample_count": 666
+    },
+    "feature3": {
+      "broad_score_percent": 1.69,
+      "score_tier": "High Structural Imitation",
+      "case_type": "Case B",
+      "case_name": "Undetermined Genre"
+    },
+    "feature4": {
+      "origin_prediction": null,
+      "confidence": 1.0,
+      "model_status": "Trained & Active"
+    },
+    "feature5": {
+      "estimated_key": "C Minor",
+      "estimated_tempo": 123.0,
+      "duration_sec": 7.5
+    },
+    "feature6": {
+      "top_candidate_count": 3,
+      "top_candidate_id": "haim_ai_acestep_0011",
+      "top_similarity": 0.7230053406748691,
+      "normalized_distance": 0.3831,
+      "best_shift": 0,
+      "alignment_coverage_pct": 87.6,
+      "coverage_interpretation": "Broad structural overlap"
+    },
+    "feature7": {
+      "timeline_items_count": 3
+    },
+    "verdict": {
+      "verdict_code": "advisory",
+      "verdict_label": "Advisory \u2014 Single indicator, likely genre convention"
+    },
+    "mert_status": {
+      "is_supported": true,
+      "torch_available": true,
+      "transformers_available": true,
+      "cuda_available": true,
+      "device": "cuda",
+      "device_name": "NVIDIA GeForce RTX 3050 6GB Laptop GPU",
+      "model_id": "m-a-p/MERT-v1-95M",
+      "embedding_dim": 768,
+      "sample_rate": 24000,
+      "status_message": "Ready on CUDA (NVIDIA GeForce RTX 3050 6GB Laptop GPU)"
+    }
+  },
+  {
+    "query_label": "Query 3 (65s Full Audio)",
+    "elapsed_sec": 183.836,
+    "feature1": {
+      "total_corpus_considered": 71,
+      "candidates_retained_prefilter": 25,
+      "candidates_evaluated": 25,
+      "candidates_surviving_floor": 24,
+      "best_similarity": 0.8505994369605611
+    },
+    "feature2": {
+      "p_value": 0.0,
+      "exceedance_count_k": 0,
+      "null_sample_size_N": 666,
+      "confidence": "Moderate",
+      "null_distribution_sample_count": 666
+    },
+    "feature3": {
+      "broad_score_percent": 0.53,
+      "score_tier": "High Structural Imitation",
+      "case_type": "Case B",
+      "case_name": "Undetermined Genre"
+    },
+    "feature4": {
+      "origin_prediction": null,
+      "confidence": 1.0,
+      "model_status": "Trained & Active"
+    },
+    "feature5": {
+      "estimated_key": "A Major",
+      "estimated_tempo": null,
+      "duration_sec": 65.0
+    },
+    "feature6": {
+      "top_candidate_count": 3,
+      "top_candidate_id": "haim_ai_acestep_0020",
+      "top_similarity": 0.8505994369605611,
+      "normalized_distance": 0.1756,
+      "best_shift": 2,
+      "alignment_coverage_pct": 1.8,
+      "coverage_interpretation": "Isolated passage"
+    },
+    "feature7": {
+      "timeline_items_count": 3
+    },
+    "verdict": {
+      "verdict_code": "critical",
+      "verdict_label": "Critical \u2014 All indicators confirm structural imitation"
+    },
+    "mert_status": {
+      "is_supported": true,
+      "torch_available": true,
+      "transformers_available": true,
+      "cuda_available": true,
+      "device": "cuda",
+      "device_name": "NVIDIA GeForce RTX 3050 6GB Laptop GPU",
+      "model_id": "m-a-p/MERT-v1-95M",
+      "embedding_dim": 768,
+      "sample_rate": 24000,
+      "status_message": "Ready on CUDA (NVIDIA GeForce RTX 3050 6GB Laptop GPU)"
+    }
+  }
+]

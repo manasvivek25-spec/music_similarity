@@ -32,6 +32,8 @@ from src.config import (
     AI_DIR,
     METADATA_PATH,
     MAX_SURVIVORS,
+    MIN_NULL_PAIRS,
+    NULL_DIST_CACHE_FILE,
     P_VALUE_CRITICAL_THRESHOLD,
     REF_DIR,
     SIMILARITY_FLOOR,
@@ -63,6 +65,7 @@ from src.similarity import (
 from src.stats_test import (
     build_pairwise_null_distribution,
     evaluate_statistical_gateway,
+    is_fixture_identifier,
 )
 from src.utils import list_audio_files
 
@@ -311,6 +314,8 @@ def run_pipeline(
 
     for cp in cand_paths:
         cid = cp.stem
+        if is_fixture_identifier(cid, str(cp)):
+            continue
         c_meta = dict(catalog.get(cid, {}))
         if candidate_metadata and cid in candidate_metadata:
             c_meta.update(candidate_metadata[cid])
@@ -324,15 +329,23 @@ def run_pipeline(
 
     # Add remote tracks using precomputed compact mean-chroma
     for track_id, r_info in remote_tracks.items():
+        if is_fixture_identifier(track_id):
+            continue
         if track_id in candidate_descriptors:
             continue
+        raw_m = r_info.get("raw_metadata", {})
+        cand_artist = r_info.get("artist") or raw_m.get("artist") or raw_m.get("author") or "Unknown"
+        if str(cand_artist).startswith("http://") or str(cand_artist).startswith("https://"):
+            cand_artist = "Unknown"
+        cand_source = raw_m.get("source") or r_info.get("dataset_name") or "SleepyJesse/ai_music_large"
+
         c_meta = {
             "title": r_info.get("track_id", track_id),
-            "artist": r_info.get("raw_metadata", {}).get("source") or "HuggingFace Dataset",
+            "artist": cand_artist,
             "genre": r_info.get("genre"),  # Strictly no default ambient fallback
             "origin_label": r_info.get("origin_label", "unknown"),
             "duration_sec": r_info.get("duration_sec", 30.0),
-            "source": "remote_dataset",
+            "source": cand_source,
             "beat_cache": r_info.get("beat_cache") or r_info.get("beat_feature_path"),
             "times_cache": r_info.get("times_cache") or r_info.get("times_feature_path"),
         }
@@ -436,8 +449,9 @@ def run_pipeline(
 
         loaded_candidate_features[cid] = c_beat
 
-        # Run 12-pitch-shift DTW alignment
-        dtw_res = dtw_align_detailed(chroma_beat, c_beat)
+        # Run 12-pitch-shift DTW alignment (cap extreme 30+ min files to max 300 frames / 2.5 min)
+        c_eval = c_beat[:, :300] if c_beat.shape[1] > 300 else c_beat
+        dtw_res = dtw_align_detailed(chroma_beat, c_eval)
 
         # Check duration disparity: query vs candidate
         dur_ratio = max(duration_sec, c_dur) / max(min(duration_sec, c_dur), 1e-3)
@@ -492,12 +506,46 @@ def run_pipeline(
     # 7. Stage 6: Loading or Building Statistical Null Distributions
     _emit_progress(6, "Loading or building statistical null distributions", 62.0, 0, 1, "Accessing cached pairwise null distribution...")
     from src.stats_test import get_or_build_cached_null_distribution
-    cand_meta_map = {cid: candidate_descriptors[cid]["meta"] for cid in loaded_candidate_features.keys()}
-    global_null, genre_null_dict = get_or_build_cached_null_distribution(
-        chroma_dict=loaded_candidate_features,
-        similarity_func=dtw_similarity,
-        candidate_metadata=cand_meta_map,
-    )
+
+    # Load from precomputed global null distribution cache if available
+    global_null: List[float] = []
+    genre_null_dict: Dict[str, List[float]] = {}
+    if NULL_DIST_CACHE_FILE.is_file():
+        try:
+            with open(NULL_DIST_CACHE_FILE, "r", encoding="utf-8") as f:
+                c_data = json.load(f)
+            cached_scores = c_data.get("null_scores", [])
+            if len(cached_scores) >= MIN_NULL_PAIRS:
+                global_null = [float(s) for s in cached_scores]
+                genre_null_dict = c_data.get("genre_null_scores", {})
+        except Exception:
+            global_null = []
+
+    if not global_null:
+        # Load all human baseline chromatograms from disk if cache absent
+        human_chroma: Dict[str, np.ndarray] = {}
+        human_meta: Dict[str, Dict[str, Any]] = {}
+        for cid, c in candidate_descriptors.items():
+            meta = c["meta"]
+            if str(meta.get("origin_label", "")).lower() in ("human", "0", "false"):
+                beat_file = FEATURES_DIR / f"{cid}_beat.npy"
+                if beat_file.is_file():
+                    try:
+                        mat = np.load(str(beat_file))
+                        human_chroma[cid] = mat[:, :300] if (mat.ndim == 2 and mat.shape[1] > 300) else mat
+                        human_meta[cid] = meta
+                    except Exception:
+                        pass
+        if not human_chroma:
+            human_chroma = loaded_candidate_features
+            human_meta = {cid: candidate_descriptors[cid]["meta"] for cid in loaded_candidate_features.keys()}
+
+        global_null, genre_null_dict = get_or_build_cached_null_distribution(
+            chroma_dict=human_chroma,
+            similarity_func=dtw_similarity,
+            cache_file=NULL_DIST_CACHE_FILE,
+            candidate_metadata=human_meta,
+        )
     null_count = len(global_null)
     _emit_progress(6, "Loading or building statistical null distributions", 66.0, null_count, null_count, f"Null distribution ready ({null_count} pairs).")
 
@@ -514,6 +562,8 @@ def run_pipeline(
             min_null_pairs=MIN_NULL_PAIRS,
         )
         rec["p_value"] = gw_res.p_value
+        rec["exceedance_count"] = gw_res.exceedance_count
+        rec["null_sample_size"] = gw_res.null_sample_size
         rec["confidence"] = gw_res.confidence
         rec["severity_label"] = gw_res.severity_label
         rec["fallback_source"] = gw_res.fallback_source
@@ -532,19 +582,60 @@ def run_pipeline(
     _emit_progress(7, "Statistical gateway evaluation", 73.0, len(evaluated_records), len(evaluated_records), f"Statistical gateway complete ({candidates_surviving_pvalue} significant survivors).")
 
     # 9. Stage 8: Creative Scoring & Case Routing
-    _emit_progress(8, "Creative scoring", 75.0, 0, 1, "Evaluating creative novelty and compositional variance...")
+    _emit_progress(8, "Creative scoring", 75.0, 0, 1, "Evaluating creative novelty against eligible human reference pool...")
 
     # Case routing and creative population pool
     best_sim = max([r["similarity"] for r in evaluated_records], default=0.0)
 
-    # Select documented genre-specific reference pool or explicitly identified global fallback
+    # Gather query similarity observations against eligible human reference tracks
+    query_to_human_scores: List[float] = []
+    genre_query_to_human_scores: Dict[str, List[float]] = {}
+
+    for cid, c_desc in candidate_descriptors.items():
+        meta = c_desc.get("meta", {})
+        origin_val = str(meta.get("origin_label", "")).lower()
+        if origin_val in ("human", "0", "false"):
+            cand_genre = meta.get("genre")
+            # Reuse DTW similarity if already computed during Stage 5 candidate evaluation
+            matched_rec = next((r for r in evaluated_records if r.get("candidate_id") == cid), None)
+            if matched_rec is not None:
+                sim = float(matched_rec["similarity"])
+            else:
+                # Compute genuine DTW similarity for human reference excluded by coarse prefilter
+                # Ensures Feature 3 broad novelty reference population strictly consists of comparable DTW observations
+                sim = None
+                beat_ref = meta.get("beat_cache") or meta.get("beat_feature_path")
+                if beat_ref:
+                    bp = Path(beat_ref)
+                    beat_file = bp if bp.is_absolute() else (REPO_ROOT / bp)
+                else:
+                    beat_file = FEATURES_DIR / f"{cid}_beat.npy"
+                if beat_file.is_file():
+                    try:
+                        c_mat = np.load(str(beat_file))
+                        sub_mat = c_mat[:, :300] if (c_mat.ndim == 2 and c_mat.shape[1] > 300) else c_mat
+                        sim = float(dtw_similarity(chroma_beat, sub_mat))
+                    except Exception as e:
+                        logger.debug(f"Failed to compute DTW for human reference {cid}: {e}")
+                        sim = None
+
+            if sim is not None and np.isfinite(sim):
+                query_to_human_scores.append(sim)
+                if cand_genre:
+                    genre_query_to_human_scores.setdefault(cand_genre, []).append(sim)
+
+    # Select documented genre-specific reference pool or global human reference corpus
     target_genre = query_context.genre
-    if target_genre and target_genre in genre_null_dict and len(genre_null_dict[target_genre]) >= 30:
-        ref_population_scores = genre_null_dict[target_genre]
+    if target_genre and target_genre in genre_query_to_human_scores and len(genre_query_to_human_scores[target_genre]) >= 5:
+        ref_population_scores = genre_query_to_human_scores[target_genre]
         ref_genres = [target_genre]
+    elif len(query_to_human_scores) >= 5:
+        ref_population_scores = query_to_human_scores
+        ref_genres = ["Global Human Reference Corpus"]
     elif len(global_null) >= 5:
+        # Fallback to precomputed pairwise null distribution only when query-to-human observations < 5
         ref_population_scores = global_null
-        ref_genres = ["Global Human Baseline"]
+        ref_genres = ["Global Human Pairwise Baseline (Secondary Fallback)"]
     else:
         ref_population_scores = []
         ref_genres = []
@@ -560,7 +651,7 @@ def run_pipeline(
             observed_similarity=best_sim,
             genre_pool_scores=ref_population_scores,
             survivor_scores=None,
-            evaluated_genres=[query_context.genre] if query_context.genre else [],
+            evaluated_genres=ref_genres or ([query_context.genre] if query_context.genre else []),
             min_pool_size=5,
         )
     elif len(stat_survivors) == 0:
@@ -574,7 +665,7 @@ def run_pipeline(
             observed_similarity=best_sim,
             genre_pool_scores=ref_population_scores,
             survivor_scores=None,
-            evaluated_genres=[query_context.genre] if query_context.genre else [],
+            evaluated_genres=ref_genres or ([query_context.genre] if query_context.genre else []),
             min_pool_size=5,
         )
     else:
@@ -582,29 +673,47 @@ def run_pipeline(
         match_genre = top_match.get("genre")
         native_genre = query_context.genre
 
-        if native_genre and match_genre and native_genre.lower() != match_genre.lower():
-            case_routing = CaseRoutingResult(
-                case_type="Case A",
-                case_name="Cross-Genre",
-                description=f"Significant structural similarity detected across different genres (Query: {native_genre}, Match: {match_genre})."
-            )
-            unique_genres = list(dict.fromkeys([
-                r.get("genre") for r in stat_survivors if r.get("genre")
-            ]))[:2]
-            target_genres = [native_genre] + [g for g in unique_genres if g.lower() != native_genre.lower()]
-            surv_scores = [r["similarity"] for r in stat_survivors]
-            creative_res = compute_creative_score(
-                observed_similarity=top_match["similarity"],
-                genre_pool_scores=ref_population_scores,
-                survivor_scores=surv_scores,
-                evaluated_genres=target_genres[:2],
-                min_pool_size=5,
-            )
+        if native_genre and match_genre:
+            if native_genre.lower() != match_genre.lower():
+                # Case A: Cross-Genre Mimicry
+                case_routing = CaseRoutingResult(
+                    case_type="Case A",
+                    case_name="Cross-Genre",
+                    description=f"Significant structural similarity detected across different genres (Query: {native_genre}, Match: {match_genre})."
+                )
+                unique_genres = list(dict.fromkeys([
+                    r.get("genre") for r in stat_survivors if r.get("genre")
+                ]))[:2]
+                target_genres = [native_genre] + [g for g in unique_genres if g.lower() != native_genre.lower()]
+                surv_scores = [r["similarity"] for r in stat_survivors]
+                creative_res = compute_creative_score(
+                    observed_similarity=top_match["similarity"],
+                    genre_pool_scores=ref_population_scores,
+                    survivor_scores=surv_scores,
+                    evaluated_genres=target_genres[:2],
+                    min_pool_size=5,
+                )
+            else:
+                # Case B: Same-Genre Candidate
+                case_routing = CaseRoutingResult(
+                    case_type="Case B",
+                    case_name="Same-Genre",
+                    description=f"Significant structural similarity identified within the same musical genre ({native_genre})."
+                )
+                surv_scores = [r["similarity"] for r in stat_survivors]
+                creative_res = compute_creative_score(
+                    observed_similarity=top_match["similarity"],
+                    genre_pool_scores=ref_population_scores,
+                    survivor_scores=surv_scores,
+                    evaluated_genres=[native_genre],
+                    min_pool_size=5,
+                )
         else:
+            # Undetermined genre relationship: at least one genre is unknown/unclassified
             case_routing = CaseRoutingResult(
                 case_type="Case B",
-                case_name="Same-Genre",
-                description="Significant structural similarity identified within the same musical genre."
+                case_name="Undetermined Genre",
+                description=f"Significant structural similarity detected; genre relationship cannot be established as genre metadata is missing or unclassified (Query: {native_genre or 'Unknown'}, Match: {match_genre or 'Unknown'})."
             )
             surv_scores = [r["similarity"] for r in stat_survivors]
             creative_res = compute_creative_score(
@@ -638,10 +747,13 @@ def run_pipeline(
     # 13. Stage 12: Evidence Timeline and Suggestions
     _emit_progress(12, "Evidence timeline and suggestions", 95.0, 0, 1, "Generating evidence timeline and studio suggestions...")
     evidence_timeline: List[EvidenceTimelineItem] = []
-    if case_routing.case_type in ("Case A", "Case B") and len(stat_survivors) > 0:
+    candidates_for_timeline = stat_survivors if (stat_survivors and case_routing.case_type in ("Case A", "Case B")) else (
+        [r for r in evaluated_records if r.get("similarity", 0.0) >= SIMILARITY_FLOOR][:3] if case_routing.case_type == "Case U" else []
+    )
+    if candidates_for_timeline:
         from src.suggestor import build_evidence_timeline
         evidence_timeline = build_evidence_timeline(
-            candidate_survivors=stat_survivors,
+            candidate_survivors=candidates_for_timeline,
             times_query=beat_times,
             max_candidates=3
         )

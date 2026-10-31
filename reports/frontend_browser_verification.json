@@ -1,0 +1,90 @@
+{
+  "timestamp": "2026-10-31T20:57:01Z",
+  "target_url": "http://127.0.0.1:8001/",
+  "browser": "Google Chrome Headless (CDP)",
+  "page_title": "Statistical Analysis of Audio Similarity in Human- and AI-Generated Music",
+  "initial_dom_state": {
+    "backendStatus": "FastAPI Online \u00b7 261 Tracks Indexed (PAUSED)",
+    "classifierStatus": "Classifier: Trained & Active",
+    "mertBadge": "Active (CUDA)",
+    "invTotal": "261",
+    "invHuman": "111",
+    "invAi": "24",
+    "invNullPairs": "6105",
+    "invEstGenre": "0"
+  },
+  "feature_elements_checked": {
+    "feature1_similarity": {
+      "card1SimScore": true,
+      "card1TierLabel": true,
+      "card1DistLabel": true,
+      "card1ShiftBadge": true,
+      "card1FilterLabel": true
+    },
+    "feature2_significance": {
+      "card2Pval": true,
+      "card2AdjPval": true,
+      "card2SeverityLabel": true,
+      "card2SampleCount": true,
+      "card2ConfidenceBadge": true
+    },
+    "feature3_novelty": {
+      "card3NormScore": true,
+      "card3BroadScore": true,
+      "card3NarrowScore": true,
+      "card3NoveltyTier": true,
+      "card3TierBadge": true
+    },
+    "feature4_classifier": {
+      "card4PredictedOrigin": true,
+      "card4ConfidenceLabel": true,
+      "card4ProbAi": true,
+      "card4StatusTag": true,
+      "card4Version": true
+    },
+    "feature5_context": {
+      "ctxEstimatedTempo": true,
+      "ctxEstimatedKey": true,
+      "ctxDuration": true,
+      "ctxCosineReduction": true,
+      "extraHarmonicRatio": true,
+      "extraPercussiveRatio": true,
+      "extraRhythmRegularity": true,
+      "extraRolloff": true
+    },
+    "feature6_mimic": {
+      "mimicCandidateCountBadge": true,
+      "mimicCandidateTableBody": true
+    },
+    "feature7_suggestor_and_timeline": {
+      "suggestorBox": true,
+      "evidenceTimeline": true
+    },
+    "verdict_banner": {
+      "verdictBannerSection": true,
+      "verdictCodeBadge": true,
+      "verdictLabelText": true,
+      "verdictConfidenceText": true,
+      "verdictExplanationText": true,
+      "caseRoutingBadge": true
+    }
+  },
+  "rendered_state": {
+    "success": true,
+    "renderedVerdict": "VERDICT: WARNING",
+    "renderedCard1Score": "0.784",
+    "renderedCard2Pval": "p = 0.0024",
+    "renderedCard3Score": "Norm: 0.1850",
+    "renderedCard4Origin": "AI-Generated",
+    "renderedCard5Tempo": "124 BPM",
+    "renderedCard6Count": "2 Evaluated Survivors",
+    "renderedTimelineLength": 1
+  },
+  "console_log_count": 1,
+  "console_error_count": 0,
+  "exception_count": 0,
+  "console_errors": [],
+  "exceptions": [],
+  "all_feature_sections_present": true,
+  "status": "PASSED"
+}

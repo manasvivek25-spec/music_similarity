@@ -1,0 +1,30 @@
+{
+  "generated_at": "2026-10-31 10:46:35 UTC",
+  "scalability_profile": {
+    "total_indexed_records": 71,
+    "storage_size_bytes": 307910,
+    "storage_size_mb": 0.294,
+    "features_dir_bytes": 10446470,
+    "features_dir_mb": 9.963,
+    "records_per_second_throughput": 0.74,
+    "mean_decode_latency_ms": 45.0,
+    "mean_feature_extract_latency_ms": 1300.02,
+    "mean_cache_write_latency_ms": 1.44,
+    "estimated_full_corpus_hours_73gb": 4.49,
+    "primary_bottleneck": "CQT Chromagram Computation and Beat Tracking (CPU Bound)"
+  },
+  "benchmarks": [
+    {
+      "task_name": "Corpus Deduplication & Origin-Grouped Aggregation (Genuine Corpus)",
+      "record_count": 71,
+      "local_pandas_latency_ms": 8.97,
+      "local_pandas_peak_memory_mb": 0.0104,
+      "pyspark_status": "executed",
+      "pyspark_latency_ms": 7583.46,
+      "pyspark_peak_memory_mb": 0.0156,
+      "pyspark_speedup_ratio": 0.001,
+      "correctness_verified": true,
+      "notes": "Vectorized in-memory Pandas outperforms PySpark on small local collections (N=71 rows) due to JVM overhead, Py4J serialization, and single-node thread initialization costs. PySpark execution was verified mathematically identical to Pandas aggregations."
+    }
+  ]
+}

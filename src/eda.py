@@ -16,6 +16,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
+from scipy import stats
 
 # Non-interactive matplotlib backend for headless environments
 import matplotlib
@@ -41,10 +42,19 @@ class EDASummary:
     duration_median_sec: float
     duration_min_sec: float
     duration_max_sec: float
-    failed_or_unresolved_count: int
-    missing_artist_count: int
-    unique_artists_count: int
-    duplicate_records_detected: int
+    duration_variance_sec: float = 0.0
+    duration_std_sec: float = 0.0
+    duration_q1_sec: float = 0.0
+    duration_q3_sec: float = 0.0
+    duration_iqr_sec: float = 0.0
+    duration_skewness: float = 0.0
+    failed_or_unresolved_count: int = 0
+    missing_artist_count: int = 0
+    unique_artists_count: int = 0
+    duplicate_records_detected: int = 0
+    chroma_pitch_class_means: Dict[str, float] = field(default_factory=dict)
+    chroma_pitch_class_stds: Dict[str, float] = field(default_factory=dict)
+    extra_acoustic_descriptors_summary: Dict[str, Dict[str, float]] = field(default_factory=dict)
     generated_at: str = ""
     plots_generated: List[str] = field(default_factory=list)
     limitations: str = (
@@ -99,15 +109,22 @@ def run_exploratory_data_analysis(
     ai_count = sum(1 for t in tracks.values() if t.get("origin_label") == "ai_generated")
     unk_count = total - (human_count + ai_count)
 
-    # 2. Duration distribution
+    # 2. Duration distribution with comprehensive descriptive statistics
     durations = [float(t.get("duration_sec", 0.0)) for t in tracks.values() if t.get("duration_sec") is not None]
     if durations:
-        dur_mean = float(np.mean(durations))
-        dur_median = float(np.median(durations))
-        dur_min = float(np.min(durations))
-        dur_max = float(np.max(durations))
+        dur_arr = np.array(durations, dtype=float)
+        dur_mean = float(np.mean(dur_arr))
+        dur_median = float(np.median(dur_arr))
+        dur_min = float(np.min(dur_arr))
+        dur_max = float(np.max(dur_arr))
+        dur_var = float(np.var(dur_arr, ddof=1)) if len(dur_arr) > 1 else 0.0
+        dur_std = float(np.std(dur_arr, ddof=1)) if len(dur_arr) > 1 else 0.0
+        dur_q1 = float(np.percentile(dur_arr, 25))
+        dur_q3 = float(np.percentile(dur_arr, 75))
+        dur_iqr = float(dur_q3 - dur_q1)
+        dur_skew = float(stats.skew(dur_arr)) if len(dur_arr) >= 3 else 0.0
     else:
-        dur_mean = dur_median = dur_min = dur_max = 0.0
+        dur_mean = dur_median = dur_min = dur_max = dur_var = dur_std = dur_q1 = dur_q3 = dur_iqr = dur_skew = 0.0
 
     # 3. Genre coverage (genuine vs estimated vs unknown)
     v_genres = sum(1 for t in tracks.values() if t.get("genre_source") == "metadata" and t.get("genre"))
@@ -147,6 +164,44 @@ def run_exploratory_data_analysis(
             chroma_vectors.append(mc)
             chroma_labels.append(t.get("origin_label", "unknown"))
 
+    pitch_names = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
+    chroma_means: Dict[str, float] = {}
+    chroma_stds: Dict[str, float] = {}
+    c_mat = np.empty((0, 12), dtype=float)
+    if len(chroma_vectors) > 0:
+        c_mat = np.array(chroma_vectors, dtype=float)
+        c_mean_vec = np.mean(c_mat, axis=0)
+        c_std_vec = np.std(c_mat, axis=0, ddof=1) if len(c_mat) > 1 else np.zeros(12)
+        for i, pname in enumerate(pitch_names):
+            chroma_means[pname] = round(float(c_mean_vec[i]), 4)
+            chroma_stds[pname] = round(float(c_std_vec[i]), 4)
+
+    # 7. Extra acoustic features summary
+    extra_feats_list: Dict[str, List[float]] = {
+        "harmonic_ratio": [],
+        "percussive_ratio": [],
+        "spectral_rolloff_hz": [],
+        "rhythm_regularity": [],
+    }
+    for t in tracks.values():
+        ex = t.get("extra_features")
+        if isinstance(ex, dict):
+            for k in extra_feats_list:
+                if k in ex and ex[k] is not None and np.isfinite(float(ex[k])):
+                    extra_feats_list[k].append(float(ex[k]))
+
+    extra_summary: Dict[str, Dict[str, float]] = {}
+    for k, vals in extra_feats_list.items():
+        if vals:
+            v_arr = np.array(vals, dtype=float)
+            extra_summary[k] = {
+                "mean": round(float(np.mean(v_arr)), 4),
+                "std": round(float(np.std(v_arr, ddof=1)) if len(v_arr) > 1 else 0.0, 4),
+                "median": round(float(np.median(v_arr)), 4),
+                "min": round(float(np.min(v_arr)), 4),
+                "max": round(float(np.max(v_arr)), 4),
+            }
+
     # Generate Visualizations
     plots_saved: List[str] = []
 
@@ -172,15 +227,23 @@ def run_exploratory_data_analysis(
     except Exception as exc:
         logger.warning(f"Failed to generate origin plot: {exc}")
 
-    # Chart 2: Track Duration Distribution
+    # Chart 2: Track Duration Distribution (Histogram + Box Plot)
     try:
         if len(durations) > 0:
-            fig, ax = plt.subplots(figsize=(7, 4))
-            ax.hist(durations, bins=min(15, max(3, len(durations))), color="#3b82f6", edgecolor="black", alpha=0.8)
-            ax.set_title(f"Track Duration Distribution (N={len(durations)})", fontsize=12, fontweight="bold")
-            ax.set_xlabel("Duration (seconds)", fontsize=10)
-            ax.set_ylabel("Frequency", fontsize=10)
-            ax.grid(axis="y", linestyle="--", alpha=0.5)
+            fig, (ax_box, ax_hist) = plt.subplots(
+                2, 1, figsize=(7, 5), sharex=True, gridspec_kw={"height_ratios": [0.25, 0.75]}
+            )
+            ax_box.boxplot(durations, orientation="horizontal", patch_artist=True,
+                           boxprops=dict(facecolor="#93c5fd", color="#1d4ed8"),
+                           medianprops=dict(color="#b91c1c", linewidth=2))
+            ax_box.set_yticks([])
+            ax_box.set_title(f"Track Duration Distribution (N={len(durations)}, Mean={dur_mean:.1f}s, Median={dur_median:.1f}s)", fontsize=11, fontweight="bold")
+            ax_box.grid(True, linestyle="--", alpha=0.4)
+
+            ax_hist.hist(durations, bins=min(15, max(3, len(durations))), color="#3b82f6", edgecolor="black", alpha=0.8)
+            ax_hist.set_xlabel("Duration (seconds)", fontsize=10)
+            ax_hist.set_ylabel("Frequency", fontsize=10)
+            ax_hist.grid(axis="y", linestyle="--", alpha=0.5)
             plt.tight_layout()
             plot_p = out_dir / "duration_distribution.png"
             fig.savefig(plot_p, dpi=150)
@@ -189,18 +252,19 @@ def run_exploratory_data_analysis(
     except Exception as exc:
         logger.warning(f"Failed to generate duration plot: {exc}")
 
-    # Chart 3: Mean Chroma Profile Across Pitch Classes
+    # Chart 3: Mean Chroma Profile Across Pitch Classes (with Error Bars)
     try:
         if len(chroma_vectors) > 0:
-            mean_c = np.mean(chroma_vectors, axis=0)
-            pitch_names = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
+            mean_c = np.mean(c_mat, axis=0)
+            std_c = np.std(c_mat, axis=0, ddof=1) if len(c_mat) > 1 else np.zeros(12)
             fig, ax = plt.subplots(figsize=(8, 4))
-            ax.plot(pitch_names, mean_c, marker="o", color="#d97706", linewidth=2)
-            ax.fill_between(pitch_names, mean_c, color="#fef3c7", alpha=0.5)
-            ax.set_title(f"Average Harmonic Chroma Profile (N={len(chroma_vectors)} tracks)", fontsize=12, fontweight="bold")
+            ax.plot(pitch_names, mean_c, marker="o", color="#d97706", linewidth=2, label="Mean Normalized Energy")
+            ax.fill_between(pitch_names, np.clip(mean_c - std_c, 0, 1), np.clip(mean_c + std_c, 0, 1), color="#fef3c7", alpha=0.5, label="±1 Std Dev")
+            ax.set_title(f"Harmonic Chroma Profile (N={len(chroma_vectors)} tracks)", fontsize=12, fontweight="bold")
             ax.set_xlabel("Pitch Class", fontsize=10)
             ax.set_ylabel("Mean Normalized Energy", fontsize=10)
             ax.set_ylim(0.0, 1.0)
+            ax.legend(loc="upper right", fontsize=9)
             ax.grid(True, linestyle="--", alpha=0.5)
             plt.tight_layout()
             plot_p = out_dir / "chroma_feature_distributions.png"
@@ -210,12 +274,32 @@ def run_exploratory_data_analysis(
     except Exception as exc:
         logger.warning(f"Failed to generate chroma plot: {exc}")
 
-    # Chart 4: PCA Projection of Chroma Space (Descriptive exploration only)
+    # Chart 4: Pitch Class Correlation Matrix Heatmap
+    try:
+        if len(chroma_vectors) >= 2:
+            corr_mat = np.corrcoef(c_mat.T)
+            fig, ax = plt.subplots(figsize=(7, 6))
+            cax = ax.matshow(corr_mat, cmap="coolwarm", vmin=-1.0, vmax=1.0)
+            fig.colorbar(cax, fraction=0.046, pad=0.04)
+            ax.set_xticks(range(12))
+            ax.set_yticks(range(12))
+            ax.set_xticklabels(pitch_names)
+            ax.set_yticklabels(pitch_names)
+            ax.set_title("Pitch Class Correlation Matrix (12-Bin Mean Chroma)", pad=15, fontweight="bold")
+            plt.tight_layout()
+            plot_p = out_dir / "chroma_correlation_matrix.png"
+            fig.savefig(plot_p, dpi=150)
+            plt.close(fig)
+            plots_saved.append("chroma_correlation_matrix.png")
+    except Exception as exc:
+        logger.warning(f"Failed to generate chroma correlation heatmap: {exc}")
+
+    # Chart 5: PCA Projection of Chroma Space (Descriptive exploration only)
     try:
         if len(chroma_vectors) >= 2:
             from sklearn.decomposition import PCA
             pca = PCA(n_components=2, random_state=42)
-            X_pca = pca.fit_transform(np.array(chroma_vectors))
+            X_pca = pca.fit_transform(c_mat)
             var_exp = pca.explained_variance_ratio_
 
             fig, ax = plt.subplots(figsize=(7, 5))
@@ -249,7 +333,7 @@ def run_exploratory_data_analysis(
         import umap
         if len(chroma_vectors) >= 5:
             reducer = umap.UMAP(n_neighbors=min(5, len(chroma_vectors)-1), random_state=42)
-            X_umap = reducer.fit_transform(np.array(chroma_vectors))
+            X_umap = reducer.fit_transform(c_mat)
             fig, ax = plt.subplots(figsize=(7, 5))
             ax.scatter(X_umap[:, 0], X_umap[:, 1], c="#8b5cf6", alpha=0.8, s=40)
             ax.set_title("UMAP Manifold Projection of Harmonic Feature Space", fontsize=12, fontweight="bold")
@@ -278,10 +362,19 @@ def run_exploratory_data_analysis(
         duration_median_sec=round(dur_median, 2),
         duration_min_sec=round(dur_min, 2),
         duration_max_sec=round(dur_max, 2),
+        duration_variance_sec=round(dur_var, 2),
+        duration_std_sec=round(dur_std, 2),
+        duration_q1_sec=round(dur_q1, 2),
+        duration_q3_sec=round(dur_q3, 2),
+        duration_iqr_sec=round(dur_iqr, 2),
+        duration_skewness=round(dur_skew, 4),
         failed_or_unresolved_count=len(unresolved),
         missing_artist_count=missing_artists,
         unique_artists_count=len(artists),
         duplicate_records_detected=duplicates_detected,
+        chroma_pitch_class_means=chroma_means,
+        chroma_pitch_class_stds=chroma_stds,
+        extra_acoustic_descriptors_summary=extra_summary,
         generated_at=now_str,
         plots_generated=plots_saved,
     )
@@ -291,6 +384,16 @@ def run_exploratory_data_analysis(
         "\n".join([f"| {g} | {c} | {c/max(total, 1)*100:.1f}% |" for g, c in sorted(genuine_genres.items(), key=lambda x: -x[1])])
         if genuine_genres else "| None Verified | 0 | 0.0% |"
     )
+
+    pitch_rows = "\n".join([
+        f"| {p} | {chroma_means.get(p, 0.0):.4f} | {chroma_stds.get(p, 0.0):.4f} |"
+        for p in pitch_names
+    ]) if chroma_means else "| N/A | N/A | N/A |"
+
+    extra_rows = "\n".join([
+        f"| {k.replace('_', ' ').title()} | {v['mean']:.4f} | {v['std']:.4f} | {v['median']:.4f} | {v['min']:.4f} – {v['max']:.4f} |"
+        for k, v in extra_summary.items()
+    ]) if extra_summary else "| None Extracted | — | — | — | — |"
 
     plots_md = "\n".join([f"- `reports/eda/{p}`" for p in plots_saved])
 
@@ -310,9 +413,14 @@ def run_exploratory_data_analysis(
 | **Human Acoustic Baseline** | {human_count} | Verified via metadata origin flag |
 | **AI-Generated Tracks** | {ai_count} | Verified synthetic / generative origin |
 | **Unknown Origin Tracks** | {unk_count} | Ambiguous or missing origin labels (excluded from baseline) |
-| **Mean Track Duration** | {dur_mean:.1f}s | Sample average |
-| **Median Track Duration** | {dur_median:.1f}s | 50th percentile |
-| **Duration Range** | {dur_min:.1f}s – {dur_max:.1f}s | Shortest to longest track in indexed corpus |
+| **Mean Track Duration** | {dur_mean:.2f}s | Sample average duration |
+| **Median Track Duration** | {dur_median:.2f}s | 50th percentile |
+| **Duration Variance** | {dur_var:.2f}s² | Sample variance |
+| **Duration Standard Deviation** | {dur_std:.2f}s | Dispersion of audio length |
+| **Duration Quartiles (Q1, Q3)** | {dur_q1:.2f}s, {dur_q3:.2f}s | 25th and 75th percentiles |
+| **Duration Interquartile Range (IQR)** | {dur_iqr:.2f}s | Midspread of duration |
+| **Duration Min / Max** | {dur_min:.2f}s – {dur_max:.2f}s | Shortest to longest track in indexed corpus |
+| **Duration Skewness** | {dur_skew:.4f} | Fisher-Pearson coefficient of distribution asymmetry |
 | **Verified Metadata Genres** | {v_genres} | Genuine genre tags from dataset |
 | **Model Estimated Genres** | {e_genres} | Provisional acoustic predictions |
 | **Unknown Genre Tracks** | {u_genres} | Unlabeled (no arbitrary ambient fallback) |
@@ -333,7 +441,23 @@ def run_exploratory_data_analysis(
 
 ---
 
-## 3. Genuine Genre Breakdown
+## 3. Harmonic Energy Distribution (12-Bin Mean Chroma)
+
+| Pitch Class | Mean Energy | Std Dev |
+|---|---|---|
+{pitch_rows}
+
+---
+
+## 4. Acoustic Descriptors Distribution (Feature 5 Context Features)
+
+| Feature | Mean | Std Dev | Median | Range (Min – Max) |
+|---|---|---|---|---|
+{extra_rows}
+
+---
+
+## 5. Genuine Genre Breakdown
 
 | Genre | Count | Percentage |
 |---|---|---|
@@ -343,7 +467,7 @@ def run_exploratory_data_analysis(
 
 ---
 
-## 4. Dimensionality Reduction & Feature Space
+## 6. Dimensionality Reduction & Feature Space
 
 * **Feature Representation:** 12-bin beat-synchronized Chroma CQT vectors.
 * **PCA Projection:** Computed 2 principal components capturing global harmonic variance.
@@ -352,7 +476,7 @@ def run_exploratory_data_analysis(
 
 ---
 
-## 5. Generated Visual Artifacts
+## 7. Generated Visual Artifacts
 
 The following figures were generated and saved in `{out_dir}`:
 {plots_md}
@@ -380,4 +504,3 @@ if __name__ == "__main__":
 
     sum_res, r_md = run_exploratory_data_analysis(output_dir=Path(args.output_dir))
     print(f"EDA Complete. Total tracks: {sum_res.total_indexed_tracks}. Report written to {args.output_dir}/eda_report.md")
-

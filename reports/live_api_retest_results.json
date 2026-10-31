@@ -1,0 +1,420 @@
+[
+  {
+    "query_name": "Query 1: Short Audio Clip (7s)",
+    "file": "temp_uploads/short_clip_7s.wav",
+    "status_code": 200,
+    "latency_s": 29.02,
+    "feature1_similarity_engine": {
+      "total_corpus_size": 261,
+      "candidates_considered": 261,
+      "candidates_retained_prefilter": 114,
+      "candidates_evaluated_dtw": 114,
+      "candidates_surviving_floor": 64,
+      "candidates_surviving_pvalue": 15,
+      "top_similarity": 0.7903727721552968,
+      "top_candidate_id": "haim_ai_musicgen_musicgen_small_00034",
+      "best_shift": 2
+    },
+    "feature2_statistical_significance": {
+      "p_value": 0.0,
+      "k_exceedance_count": 0,
+      "n_null_samples": 6105,
+      "adjusted_p_value": 0.0,
+      "confidence": "High",
+      "severity_label": "Critical Anomaly"
+    },
+    "feature3_creative_novelty": {
+      "case_classification": "Case B",
+      "case_name": "Undetermined Genre",
+      "case_description": "Significant structural similarity detected; genre relationship cannot be established as genre metadata is missing or unclassified (Query: Unknown, Match: Unknown).",
+      "broad_novelty_score_percent": 0.03,
+      "narrow_novelty_score_percent": 0.5,
+      "score_tier": "High Structural Imitation"
+    },
+    "feature4_origin_classifier": {
+      "predicted_origin": "AI",
+      "confidence": null,
+      "probability_ai": null,
+      "model_status": "Trained & Active"
+    },
+    "feature5_musical_context": {
+      "estimated_tempo_bpm": null,
+      "estimated_key": "A Major",
+      "meter": null,
+      "duration_seconds": 7.5
+    },
+    "feature6_mimic_identification": {
+      "top_mimic_candidate_id": "haim_ai_musicgen_musicgen_small_00034",
+      "top_mimic_similarity": 0.7903727721552968,
+      "mimic_warning_active": true,
+      "coverage_percent": 0.0,
+      "coverage_interpretation": "Isolated passage",
+      "duration_disparity_warning": false,
+      "disparity_explanation": null,
+      "ranked_candidates_count": 3,
+      "top_3_candidates": [
+        {
+          "candidate_id": "haim_ai_musicgen_musicgen_small_00034",
+          "similarity": 0.7904,
+          "p_value": 0.0,
+          "origin": "AI"
+        },
+        {
+          "candidate_id": "haim_ai_musicgen_musicgen_small_00010",
+          "similarity": 0.7143,
+          "p_value": 0.00066,
+          "origin": "AI"
+        },
+        {
+          "candidate_id": "haim_human_06006",
+          "similarity": 0.6999,
+          "p_value": 0.00066,
+          "origin": "AI"
+        }
+      ]
+    },
+    "feature7_suggestor_box_and_timeline": {
+      "timeline_items_count": 3,
+      "timeline_items": [
+        {
+          "candidate_id": "haim_ai_musicgen_musicgen_small_00034",
+          "candidate_title": "haim_ai_musicgen_musicgen_small_00034",
+          "candidate_artist": "mippia/HAIM",
+          "similarity": 0.7903727721552968,
+          "p_value": 0.0,
+          "severity": "Critical Anomaly",
+          "best_shift": 2,
+          "flagged_segments": [],
+          "studio_suggestions": [
+            "Maximum structural alignment occurs at a transposition of 2 semitones. To differentiate melodic motion, consider altering root intervals or introducing modal interchange.",
+            "Alignment with 'haim_ai_musicgen_musicgen_small_00034' yielded an overall similarity of 0.79. Review highlighted timestamps in the evidence timeline to verify arrangement independence."
+          ]
+        },
+        {
+          "candidate_id": "haim_ai_musicgen_musicgen_small_00010",
+          "candidate_title": "haim_ai_musicgen_musicgen_small_00010",
+          "candidate_artist": "mippia/HAIM",
+          "similarity": 0.7143421915660907,
+          "p_value": 0.0006552006552006552,
+          "severity": "Critical Anomaly",
+          "best_shift": 4,
+          "flagged_segments": [],
+          "studio_suggestions": [
+            "Maximum structural alignment occurs at a transposition of 4 semitones. To differentiate melodic motion, consider altering root intervals or introducing modal interchange.",
+            "Alignment with 'haim_ai_musicgen_musicgen_small_00010' yielded an overall similarity of 0.71. Review highlighted timestamps in the evidence timeline to verify arrangement independence."
+          ]
+        },
+        {
+          "candidate_id": "haim_human_06006",
+          "candidate_title": "haim_human_06006",
+          "candidate_artist": "MTG-Jamendo Artist",
+          "similarity": 0.6999321388825547,
+          "p_value": 0.0006552006552006552,
+          "severity": "Critical Anomaly",
+          "best_shift": 0,
+          "flagged_segments": [],
+          "studio_suggestions": [
+            "Harmonic alignment aligns in prime pitch space (0 semitone shift). Consider varying chord substitutions or altering top-line voice leading.",
+            "Alignment with 'haim_human_06006' yielded an overall similarity of 0.70. Review highlighted timestamps in the evidence timeline to verify arrangement independence."
+          ]
+        }
+      ],
+      "final_verdict": "Warning \u2014 Multiple indicators suggest structural similarity",
+      "true_indicators_count": 2,
+      "verdict_explanation": "Two out of three indicators confirm structural convergence beyond normal variation."
+    }
+  },
+  {
+    "query_name": "Query 2: Key Transposed Clip (+3 Semitones)",
+    "file": "temp_uploads/test_transformed_3semitones.wav",
+    "status_code": 200,
+    "latency_s": 30.39,
+    "feature1_similarity_engine": {
+      "total_corpus_size": 261,
+      "candidates_considered": 261,
+      "candidates_retained_prefilter": 122,
+      "candidates_evaluated_dtw": 122,
+      "candidates_surviving_floor": 75,
+      "candidates_surviving_pvalue": 15,
+      "top_similarity": 0.7314114489896265,
+      "top_candidate_id": "haim_ai_musicgen_musicgen_small_00013",
+      "best_shift": 0
+    },
+    "feature2_statistical_significance": {
+      "p_value": 0.0001638001638001638,
+      "k_exceedance_count": 1,
+      "n_null_samples": 6105,
+      "adjusted_p_value": 0.0157,
+      "confidence": "High",
+      "severity_label": "Critical Anomaly"
+    },
+    "feature3_creative_novelty": {
+      "case_classification": "Case B",
+      "case_name": "Undetermined Genre",
+      "case_description": "Significant structural similarity detected; genre relationship cannot be established as genre metadata is missing or unclassified (Query: Unknown, Match: Unknown).",
+      "broad_novelty_score_percent": 0.21,
+      "narrow_novelty_score_percent": 2.27,
+      "score_tier": "High Structural Imitation"
+    },
+    "feature4_origin_classifier": {
+      "predicted_origin": "Human",
+      "confidence": null,
+      "probability_ai": null,
+      "model_status": "Trained & Active"
+    },
+    "feature5_musical_context": {
+      "estimated_tempo_bpm": null,
+      "estimated_key": "C Minor",
+      "meter": null,
+      "duration_seconds": 7.5
+    },
+    "feature6_mimic_identification": {
+      "top_mimic_candidate_id": "haim_ai_musicgen_musicgen_small_00013",
+      "top_mimic_similarity": 0.7314114489896265,
+      "mimic_warning_active": true,
+      "coverage_percent": 0.0,
+      "coverage_interpretation": "Isolated passage",
+      "duration_disparity_warning": false,
+      "disparity_explanation": null,
+      "ranked_candidates_count": 3,
+      "top_3_candidates": [
+        {
+          "candidate_id": "haim_ai_musicgen_musicgen_small_00013",
+          "similarity": 0.7314,
+          "p_value": 0.00016,
+          "origin": "Human"
+        },
+        {
+          "candidate_id": "haim_ai_acestep_0011",
+          "similarity": 0.723,
+          "p_value": 0.00033,
+          "origin": "Human"
+        },
+        {
+          "candidate_id": "haim_ai_musicgen_musicgen_small_00008",
+          "similarity": 0.702,
+          "p_value": 0.00066,
+          "origin": "Human"
+        }
+      ]
+    },
+    "feature7_suggestor_box_and_timeline": {
+      "timeline_items_count": 3,
+      "timeline_items": [
+        {
+          "candidate_id": "haim_ai_musicgen_musicgen_small_00013",
+          "candidate_title": "haim_ai_musicgen_musicgen_small_00013",
+          "candidate_artist": "mippia/HAIM",
+          "similarity": 0.7314114489896265,
+          "p_value": 0.0001638001638001638,
+          "severity": "Critical Anomaly",
+          "best_shift": 0,
+          "flagged_segments": [],
+          "studio_suggestions": [
+            "Harmonic alignment aligns in prime pitch space (0 semitone shift). Consider varying chord substitutions or altering top-line voice leading.",
+            "Estimated tempo is 123.0 BPM. Introducing syncopated rhythmic displacement or shifting metric accents can decorrelate beat-aligned harmonic contours.",
+            "Alignment with 'haim_ai_musicgen_musicgen_small_00013' yielded an overall similarity of 0.73. Review highlighted timestamps in the evidence timeline to verify arrangement independence."
+          ]
+        },
+        {
+          "candidate_id": "haim_ai_acestep_0011",
+          "candidate_title": "haim_ai_acestep_0011",
+          "candidate_artist": "Synthetic Generator (acestep)",
+          "similarity": 0.7230053406748691,
+          "p_value": 0.0003276003276003276,
+          "severity": "Critical Anomaly",
+          "best_shift": 0,
+          "flagged_segments": [
+            {
+              "start_time_a": 0.56,
+              "end_time_a": 7.11,
+              "start_time_b": 53.66,
+              "end_time_b": 54.06,
+              "mean_step_cost": 0.2541,
+              "segment_similarity": 0.7974
+            }
+          ],
+          "studio_suggestions": [
+            "Harmonic alignment aligns in prime pitch space (0 semitone shift). Consider varying chord substitutions or altering top-line voice leading.",
+            "Flagged segment detected between 0.6s and 7.1s (similarity: 0.80). Revoicing harmonic extensions or varying cadential rhythm in this window will effectively disperse structural overlap.",
+            "Estimated tempo is 123.0 BPM. Introducing syncopated rhythmic displacement or shifting metric accents can decorrelate beat-aligned harmonic contours.",
+            "Alignment with 'haim_ai_acestep_0011' yielded an overall similarity of 0.72. Review highlighted timestamps in the evidence timeline to verify arrangement independence."
+          ]
+        },
+        {
+          "candidate_id": "haim_ai_musicgen_musicgen_small_00008",
+          "candidate_title": "haim_ai_musicgen_musicgen_small_00008",
+          "candidate_artist": "mippia/HAIM",
+          "similarity": 0.7019566259467361,
+          "p_value": 0.0006552006552006552,
+          "severity": "Critical Anomaly",
+          "best_shift": 5,
+          "flagged_segments": [],
+          "studio_suggestions": [
+            "Maximum structural alignment occurs at a transposition of 5 semitones. To differentiate melodic motion, consider altering root intervals or introducing modal interchange.",
+            "Estimated tempo is 123.0 BPM. Introducing syncopated rhythmic displacement or shifting metric accents can decorrelate beat-aligned harmonic contours.",
+            "Alignment with 'haim_ai_musicgen_musicgen_small_00008' yielded an overall similarity of 0.70. Review highlighted timestamps in the evidence timeline to verify arrangement independence."
+          ]
+        }
+      ],
+      "final_verdict": "Warning \u2014 Multiple indicators suggest structural similarity",
+      "true_indicators_count": 2,
+      "verdict_explanation": "Two out of three indicators confirm structural convergence beyond normal variation."
+    }
+  },
+  {
+    "query_name": "Query 3: Long Audio Clip (65s)",
+    "file": "temp_uploads/test_65s.wav",
+    "status_code": 200,
+    "latency_s": 192.87,
+    "feature1_similarity_engine": {
+      "total_corpus_size": 261,
+      "candidates_considered": 261,
+      "candidates_retained_prefilter": 110,
+      "candidates_evaluated_dtw": 110,
+      "candidates_surviving_floor": 106,
+      "candidates_surviving_pvalue": 15,
+      "top_similarity": 0.8505994369605611,
+      "top_candidate_id": "haim_ai_acestep_0020",
+      "best_shift": 2
+    },
+    "feature2_statistical_significance": {
+      "p_value": 0.0,
+      "k_exceedance_count": 0,
+      "n_null_samples": 6105,
+      "adjusted_p_value": 0.0,
+      "confidence": "High",
+      "severity_label": "Critical Anomaly"
+    },
+    "feature3_creative_novelty": {
+      "case_classification": "Case B",
+      "case_name": "Undetermined Genre",
+      "case_description": "Significant structural similarity detected; genre relationship cannot be established as genre metadata is missing or unclassified (Query: Unknown, Match: Unknown).",
+      "broad_novelty_score_percent": 1.03,
+      "narrow_novelty_score_percent": 1.73,
+      "score_tier": "High Structural Imitation"
+    },
+    "feature4_origin_classifier": {
+      "predicted_origin": "AI",
+      "confidence": null,
+      "probability_ai": null,
+      "model_status": "Trained & Active"
+    },
+    "feature5_musical_context": {
+      "estimated_tempo_bpm": null,
+      "estimated_key": "A Major",
+      "meter": null,
+      "duration_seconds": 65.0
+    },
+    "feature6_mimic_identification": {
+      "top_mimic_candidate_id": "haim_ai_acestep_0020",
+      "top_mimic_similarity": 0.8505994369605611,
+      "mimic_warning_active": true,
+      "coverage_percent": 1.8,
+      "coverage_interpretation": "Isolated passage",
+      "duration_disparity_warning": false,
+      "disparity_explanation": null,
+      "ranked_candidates_count": 3,
+      "top_3_candidates": [
+        {
+          "candidate_id": "haim_ai_acestep_0020",
+          "similarity": 0.8506,
+          "p_value": 0.0,
+          "origin": "AI"
+        },
+        {
+          "candidate_id": "haim_human_06001",
+          "similarity": 0.8229,
+          "p_value": 0.0,
+          "origin": "AI"
+        },
+        {
+          "candidate_id": "haim_human_06035",
+          "similarity": 0.8142,
+          "p_value": 0.0,
+          "origin": "AI"
+        }
+      ]
+    },
+    "feature7_suggestor_box_and_timeline": {
+      "timeline_items_count": 3,
+      "timeline_items": [
+        {
+          "candidate_id": "haim_ai_acestep_0020",
+          "candidate_title": "haim_ai_acestep_0020",
+          "candidate_artist": "Synthetic Generator (acestep)",
+          "similarity": 0.8505994369605611,
+          "p_value": 0.0,
+          "severity": "Critical Anomaly",
+          "best_shift": 2,
+          "flagged_segments": [
+            {
+              "start_time_a": 63.81,
+              "end_time_a": 64.92,
+              "start_time_b": 46.14,
+              "end_time_b": 47.14,
+              "mean_step_cost": 0.1051,
+              "segment_similarity": 0.9049
+            }
+          ],
+          "studio_suggestions": [
+            "Maximum structural alignment occurs at a transposition of 2 semitones. To differentiate melodic motion, consider altering root intervals or introducing modal interchange.",
+            "Flagged segment detected between 63.8s and 64.9s (similarity: 0.90). Revoicing harmonic extensions or varying cadential rhythm in this window will effectively disperse structural overlap.",
+            "Alignment with 'haim_ai_acestep_0020' yielded an overall similarity of 0.85. Review highlighted timestamps in the evidence timeline to verify arrangement independence."
+          ]
+        },
+        {
+          "candidate_id": "haim_human_06001",
+          "candidate_title": "haim_human_06001",
+          "candidate_artist": "MTG-Jamendo Artist",
+          "similarity": 0.8229211244037564,
+          "p_value": 0.0,
+          "severity": "Critical Anomaly",
+          "best_shift": 5,
+          "flagged_segments": [
+            {
+              "start_time_a": 64.55,
+              "end_time_a": 64.97,
+              "start_time_b": 57.86,
+              "end_time_b": 58.31,
+              "mean_step_cost": 0.1358,
+              "segment_similarity": 0.8805
+            }
+          ],
+          "studio_suggestions": [
+            "Maximum structural alignment occurs at a transposition of 5 semitones. To differentiate melodic motion, consider altering root intervals or introducing modal interchange.",
+            "Flagged segment detected between 64.5s and 65.0s (similarity: 0.88). Revoicing harmonic extensions or varying cadential rhythm in this window will effectively disperse structural overlap.",
+            "Alignment with 'haim_human_06001' yielded an overall similarity of 0.82. Review highlighted timestamps in the evidence timeline to verify arrangement independence."
+          ]
+        },
+        {
+          "candidate_id": "haim_human_06035",
+          "candidate_title": "haim_human_06035",
+          "candidate_artist": "mippia/HAIM",
+          "similarity": 0.8142069107742202,
+          "p_value": 0.0,
+          "severity": "Critical Anomaly",
+          "best_shift": 0,
+          "flagged_segments": [
+            {
+              "start_time_a": 0.12,
+              "end_time_a": 58.96,
+              "start_time_b": 3.9,
+              "end_time_b": 4.48,
+              "mean_step_cost": 0.0958,
+              "segment_similarity": 0.9126
+            }
+          ],
+          "studio_suggestions": [
+            "Harmonic alignment aligns in prime pitch space (0 semitone shift). Consider varying chord substitutions or altering top-line voice leading.",
+            "Flagged segment detected between 0.1s and 59.0s (similarity: 0.91). Revoicing harmonic extensions or varying cadential rhythm in this window will effectively disperse structural overlap.",
+            "Alignment with 'haim_human_06035' yielded an overall similarity of 0.81. Review highlighted timestamps in the evidence timeline to verify arrangement independence."
+          ]
+        }
+      ],
+      "final_verdict": "Critical \u2014 All indicators confirm structural imitation",
+      "true_indicators_count": 3,
+      "verdict_explanation": "All three independent analytical indicators exceeded critical thresholds (Similarity: 0.85 >= 0.85, P-Value: 0.0000 <= 0.01, Creative Score: 0.0103 <= 0.24)."
+    }
+  }
+]

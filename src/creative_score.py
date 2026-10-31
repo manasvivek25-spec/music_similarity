@@ -62,9 +62,8 @@ def calculate_z_score_percent(similarity: float, mean: float, std: float) -> flo
     else:
         z = (similarity - mean) / std
 
-    # (1 - norm.cdf(z)) * 100
-    cdf_val = float(norm.cdf(z))
-    score_pct = (1.0 - cdf_val) * 100.0
+    # Use survival function norm.sf(z) for upper tail 1 - Phi(z) to avoid floating-point underflow at large z
+    score_pct = float(norm.sf(z)) * 100.0
     return float(np.clip(score_pct, 0.0, 100.0))
 
 
@@ -134,6 +133,17 @@ def compute_creative_score(
 
     tier = get_creative_score_tier(broad_pct)
 
+    # Compute bootstrap confidence interval if reference pool has sufficient samples
+    broad_ci: Optional[Tuple[float, float]] = None
+    if len(valid_pool) >= 5:
+        try:
+            from src.stats_test import compute_novelty_bootstrap_ci
+            ci_dict = compute_novelty_bootstrap_ci(observed_similarity, valid_pool, n_bootstrap=1000)
+            if ci_dict:
+                broad_ci = (ci_dict["ci_lower"], ci_dict["ci_upper"])
+        except Exception:
+            pass
+
     return CreativeScoreResult(
         broad_score_percent=round(broad_pct, 2),
         broad_score_normalized=round(broad_norm, 4),
@@ -142,4 +152,5 @@ def compute_creative_score(
         score_tier=tier,
         is_available=True,
         evaluated_genres=genres_list,
+        broad_score_ci=broad_ci,
     )

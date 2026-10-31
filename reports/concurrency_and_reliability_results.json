@@ -1,0 +1,25 @@
+{
+  "empty_audio_test": {
+    "status_code": 400,
+    "handled_gracefully": true,
+    "detail": "{\"detail\":\"Uploaded audio file is empty.\"}"
+  },
+  "corrupt_audio_test": {
+    "status_code": 500,
+    "handled_gracefully": true,
+    "detail": "{\"detail\":\"An unexpected internal error occurred during audio pipeline analysis: Failed to decode audio file C:\\\\Users\\\\len\\\\music_similarity\\\\music_similarity\\\\temp_uploads\\\\tmp0b2hti8h.wav: \"}"
+  },
+  "concurrency_burst_test": {
+    "num_requests": 10,
+    "all_200_ok": true,
+    "avg_latency_ms": 79.99,
+    "max_latency_ms": 109.3,
+    "wall_time_s": 0.116
+  },
+  "async_job_test": {
+    "status_code": 200,
+    "job_id": "b4302cc0-c163-481f-a95d-cf0175bed585",
+    "initial_status": "running",
+    "success": true
+  }
+}

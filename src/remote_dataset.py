@@ -378,7 +378,11 @@ def extract_features_from_waveform(
 
     # 1. Raw Chroma CQT (with STFT fallback if too short)
     try:
-        chroma_raw = librosa.feature.chroma_cqt(y=waveform, sr=sr)
+        if len(waveform) < sr * 3:
+            n_fft = min(1024, len(waveform))
+            chroma_raw = librosa.feature.chroma_stft(y=waveform, sr=sr, n_fft=n_fft)
+        else:
+            chroma_raw = librosa.feature.chroma_cqt(y=waveform, sr=sr)
     except Exception:
         n_fft = min(1024, len(waveform))
         chroma_raw = librosa.feature.chroma_stft(y=waveform, sr=sr, n_fft=n_fft)
@@ -575,7 +579,7 @@ def load_remote_index(index_file: Optional[Path] = None) -> Dict[str, Any]:
             "total_indexed": 0,
             "records_scanned": 0,
             "duplicate_records": 0,
-            "scan_status": "Not Started",
+            "scan_status": "NOT_STARTED",
             "is_complete": False,
             "unresolved_records": {},
             "tracks": {},
@@ -588,9 +592,9 @@ def load_remote_index(index_file: Optional[Path] = None) -> Dict[str, Any]:
             tracks = data.get("tracks", {})
             unresolved = data.get("unresolved_records", {})
             if data.get("is_complete"):
-                def_status = "Complete" if len(unresolved) == 0 else "Completed with Errors"
+                def_status = "COMPLETED" if len(unresolved) == 0 else "COMPLETED_WITH_EXCLUSIONS"
             else:
-                def_status = "Partial" if len(tracks) > 0 else "Not Started"
+                def_status = "PAUSED" if len(tracks) > 0 else "NOT_STARTED"
             data.setdefault("scan_status", def_status)
             data.setdefault("records_scanned", len(tracks) + len(unresolved))
             data.setdefault("duplicate_records", 0)
@@ -1008,8 +1012,8 @@ def index_remote_dataset(
             index_data["tracks"] = existing_tracks
             save_remote_index(index_data, idx_path)
 
-    # Invalidate null distribution cache if new tracks were added
-    if processed_records > 0:
+    # Invalidate null distribution cache only if real production index was modified
+    if processed_records > 0 and Path(idx_path).resolve() == Path(REMOTE_INDEX_FILE).resolve():
         from src.stats_test import invalidate_null_distribution_cache
         invalidate_null_distribution_cache()
 
@@ -1017,13 +1021,13 @@ def index_remote_dataset(
     unresolved_count = len(index_data.get("unresolved_records", {}))
     if is_full and stream_exhausted:
         if unresolved_count == 0:
-            scan_status = "Complete"
+            scan_status = "COMPLETED"
             is_complete = True
         else:
-            scan_status = "Completed with Errors"
-            is_complete = False
+            scan_status = "COMPLETED_WITH_EXCLUSIONS"
+            is_complete = True
     else:
-        scan_status = "Partial" if len(existing_tracks) > 0 else "Not Started"
+        scan_status = "PAUSED" if len(existing_tracks) > 0 else "NOT_STARTED"
         is_complete = False
 
     # Update and write persistent index

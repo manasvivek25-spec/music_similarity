@@ -1,0 +1,241 @@
+{
+  "verified_at": "2026-10-31T11:07:41Z",
+  "queries": {
+    "test_65s": {
+      "query_name": "test_65s",
+      "file_name": "test_65s.wav",
+      "latency_sec": 100.69,
+      "duration_sec": 65.0,
+      "estimated_key": "A Major",
+      "estimated_tempo": 0.0,
+      "candidates_considered": 71,
+      "candidates_surviving_prefilter": 25,
+      "candidates_evaluated": 25,
+      "candidates_surviving_floor": 24,
+      "candidates_surviving_pvalue": 10,
+      "null_distribution_sample_count": 666,
+      "feature_1_similarity_engine": {
+        "top_candidate_id": "haim_ai_acestep_0020",
+        "top_similarity": 0.8505994369605611,
+        "similarity_tier": "High Structural Similarity",
+        "best_pitch_shift": 2,
+        "normalized_distance": 0.1756
+      },
+      "feature_2_statistical_significance": {
+        "top_p_value": 0.0,
+        "confidence": "Moderate",
+        "severity_label": "Critical Anomaly",
+        "null_sample_size": 666
+      },
+      "feature_3_creative_novelty": {
+        "broad_score_percent": 3.9,
+        "broad_score_ci": [
+          0.78,
+          8.78
+        ],
+        "score_tier": "High Structural Imitation",
+        "evaluated_genres": [
+          "General"
+        ]
+      },
+      "feature_4_origin_classifier": {
+        "predicted_origin": "Human",
+        "confidence": 1.0,
+        "probability_ai": 0.0,
+        "model_status": "Trained & Active"
+      },
+      "feature_5_musical_context": {
+        "estimated_key": "A Major",
+        "estimated_tempo": 0.0,
+        "genre": null
+      },
+      "feature_6_mimic_identification": {
+        "case_type": "Case B",
+        "case_name": "Undetermined Genre",
+        "description": "Significant structural similarity detected; genre relationship cannot be established as genre metadata is missing or unclassified (Query: Unknown, Match: Unknown).",
+        "final_verdict": "Critical \u2014 All indicators confirm structural imitation"
+      },
+      "feature_7_suggestor_evidence": {
+        "timeline_item_count": 3,
+        "sample_snippet": {
+          "candidate_id": "haim_ai_acestep_0020",
+          "candidate_title": "haim_ai_acestep_0020",
+          "candidate_artist": "Synthetic Generator (acestep)",
+          "similarity": 0.8505994369605611,
+          "p_value": 0.0,
+          "severity": "Critical Anomaly",
+          "best_shift": 2,
+          "flagged_segments": [
+            {
+              "start_time_a": 63.81,
+              "end_time_a": 64.92,
+              "start_time_b": 46.14,
+              "end_time_b": 47.14,
+              "mean_step_cost": 0.1051,
+              "segment_similarity": 0.9049
+            }
+          ],
+          "studio_suggestions": [
+            "Maximum structural alignment occurs at a transposition of 2 semitones. To differentiate melodic motion, consider altering root intervals or introducing modal interchange.",
+            "Flagged segment detected between 63.8s and 64.9s (similarity: 0.90). Revoicing harmonic extensions or varying cadential rhythm in this window will effectively disperse structural overlap.",
+            "Alignment with 'haim_ai_acestep_0020' yielded an overall similarity of 0.85. Review highlighted timestamps in the evidence timeline to verify arrangement independence."
+          ]
+        }
+      }
+    },
+    "short_clip_7s": {
+      "query_name": "short_clip_7s",
+      "file_name": "short_clip_7s.wav",
+      "latency_sec": 15.21,
+      "duration_sec": 7.5,
+      "estimated_key": "A Major",
+      "estimated_tempo": 0.0,
+      "candidates_considered": 71,
+      "candidates_surviving_prefilter": 27,
+      "candidates_evaluated": 27,
+      "candidates_surviving_floor": 24,
+      "candidates_surviving_pvalue": 5,
+      "null_distribution_sample_count": 666,
+      "feature_1_similarity_engine": {
+        "top_candidate_id": "haim_human_06006",
+        "top_similarity": 0.6999321388825547,
+        "similarity_tier": "Moderate Similarity",
+        "best_pitch_shift": 0,
+        "normalized_distance": 0.4287
+      },
+      "feature_2_statistical_significance": {
+        "top_p_value": 0.021021021021021023,
+        "confidence": "Moderate",
+        "severity_label": "Borderline Indicator",
+        "null_sample_size": 666
+      },
+      "feature_3_creative_novelty": {
+        "broad_score_percent": 4.27,
+        "broad_score_ci": [
+          0.68,
+          10.65
+        ],
+        "score_tier": "High Structural Imitation",
+        "evaluated_genres": [
+          "General"
+        ]
+      },
+      "feature_4_origin_classifier": {
+        "predicted_origin": "Human",
+        "confidence": 1.0,
+        "probability_ai": 0.0,
+        "model_status": "Trained & Active"
+      },
+      "feature_5_musical_context": {
+        "estimated_key": "A Major",
+        "estimated_tempo": 0.0,
+        "genre": null
+      },
+      "feature_6_mimic_identification": {
+        "case_type": "Case B",
+        "case_name": "Undetermined Genre",
+        "description": "Significant structural similarity detected; genre relationship cannot be established as genre metadata is missing or unclassified (Query: Unknown, Match: Unknown).",
+        "final_verdict": "Advisory \u2014 Single indicator, likely genre convention"
+      },
+      "feature_7_suggestor_evidence": {
+        "timeline_item_count": 3,
+        "sample_snippet": {
+          "candidate_id": "haim_human_06006",
+          "candidate_title": "haim_human_06006",
+          "candidate_artist": "MTG-Jamendo Artist",
+          "similarity": 0.6999321388825547,
+          "p_value": 0.021021021021021023,
+          "severity": "Borderline Indicator",
+          "best_shift": 0,
+          "flagged_segments": [],
+          "studio_suggestions": [
+            "Harmonic alignment aligns in prime pitch space (0 semitone shift). Consider varying chord substitutions or altering top-line voice leading.",
+            "Alignment with 'haim_human_06006' yielded an overall similarity of 0.70. Review highlighted timestamps in the evidence timeline to verify arrangement independence."
+          ]
+        }
+      }
+    },
+    "transformed_3st": {
+      "query_name": "transformed_3st",
+      "file_name": "test_transformed_3semitones.wav",
+      "latency_sec": 16.32,
+      "duration_sec": 7.5,
+      "estimated_key": "C Minor",
+      "estimated_tempo": 0.0,
+      "candidates_considered": 71,
+      "candidates_surviving_prefilter": 36,
+      "candidates_evaluated": 36,
+      "candidates_surviving_floor": 31,
+      "candidates_surviving_pvalue": 13,
+      "null_distribution_sample_count": 666,
+      "feature_1_similarity_engine": {
+        "top_candidate_id": "haim_ai_acestep_0011",
+        "top_similarity": 0.7230053406748691,
+        "similarity_tier": "Moderate Similarity",
+        "best_pitch_shift": 0,
+        "normalized_distance": 0.3831
+      },
+      "feature_2_statistical_significance": {
+        "top_p_value": 0.016516516516516516,
+        "confidence": "Moderate",
+        "severity_label": "Borderline Indicator",
+        "null_sample_size": 666
+      },
+      "feature_3_creative_novelty": {
+        "broad_score_percent": 2.62,
+        "broad_score_ci": [
+          0.31,
+          7.62
+        ],
+        "score_tier": "High Structural Imitation",
+        "evaluated_genres": [
+          "General"
+        ]
+      },
+      "feature_4_origin_classifier": {
+        "predicted_origin": "Human",
+        "confidence": 1.0,
+        "probability_ai": 0.0,
+        "model_status": "Trained & Active"
+      },
+      "feature_5_musical_context": {
+        "estimated_key": "C Minor",
+        "estimated_tempo": 0.0,
+        "genre": null
+      },
+      "feature_6_mimic_identification": {
+        "case_type": "Case B",
+        "case_name": "Undetermined Genre",
+        "description": "Significant structural similarity detected; genre relationship cannot be established as genre metadata is missing or unclassified (Query: Unknown, Match: Unknown).",
+        "final_verdict": "Advisory \u2014 Single indicator, likely genre convention"
+      },
+      "feature_7_suggestor_evidence": {
+        "timeline_item_count": 3,
+        "sample_snippet": {
+          "candidate_id": "haim_ai_acestep_0011",
+          "candidate_title": "haim_ai_acestep_0011",
+          "candidate_artist": "Synthetic Generator (acestep)",
+          "similarity": 0.7230053406748691,
+          "p_value": 0.016516516516516516,
+          "severity": "Borderline Indicator",
+          "best_shift": 0,
+          "flagged_segments": [
+            {
+              "start_time_a": 0.56,
+              "end_time_a": 7.11,
+              "start_time_b": 53.66,
+              "end_time_b": 54.06,
+              "mean_step_cost": 0.2541,
+              "segment_similarity": 0.7974
+            }
+          ],
+          "studio_suggestions": [
+            "Harmonic alignment aligns in prime pitch space (0 semitone shift). Consider varying chord substitutions or altering top-line voice leading.",
+            "Flagged segment detected between 0.6s and 7.1s (similarity: 0.80). Revoicing harmonic extensions or varying cadential rhythm in this window will effectively disperse structural overlap.",
+            "Alignment with 'haim_ai_acestep_0011' yielded an overall similarity of 0.72. Review highlighted timestamps in the evidence timeline to verify arrangement independence."
+          ]
+        }
+      }
+    }
+  }
+}

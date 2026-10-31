@@ -27,6 +27,8 @@ features/*
 !features/.gitkeep
 features/extra/*
 !features/extra/.gitkeep
+features/mert/*
+!features/mert/.gitkeep
 
 # Trained model artifacts & configs
 models/*

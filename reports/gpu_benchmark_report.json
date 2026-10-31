@@ -1,0 +1,48 @@
+{
+  "timestamp": "2026-10-31 14:04:15 UTC",
+  "device_name": "NVIDIA GeForce RTX 3050 6GB Laptop GPU",
+  "cuda_version": "11.8",
+  "pytorch_version": "2.7.1+cu118",
+  "model_id": "m-a-p/MERT-v1-95M",
+  "test_audio_duration_sec": 10.0,
+  "test_sample_rate": 24000,
+  "forward_inference": {
+    "repetitions": 5,
+    "cpu_latencies_ms": [
+      2689.2481000031694,
+      2907.8718000018853,
+      2871.46919999941,
+      2808.6503999948036,
+      2768.6460000040825
+    ],
+    "cpu_median_ms": 2808.65,
+    "cpu_mean_ms": 2809.18,
+    "cpu_std_ms": 77.0,
+    "cuda_latencies_ms": [
+      81.42579999548616,
+      75.89220000227215,
+      73.11979999940377,
+      75.36200000322424,
+      75.39959999849088
+    ],
+    "cuda_median_ms": 75.4,
+    "cuda_mean_ms": 76.24,
+    "cuda_std_ms": 2.77,
+    "speedup_factor": 37.25,
+    "peak_vram_mb": 659.47,
+    "model_load_time_cuda_ms": 1276.32
+  },
+  "numerical_parity": {
+    "max_absolute_error": 0.00022077560424804688,
+    "mean_absolute_error": 1.681582216406241e-05,
+    "cosine_similarity_parity": 0.9999999403953552,
+    "parity_status": "DIVERGENT"
+  },
+  "batch_retrieval_benchmark": {
+    "corpus_size": 69,
+    "cpu_median_ms": 0.1483,
+    "cuda_median_ms": 0.7725,
+    "speedup_factor": 0.19,
+    "max_discrepancy": 1.7881393432617188e-07
+  }
+}

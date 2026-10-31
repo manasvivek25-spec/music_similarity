@@ -71,7 +71,7 @@ from src.schemas import (
     SuggestorResponse,
 )
 from src.similarity import DTWResult, dtw_align_detailed, dtw_similarity
-from src.stats_test import null_distribution_test
+from src.stats_test import null_distribution_test, null_distribution_test_detailed
 from src.utils import ensure_dir, get_audio_duration, list_audio_files
 
 ensure_dir(TEMP_UPLOADS_DIR)
@@ -391,7 +391,7 @@ def run_null_test(payload: NullTestRequest):
     if len(scores) == 0:
         raise HTTPException(status_code=400, detail="Null scores list cannot be empty.")
 
-    p_val = null_distribution_test(payload.query_score, scores)
+    p_val, k_val, N_val = null_distribution_test_detailed(payload.query_score, scores)
     from src.stats_test import compute_confidence_label
     conf = compute_confidence_label(len(scores))
 
@@ -402,6 +402,8 @@ def run_null_test(payload: NullTestRequest):
             is_significant=False,
             severity_tier="none",
             null_distribution_size=len(scores),
+            exceedance_count=None,
+            null_sample_size=N_val,
             confidence=conf,
             min_required=5,
             explanation=f"Insufficient null population (N={len(scores)}, minimum 5 required)",
@@ -421,6 +423,8 @@ def run_null_test(payload: NullTestRequest):
         is_significant=is_sig,
         severity_tier=tier,
         null_distribution_size=len(scores),
+        exceedance_count=k_val,
+        null_sample_size=N_val,
         confidence=conf,
         min_required=5,
         explanation=None,
@@ -496,7 +500,7 @@ def rank_candidates_matrix(payload: CandidateRankMatrixRequest):
     for item in payload.candidates:
         cand_chroma = np.array(item.chroma, dtype=float)
         res = dtw_align_detailed(query_chroma, cand_chroma)
-        p_val = null_distribution_test(res.similarity, DEFAULT_NULL_SCORES)
+        p_val, k_val, N_val = null_distribution_test_detailed(res.similarity, DEFAULT_NULL_SCORES)
 
         from src.mimic import calculate_alignment_coverage
         cov, cov_pct, cov_interp = calculate_alignment_coverage(
@@ -511,6 +515,8 @@ def rank_candidates_matrix(payload: CandidateRankMatrixRequest):
             normalized_distance=round(res.normalized_distance, 4),
             best_shift=res.best_shift,
             p_value=round(p_val, 4) if p_val is not None else None,
+            exceedance_count=k_val,
+            null_sample_size=N_val,
             is_top_match=False,
             alignment_coverage=cov,
             coverage_percent=cov_pct,
@@ -587,7 +593,7 @@ def classify_track_origin_endpoint(file: UploadFile = File(...)):
     tmp_path = None
     try:
         tmp_path = save_upload_to_temp_quick(file)
-        y, sr = librosa.load(str(tmp_path), sr=22050, duration=30.0)
+        y, sr = librosa.load(str(tmp_path), sr=22050)
         flatness = float(np.mean(librosa.feature.spectral_flatness(y=y)))
         pred = "ai" if flatness > 0.05 else "human"
         conf = 0.82 if pred == "ai" else 0.78
@@ -893,14 +899,14 @@ class DatasetScanManager:
             elapsed = round(time.time() - self._start_time, 2) if running else 0.0
 
         if running:
-            display_status = "Running"
+            display_status = "INDEXING"
         else:
             display_status = idx.get("scan_status")
             if not display_status:
                 if idx.get("is_complete"):
-                    display_status = "Complete" if len(unresolved_list) == 0 else "Completed with Errors"
+                    display_status = "COMPLETED" if len(unresolved_list) == 0 else "COMPLETED_WITH_EXCLUSIONS"
                 else:
-                    display_status = "Partial" if len(tracks) > 0 else "Not Started"
+                    display_status = "PAUSED" if len(tracks) > 0 else "NOT_STARTED"
 
         return IndexStatusResponse(
             total_indexed=len(tracks),
@@ -911,7 +917,7 @@ class DatasetScanManager:
             records_scanned=stats.get("records_scanned", idx.get("records_scanned", len(tracks) + len(unresolved_list))),
             audio_indexed=stats.get("processed_records", len(tracks)),
             existing_reused=stats.get("cache_hits", idx.get("total_indexed", 0)),
-            duplicate_records=stats.get("duplicate_records", idx.get("duplicate_records", 0)),
+            duplicate_records=len(stats.get("duplicate_records", idx.get("duplicate_records", 0))) if isinstance(stats.get("duplicate_records", idx.get("duplicate_records", 0)), list) else int(stats.get("duplicate_records", idx.get("duplicate_records", 0)) or 0),
             failed_records=stats.get("failed_records", len(unresolved_list)),
             records_awaiting_retry=len(unresolved_list),
             human_tracks=human,

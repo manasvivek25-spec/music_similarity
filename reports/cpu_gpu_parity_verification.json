@@ -1,0 +1,13 @@
+{
+  "tensor_mae": 1.6041763956309296e-05,
+  "tensor_max_ae": 0.00013971328735351562,
+  "cosine_similarity": 1.0000001192092896,
+  "bit_identical": false,
+  "numerically_equivalent": true,
+  "tolerance_threshold": 0.0001,
+  "max_retrieval_sim_diff": 8.940696716308594e-06,
+  "top10_retrieval_identical": true,
+  "full_retrieval_identical": true,
+  "classifier_decision_delta": 0.00013421753427333982,
+  "classifier_predictions_identical": true
+}

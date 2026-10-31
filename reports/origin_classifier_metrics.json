@@ -1,0 +1,162 @@
+{
+  "generated_at": "2026-10-31 19:36:03 UTC",
+  "feature_name": "Feature 4 \u2014 Origin Classifier",
+  "model_version": "1.0.0",
+  "result": {
+    "status": "success",
+    "best_model": "LinearSVC",
+    "best_f1": 0.8333333333333334,
+    "comparison": {
+      "LogisticRegression": {
+        "accuracy": 0.7833,
+        "balanced_accuracy": 0.7896,
+        "precision": 0.8571,
+        "recall": 0.7273,
+        "f1": 0.7869,
+        "roc_auc": 0.9158,
+        "confusion_matrix": [
+          [
+            23,
+            4
+          ],
+          [
+            9,
+            24
+          ]
+        ]
+      },
+      "LinearSVC": {
+        "accuracy": 0.8333,
+        "balanced_accuracy": 0.8418,
+        "precision": 0.9259,
+        "recall": 0.7576,
+        "f1": 0.8333,
+        "roc_auc": 0.9102,
+        "confusion_matrix": [
+          [
+            25,
+            2
+          ],
+          [
+            8,
+            25
+          ]
+        ]
+      },
+      "RandomForest": {
+        "accuracy": 0.7167,
+        "balanced_accuracy": 0.7222,
+        "precision": 0.7857,
+        "recall": 0.6667,
+        "f1": 0.7213,
+        "roc_auc": 0.8552,
+        "confusion_matrix": [
+          [
+            21,
+            6
+          ],
+          [
+            11,
+            22
+          ]
+        ]
+      }
+    },
+    "group_aware_evaluation": {
+      "jamendo_human": {
+        "sample_size": 49,
+        "predicted_human": 49,
+        "predicted_ai": 0,
+        "human_recall": 1.0,
+        "mean_prob_ai": 0.0,
+        "conclusion": "Identifies unseen human recording source with authentic acoustic recall."
+      },
+      "hybrid_b1": {
+        "sample_size": 10,
+        "predicted_human": 9,
+        "predicted_ai": 1,
+        "human_recall": 0.9,
+        "mean_prob_ai": 0.0,
+        "conclusion": "Acoustic feature space correctly recognizes underlying human harmonic structure despite AI mastering compression."
+      },
+      "temporal_c1": {
+        "sample_size": 10,
+        "predicted_human": 3,
+        "predicted_ai": 7,
+        "ai_detection_rate": 0.7,
+        "mean_prob_ai": 0.0,
+        "conclusion": "Synthetic passages shift spectral features toward AI class; mean probability reflects balanced mixture."
+      },
+      "generator_lyria_pro3": {
+        "generator": "lyria-pro3",
+        "sample_size": 35,
+        "predicted_ai": 24,
+        "predicted_human": 11,
+        "ai_recall": 0.6857,
+        "mean_prob_ai": 0.0,
+        "conclusion": "Evaluation on independent lyria-pro3 generator architecture."
+      },
+      "generator_musicgen": {
+        "generator": "musicgen",
+        "sample_size": 35,
+        "predicted_ai": 33,
+        "predicted_human": 2,
+        "ai_recall": 0.9429,
+        "mean_prob_ai": 0.0,
+        "conclusion": "Evaluation on independent musicgen generator architecture."
+      },
+      "generator_acestep": {
+        "generator": "acestep",
+        "sample_size": 60,
+        "predicted_ai": 60,
+        "predicted_human": 0,
+        "ai_recall": 1.0,
+        "mean_prob_ai": 0.0,
+        "conclusion": "Evaluation on independent acestep generator architecture."
+      },
+      "leave_one_generator_out": {
+        "acestep": {
+          "held_out_generator": "acestep",
+          "train_generators": [
+            "lyria-pro3",
+            "musicgen"
+          ],
+          "train_sample_size": 151,
+          "test_sample_size": 88,
+          "unseen_generator_recall": 0.5667,
+          "held_out_human_recall": 0.8929,
+          "balanced_accuracy": 0.7298
+        },
+        "lyria-pro3": {
+          "held_out_generator": "lyria-pro3",
+          "train_generators": [
+            "acestep",
+            "musicgen"
+          ],
+          "train_sample_size": 176,
+          "test_sample_size": 63,
+          "unseen_generator_recall": 0.0571,
+          "held_out_human_recall": 0.9286,
+          "balanced_accuracy": 0.4929
+        },
+        "musicgen": {
+          "held_out_generator": "musicgen",
+          "train_generators": [
+            "acestep",
+            "lyria-pro3"
+          ],
+          "train_sample_size": 176,
+          "test_sample_size": 63,
+          "unseen_generator_recall": 0.1143,
+          "held_out_human_recall": 0.8929,
+          "balanced_accuracy": 0.5036
+        }
+      }
+    },
+    "human_samples": 109,
+    "ai_samples": 130,
+    "total_samples": 239,
+    "model_path": "C:\\Users\\len\\music_similarity\\music_similarity\\models\\origin_classifier.joblib",
+    "model_version": "1.0.0"
+  }
+}

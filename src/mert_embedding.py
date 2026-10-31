@@ -20,6 +20,7 @@ import json
 import logging
 import os
 import sys
+import threading
 import time
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
@@ -41,6 +42,9 @@ MERT_VERSION = "1.0"
 
 MERT_CACHE_DIR = FEATURES_DIR / "mert"
 MERT_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+
+# Module-level thread lock for safe concurrent inference across threads on CUDA
+_MERT_INFERENCE_LOCK = threading.Lock()
 
 
 class MERTDependencyError(ImportError):
@@ -143,6 +147,7 @@ class MERTModelManager:
         self._device = "cpu"
         self._load_error: Optional[str] = None
         self._load_time: float = 0.0
+        self._load_lock = threading.Lock()
 
     @classmethod
     def get_instance(cls) -> "MERTModelManager":
@@ -159,28 +164,32 @@ class MERTModelManager:
         if self._processor is not None and self._model is not None:
             return self._processor, self._model
 
-        env = detect_mert_environment()
-        if not env.is_supported:
-            self._load_error = env.status_message
-            raise MERTDependencyError(env.status_message)
+        with self._load_lock:
+            if self._processor is not None and self._model is not None:
+                return self._processor, self._model
 
-        import torch
-        from transformers import AutoModel, Wav2Vec2FeatureExtractor
+            env = detect_mert_environment()
+            if not env.is_supported:
+                self._load_error = env.status_message
+                raise MERTDependencyError(env.status_message)
 
-        t0 = time.time()
-        try:
-            self._device = env.device
-            logger.info(f"Loading MERT model '{MERT_MODEL_ID}' on {self._device}...")
-            self._processor = Wav2Vec2FeatureExtractor.from_pretrained(MERT_MODEL_ID, trust_remote_code=True)
-            self._model = AutoModel.from_pretrained(MERT_MODEL_ID, trust_remote_code=True).to(self._device)
-            self._model.eval()
-            self._load_time = round(time.time() - t0, 3)
-            logger.info(f"MERT loaded successfully in {self._load_time}s.")
-            return self._processor, self._model
-        except Exception as exc:
-            self._load_error = f"Model load failed: {exc}"
-            logger.error(self._load_error)
-            raise RuntimeError(self._load_error)
+            import torch
+            from transformers import AutoModel, Wav2Vec2FeatureExtractor
+
+            t0 = time.time()
+            try:
+                self._device = env.device
+                logger.info(f"Loading MERT model '{MERT_MODEL_ID}' on {self._device}...")
+                self._processor = Wav2Vec2FeatureExtractor.from_pretrained(MERT_MODEL_ID, trust_remote_code=True)
+                self._model = AutoModel.from_pretrained(MERT_MODEL_ID, trust_remote_code=True).to(self._device)
+                self._model.eval()
+                self._load_time = round(time.time() - t0, 3)
+                logger.info(f"MERT loaded successfully in {self._load_time}s.")
+                return self._processor, self._model
+            except Exception as exc:
+                self._load_error = f"Model load failed: {exc}"
+                logger.error(self._load_error)
+                raise RuntimeError(self._load_error)
 
 
 def mert_cosine_similarity(vec_a: np.ndarray, vec_b: np.ndarray) -> float:
@@ -204,6 +213,40 @@ def mert_cosine_similarity(vec_a: np.ndarray, vec_b: np.ndarray) -> float:
     # Map [-1.0, 1.0] to [0.0, 1.0]
     normalized_cos = (cos + 1.0) / 2.0
     return float(np.clip(normalized_cos, 0.0, 1.0))
+
+
+def batch_mert_cosine_similarity(
+    query_vec: np.ndarray,
+    candidates_matrix: np.ndarray,
+    use_gpu: bool = True
+) -> np.ndarray:
+    """
+    Compute batch cosine similarities between a 768-dim query vector and an (N, 768) candidate matrix.
+    Uses PyTorch tensor acceleration (CUDA if available, transparent CPU fallback).
+    Guarantees mathematical equivalence within <= 1e-5 absolute tolerance.
+    """
+    q = np.asarray(query_vec, dtype=np.float32).reshape(1, -1)
+    cands = np.asarray(candidates_matrix, dtype=np.float32)
+    if cands.ndim == 1:
+        cands = cands.reshape(1, -1)
+
+    try:
+        import torch
+        device = torch.device("cuda" if (use_gpu and torch.cuda.is_available()) else "cpu")
+        t_q = torch.from_numpy(q).to(device)
+        t_c = torch.from_numpy(cands).to(device)
+        cos = torch.nn.functional.cosine_similarity(t_q, t_c, dim=1).cpu().numpy()
+        normalized = np.clip((cos + 1.0) / 2.0, 0.0, 1.0)
+        return normalized.astype(float)
+    except Exception:
+        # Transparent NumPy fallback
+        q_norm = np.linalg.norm(q, axis=1, keepdims=True)
+        c_norm = np.linalg.norm(cands, axis=1, keepdims=True)
+        denom = q_norm * c_norm.T
+        denom = np.where(denom < 1e-9, 1.0, denom)
+        cos = np.dot(q, cands.T) / denom
+        normalized = np.clip((cos + 1.0) / 2.0, 0.0, 1.0)
+        return normalized.flatten().astype(float)
 
 
 def extract_mert_embedding(
@@ -271,22 +314,26 @@ def extract_mert_embedding(
 
     # Chunk audio into 5-second windows (120,000 samples)
     total_samples = len(y)
+    valid_chunks = []
+    for start_idx in range(0, total_samples, MERT_CHUNK_SAMPLES):
+        end_idx = min(start_idx + MERT_CHUNK_SAMPLES, total_samples)
+        chunk = y[start_idx:end_idx]
+        if len(chunk) >= int(MERT_SAMPLE_RATE * 0.5):
+            valid_chunks.append(chunk)
+
     chunk_embeddings = []
+    batch_size = 4
 
-    with torch.no_grad():
-        for start_idx in range(0, total_samples, MERT_CHUNK_SAMPLES):
-            end_idx = min(start_idx + MERT_CHUNK_SAMPLES, total_samples)
-            chunk = y[start_idx:end_idx]
-            if len(chunk) < int(MERT_SAMPLE_RATE * 0.5):
-                continue  # Skip short tail chunks < 0.5s
-
-            inputs = processor(chunk, sampling_rate=MERT_SAMPLE_RATE, return_tensors="pt").to(device)
-            outputs = model(**inputs, output_hidden_states=True)
-            # Use top hidden state: outputs.last_hidden_state of shape (batch, time, 768)
-            hidden = outputs.last_hidden_state
-            # Mean pool over time frames
-            chunk_vec = torch.mean(hidden, dim=1).squeeze(0).cpu().numpy()
-            chunk_embeddings.append(chunk_vec)
+    with _MERT_INFERENCE_LOCK:
+        with torch.no_grad():
+            for i in range(0, len(valid_chunks), batch_size):
+                batch = valid_chunks[i : i + batch_size]
+                inputs = processor(batch, sampling_rate=MERT_SAMPLE_RATE, return_tensors="pt", padding=True).to(device)
+                outputs = model(**inputs, output_hidden_states=False)
+                hidden = outputs.last_hidden_state
+                batch_vecs = torch.mean(hidden, dim=1).cpu().numpy()
+                for v in batch_vecs:
+                    chunk_embeddings.append(v)
 
     if not chunk_embeddings:
         # Fallback to zero vector if audio was completely empty

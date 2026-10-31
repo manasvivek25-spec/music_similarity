@@ -106,11 +106,13 @@ class StatisticalGatewayResult(BaseModel):
     p_value: Optional[float] = Field(None, description="Empirical p-value against null distribution")
     adjusted_p_value: Optional[float] = Field(None, description="Benjamini-Hochberg FDR adjusted p-value (q-value)")
     null_sample_count: int = Field(..., description="Number of pairwise comparisons in null distribution")
+    exceedance_count: Optional[int] = Field(None, description="Count of null distribution scores >= query score (k)")
+    null_sample_size: Optional[int] = Field(None, description="Total valid, finite null comparisons evaluated (N)")
     confidence: str = Field(..., description="'High' (>=1000), 'Moderate' (300-999), 'Low' (5-299), or 'insufficient' (<5)")
     severity_label: str = Field(..., description="'Valid Coincidence', 'Borderline Indicator', 'Critical Anomaly', or 'Indeterminate'")
     fallback_source: str = Field(..., description="'genre_specific', 'global_null', or 'none'")
     min_required: int = Field(5, description="Minimum null pairs required for empirical p-value")
-    explanation: Optional[str] = Field(None, description="Explanation when null population is insufficient")
+    explanation: Optional[str] = Field(None, description="Explanation when null population is insufficient or finite sample note")
 
 
 class NullTestRequest(BaseModel):
@@ -127,6 +129,8 @@ class NullTestResponse(BaseModel):
     is_significant: bool = Field(False, description="True if p_value <= 0.05 and available")
     severity_tier: str = Field(..., description="Severity category based on empirical p-value")
     null_distribution_size: int
+    exceedance_count: Optional[int] = Field(None, description="Count of null scores >= query score (k)")
+    null_sample_size: Optional[int] = Field(None, description="Total valid null scores evaluated (N)")
     confidence: str = Field("Low", description="Confidence tier")
     min_required: int = Field(5, description="Minimum null pairs required")
     explanation: Optional[str] = Field(None, description="Explanation when null population is insufficient")
@@ -157,6 +161,7 @@ class CreativeScoreResult(BaseModel):
     score_tier: str = Field(..., description="'High Creative Novelty', 'Standard Compositional Variance', etc.")
     is_available: bool = Field(..., description="Whether sufficient reference population existed to calculate")
     evaluated_genres: List[str] = Field(default_factory=list, description="Target genres evaluated")
+    broad_score_ci: Optional[Tuple[float, float]] = Field(None, description="Bootstrap 95% confidence interval (lower, upper)")
 
 
 # ---------------------------------------------------------------------------
@@ -216,6 +221,8 @@ class MimicCandidate(BaseModel):
     similarity_tier: str
     p_value: Optional[float] = None
     adjusted_p_value: Optional[float] = Field(None, description="Benjamini-Hochberg FDR adjusted p-value")
+    exceedance_count: Optional[int] = Field(None, description="Count of null distribution scores >= query score (k)")
+    null_sample_size: Optional[int] = Field(None, description="Total valid null scores evaluated (N)")
     confidence: str
     severity_label: str
     best_shift: int
@@ -243,6 +250,8 @@ class CandidateScore(BaseModel):
     normalized_distance: float
     best_shift: int
     p_value: Optional[float] = None
+    exceedance_count: Optional[int] = None
+    null_sample_size: Optional[int] = None
     is_top_match: bool = False
     ai_generated: Optional[bool] = None
     ai_confidence: Optional[float] = None
@@ -311,7 +320,7 @@ class FinalVerdict(BaseModel):
 
 class CaseRoutingResult(BaseModel):
     case_type: str = Field(..., description="'Case A', 'Case B', 'Case C', or 'Case U'")
-    case_name: str = Field(..., description="'Cross-Genre', 'Same-Genre', 'No Match', or 'Unresolved'")
+    case_name: str = Field(..., description="'Cross-Genre', 'Same-Genre', 'No Match', 'Unresolved', or 'Undetermined Genre'")
     description: str
 
 

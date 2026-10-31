@@ -240,6 +240,8 @@ def build_mimic_analysis(
             similarity_tier=str(rec.get("similarity_tier", "Low Similarity")),
             p_value=pval,
             adjusted_p_value=rec.get("adjusted_p_value"),
+            exceedance_count=rec.get("exceedance_count"),
+            null_sample_size=rec.get("null_sample_size"),
             confidence=str(rec.get("confidence", "Low")),
             severity_label=severity,
             best_shift=int(rec.get("best_shift", 0)),

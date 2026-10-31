@@ -307,7 +307,7 @@ def test_two_stage_prefilter_accounting_and_missing_file_fault_tolerance():
         def on_progress(stage, name, pct, cur, tot, msg):
             stages_seen.append((stage, name))
 
-        with patch("src.remote_dataset.load_remote_index", return_value=idx_data):
+        with patch("src.pipeline.NULL_DIST_CACHE_FILE", temp_dir / "mock_null.json"), patch("src.config.NULL_DIST_CACHE_FILE", temp_dir / "mock_null.json"), patch("src.remote_dataset.load_remote_index", return_value=idx_data):
             res = run_pipeline(q_path, progress_callback=on_progress)
 
         assert res.candidates_considered == 4
@@ -363,7 +363,7 @@ def test_duration_disparity_ratio_threshold():
             "unresolved_records": {},
         }
 
-        with patch("src.remote_dataset.load_remote_index", return_value=idx_data):
+        with patch("src.pipeline.NULL_DIST_CACHE_FILE", temp_dir / "mock_null.json"), patch("src.config.NULL_DIST_CACHE_FILE", temp_dir / "mock_null.json"), patch("src.remote_dataset.load_remote_index", return_value=idx_data):
             res = run_pipeline(q_path)
 
         assert res.duration_disparity_detected is True

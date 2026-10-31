@@ -218,9 +218,9 @@ void main() {
             Upload an audio file (.wav, .mp3, .flac) to execute the complete statistical similarity pipeline against SleepyJesse/ai_music_large.
           </p>
         </div>
-        <div class="flex items-center gap-2 text-xs font-mono text-emerald-400 bg-emerald-400/10 px-3 py-1.5 rounded-lg border border-emerald-400/20">
-          <span class="material-symbols-outlined text-[16px]">all_inclusive</span>
-          <span>Unlimited Audio Duration · Any length clip accepted</span>
+        <div class="flex items-center gap-2 text-xs font-mono text-cyan-400 bg-cyan-400/10 px-3 py-1.5 rounded-lg border border-cyan-400/20">
+          <span class="material-symbols-outlined text-[16px]">graphic_eq</span>
+          <span>Full Track &amp; Excerpt Support · Validated intake (≥ 3.0s, up to 2 hours)</span>
         </div>
       </div>
 
@@ -230,7 +230,7 @@ void main() {
           <input type="file" id="mainQueryFileInput" accept="audio/*" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10"/>
           <span class="material-symbols-outlined text-3xl text-[#d4ff00] group-hover:scale-110 transition-transform">audio_file</span>
           <span class="text-xs font-semibold text-white mt-1" id="mainQueryFileLabel">Select or Drag Query Audio File</span>
-          <span class="text-[11px] text-[#9ba1a6] mt-0.5">WAV, MP3, FLAC, OGG, M4A · Unlimited Duration</span>
+          <span class="text-[11px] text-[#9ba1a6] mt-0.5">WAV, MP3, FLAC, OGG, M4A · Validated waveform intake (≥ 3.0s)</span>
         </div>
 
         <!-- Metadata Form Inputs -->
@@ -398,6 +398,13 @@ void main() {
           <span id="card1DistLabel">Norm Dist: —</span>
           <span id="card1FilterLabel">Prefilter: Active</span>
         </div>
+        <div class="pt-2 border-t border-white/5 flex items-center justify-between text-[10px] font-mono">
+          <span class="text-[#9ba1a6] flex items-center gap-1">
+            <span class="material-symbols-outlined text-[12px] text-[#d4ff00]">neurology</span>
+            MERT Representation:
+          </span>
+          <span id="mertStatusBadge" class="px-2 py-0.5 rounded text-[10px] font-mono bg-white/10 text-white border border-white/10">Checking...</span>
+        </div>
       </div>
 
       <!-- Card 2: Feature 2 Statistical Gateway -->
@@ -496,7 +503,7 @@ void main() {
           <p class="text-xs text-[#9ba1a6]">Krumhansl-Schmuckler harmonic key correlation &amp; tempo tracking.</p>
         </div>
 
-        <div class="grid grid-cols-2 gap-3 pt-2 font-mono text-xs">
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 font-mono text-xs">
           <div class="bg-white/5 p-3 rounded-xl border border-white/10">
             <span class="text-[#9ba1a6] text-[10px] uppercase block">Estimated Key</span>
             <span id="ctxEstimatedKey" class="text-white text-base font-bold block mt-1">—</span>
@@ -517,27 +524,8 @@ void main() {
             <span id="ctxCosineReduction" class="text-white text-base font-bold block mt-1">—</span>
             <span class="text-[#9ba1a6] text-[10px] block mt-0.5">Cutoff ≥ 0.30</span>
           </div>
-        </div>
-      </section>
 
-    </div>
-
-    <!-- SECTION 4B: DATA SCIENCE UPGRADES: MERT & EXTRA FEATURES -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-      <!-- Additional Audio Feature Engineering -->
-      <section class="glass-card rounded-2xl p-6 border border-white/10 shadow-lg space-y-4">
-        <div class="flex items-center justify-between border-b border-white/10 pb-3">
-          <div>
-            <h3 class="font-headline-md text-base text-white font-bold flex items-center gap-2">
-              <span class="material-symbols-outlined text-[#d4ff00]">tune</span>
-              Audio Feature Engineering
-            </h3>
-            <p class="text-xs text-[#9ba1a6]">Independent acoustic descriptors (MFCCs, HPSS energy, and spectral shape).</p>
-          </div>
-          <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-white/10 text-white border border-white/10">v1.0 Extractor</span>
-        </div>
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 font-mono text-xs">
+          <!-- Computed Acoustic Descriptors (Feature 5 Internal Descriptors) -->
           <div class="bg-white/5 p-3 rounded-xl border border-white/10">
             <span class="text-[#9ba1a6] text-[10px] uppercase block">Harmonic Ratio</span>
             <span id="extraHarmonicRatio" class="text-white text-base font-bold block mt-1">—</span>
@@ -557,42 +545,6 @@ void main() {
             <span class="text-[#9ba1a6] text-[10px] uppercase block">Rhythm Regularity</span>
             <span id="extraRhythmRegularity" class="text-white text-base font-bold block mt-1">—</span>
             <span class="text-[#9ba1a6] text-[10px] block mt-0.5">Tempogram Peak</span>
-          </div>
-        </div>
-      </section>
-
-      <!-- MERT Learned Representation -->
-      <section class="glass-card rounded-2xl p-6 border border-white/10 shadow-lg space-y-4">
-        <div class="flex items-center justify-between border-b border-white/10 pb-3">
-          <div>
-            <h3 class="font-headline-md text-base text-white font-bold flex items-center gap-2">
-              <span class="material-symbols-outlined text-[#d4ff00]">neurology</span>
-              MERT Neural Representation
-            </h3>
-            <p class="text-xs text-[#9ba1a6]">Pretrained music transformer (m-a-p/MERT-v1-95M) learned embeddings.</p>
-          </div>
-          <span id="mertStatusBadge" class="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold bg-white/10 text-white border border-white/10">Checking...</span>
-        </div>
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 font-mono text-xs">
-          <div class="bg-white/5 p-3 rounded-xl border border-white/10">
-            <span class="text-[#9ba1a6] text-[10px] uppercase block">Embedding Dim</span>
-            <span class="text-white text-base font-bold block mt-1">768</span>
-            <span class="text-[#9ba1a6] text-[10px] block mt-0.5">Hidden Vectors</span>
-          </div>
-          <div class="bg-white/5 p-3 rounded-xl border border-white/10">
-            <span class="text-[#9ba1a6] text-[10px] uppercase block">Sample Rate</span>
-            <span class="text-white text-base font-bold block mt-1">24 kHz</span>
-            <span class="text-[#9ba1a6] text-[10px] block mt-0.5">MERT Native</span>
-          </div>
-          <div class="bg-white/5 p-3 rounded-xl border border-white/10">
-            <span class="text-[#9ba1a6] text-[10px] uppercase block">Chunk Context</span>
-            <span class="text-white text-base font-bold block mt-1">5.0s</span>
-            <span class="text-[#9ba1a6] text-[10px] block mt-0.5">Window Size</span>
-          </div>
-          <div class="bg-white/5 p-3 rounded-xl border border-white/10">
-            <span class="text-[#9ba1a6] text-[10px] uppercase block">License</span>
-            <span class="text-white text-base font-bold block mt-1">CC-BY-NC</span>
-            <span class="text-[#9ba1a6] text-[10px] block mt-0.5">Academic/Research</span>
           </div>
         </div>
       </section>

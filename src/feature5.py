@@ -65,19 +65,37 @@ def estimate_musical_key(chroma: np.ndarray) -> str:
 def estimate_tempo(audio_path: Union[str, Path], sr: int = 22050) -> Optional[float]:
     """
     Estimate track tempo in beats per minute (BPM) using librosa beat tracking.
+
+    Returns None (displaying 'Unavailable') if:
+    - Audio is empty or unreadable
+    - Beat tracking detects zero/negative tempo
+    - Audio lacks rhythmic onsets (e.g. ambient drone, pure continuous sine tone)
+    - Beat count is insufficient (< 2 detected beats)
     """
     path = Path(audio_path)
     if not path.is_file():
         return None
 
     try:
-        y, sr_loaded = librosa.load(str(path), sr=sr, mono=True, duration=60.0)
+        y, sr_loaded = librosa.load(str(path), sr=sr, mono=True)
         if len(y) == 0:
             return None
-        tempo, _ = librosa.beat.beat_track(y=y, sr=sr_loaded)
-        # Handle scalar or array tempo output from librosa versions
+
+        # Check onset envelope energy variance
+        onset_env = librosa.onset.onset_strength(y=y, sr=sr_loaded)
+        if np.var(onset_env) < 1e-4:
+            # Flat onset envelope (e.g. steady tone/drone) has no rhythmic pulse
+            return None
+
+        tempo, beats = librosa.beat.beat_track(y=y, sr=sr_loaded, onset_envelope=onset_env)
+        # Handle scalar or array tempo output across librosa versions
         val = float(tempo[0] if isinstance(tempo, (np.ndarray, list)) else tempo)
-        return round(val, 1) if np.isfinite(val) else None
+
+        # Tempo <= 0 or < 30 BPM or fewer than 2 beats indicates absence of periodic rhythm
+        if not np.isfinite(val) or val <= 0.0 or val < 30.0 or len(beats) < 2:
+            return None
+
+        return round(val, 1)
     except Exception:
         return None
 

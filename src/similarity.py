@@ -239,7 +239,7 @@ def dtw_align_detailed(chroma_a: np.ndarray, chroma_b: np.ndarray) -> DTWResult:
         shifted_b = np.roll(chroma_b, shift, axis=0)
         seq_b = shifted_b.T
 
-        dist, path = fastdtw(seq_a, seq_b, dist=euclidean)
+        dist, path = fastdtw(seq_a, seq_b, dist=2)
         all_shift_costs[shift] = float(dist)
 
         if dist < min_distance:
@@ -255,11 +255,14 @@ def dtw_align_detailed(chroma_a: np.ndarray, chroma_b: np.ndarray) -> DTWResult:
     # Guarantee finite output in [0, 1]
     similarity = float(np.clip(similarity, 0.0, 1.0))
 
-    # Compute per-step local cost vector along the best alignment path
-    local_costs = np.array(
-        [euclidean(seq_a[i], best_seq_b[j]) for i, j in best_path],
-        dtype=float,
-    )
+    # Vectorized per-step local cost vector along the best alignment path
+    if best_path:
+        idx_a = [p[0] for p in best_path]
+        idx_b = [p[1] for p in best_path]
+        diff = seq_a[idx_a] - best_seq_b[idx_b]
+        local_costs = np.sqrt(np.sum(diff ** 2, axis=1)).astype(float)
+    else:
+        local_costs = np.array([], dtype=float)
 
     # Perform +-1 adjacent-shift boundary verification around the best shift
     prev_shift = (best_shift - 1) % 12

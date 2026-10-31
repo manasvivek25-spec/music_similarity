@@ -1,0 +1,623 @@
+{
+  "total_tracks_evaluated": 71,
+  "feature_dimension": 12,
+  "feature_type": "12-bin Chroma CQT",
+  "optimal_k": 2,
+  "kmeans_evaluations": [
+    {
+      "k": 2,
+      "inertia": 20.3691,
+      "silhouette": 0.2462,
+      "davies_bouldin": 1.4905,
+      "calinski_harabasz": 27.7829
+    },
+    {
+      "k": 3,
+      "inertia": 17.5835,
+      "silhouette": 0.1611,
+      "davies_bouldin": 1.6811,
+      "calinski_harabasz": 21.2453
+    },
+    {
+      "k": 4,
+      "inertia": 15.5503,
+      "silhouette": 0.1893,
+      "davies_bouldin": 1.5046,
+      "calinski_harabasz": 18.7
+    },
+    {
+      "k": 5,
+      "inertia": 14.157,
+      "silhouette": 0.1929,
+      "davies_bouldin": 1.5206,
+      "calinski_harabasz": 16.7994
+    },
+    {
+      "k": 6,
+      "inertia": 13.1706,
+      "silhouette": 0.1445,
+      "davies_bouldin": 1.4701,
+      "calinski_harabasz": 15.2007
+    }
+  ],
+  "agglomerative_silhouette": 0.2622,
+  "dbscan_clusters_found": 3,
+  "dbscan_noise_points": 5,
+  "outliers_detected_count": 7,
+  "outliers": [
+    {
+      "track_id": "track_44c8336f5f7c",
+      "anomaly_score": 0.117,
+      "is_outlier": false,
+      "reason": "Nominal acoustic profile",
+      "origin_label": "human",
+      "duration_sec": 1984.19
+    },
+    {
+      "track_id": "remote_000001",
+      "anomaly_score": 0.1181,
+      "is_outlier": false,
+      "reason": "Nominal acoustic profile",
+      "origin_label": "human",
+      "duration_sec": 392.26
+    },
+    {
+      "track_id": "haim_human_06001",
+      "anomaly_score": 0.1237,
+      "is_outlier": false,
+      "reason": "Nominal acoustic profile",
+      "origin_label": "human",
+      "duration_sec": 60.0
+    },
+    {
+      "track_id": "haim_human_06002",
+      "anomaly_score": 0.0156,
+      "is_outlier": false,
+      "reason": "Nominal acoustic profile",
+      "origin_label": "human",
+      "duration_sec": 60.0
+    },
+    {
+      "track_id": "haim_human_06003",
+      "anomaly_score": 0.0793,
+      "is_outlier": false,
+      "reason": "Nominal acoustic profile",
+      "origin_label": "human",
+      "duration_sec": 60.0
+    },
+    {
+      "track_id": "haim_human_06004",
+      "anomaly_score": -0.0625,
+      "is_outlier": true,
+      "reason": "Unusual acoustic profile in manifold space",
+      "origin_label": "human",
+      "duration_sec": 60.0
+    },
+    {
+      "track_id": "haim_human_06005",
+      "anomaly_score": -0.0143,
+      "is_outlier": true,
+      "reason": "Unusual acoustic profile in manifold space",
+      "origin_label": "human",
+      "duration_sec": 60.0
+    },
+    {
+      "track_id": "haim_human_06006",
+      "anomaly_score": -0.0079,
+      "is_outlier": true,
+      "reason": "Unusual acoustic profile in manifold space",
+      "origin_label": "human",
+      "duration_sec": 60.0
+    },
+    {
+      "track_id": "haim_human_06007",
+      "anomaly_score": 0.1277,
+      "is_outlier": false,
+      "reason": "Nominal acoustic profile",
+      "origin_label": "human",
+      "duration_sec": 60.0
+    },
+    {
+      "track_id": "haim_human_06008",
+      "anomaly_score": 0.0516,
+      "is_outlier": false,
+      "reason": "Nominal acoustic profile",
+      "origin_label": "human",
+      "duration_sec": 60.0
+    },
+    {
+      "track_id": "haim_human_06009",
+      "anomaly_score": 0.0341,
+      "is_outlier": false,
+      "reason": "Nominal acoustic profile",
+      "origin_label": "human",
+      "duration_sec": 60.0
+    },
+    {
+      "track_id": "haim_human_06010",
+      "anomaly_score": 0.0749,
+      "is_outlier": false,
+      "reason": "Nominal acoustic profile",
+      "origin_label": "human",
+      "duration_sec": 60.0
+    },
+    {
+      "track_id": "haim_human_06011",
+      "anomaly_score": 0.0083,
+      "is_outlier": false,
+      "reason": "Nominal acoustic profile",
+      "origin_label": "human",
+      "duration_sec": 60.0
+    },
+    {
+      "track_id": "haim_ai_acestep_0001",
+      "anomaly_score": 0.0801,
+      "is_outlier": false,
+      "reason": "Nominal acoustic profile",
+      "origin_label": "ai_generated",
+      "duration_sec": 60.0
+    },
+    {
+      "track_id": "haim_ai_acestep_0002",
+      "anomaly_score": 0.1,
+      "is_outlier": false,
+      "reason": "Nominal acoustic profile",
+      "origin_label": "ai_generated",
+      "duration_sec": 60.0
+    },
+    {
+      "track_id": "haim_ai_acestep_0003",
+      "anomaly_score": 0.0,
+      "is_outlier": false,
+      "reason": "Nominal acoustic profile",
+      "origin_label": "ai_generated",
+      "duration_sec": 60.0
+    },
+    {
+      "track_id": "haim_ai_acestep_0004",
+      "anomaly_score": 0.098,
+      "is_outlier": false,
+      "reason": "Nominal acoustic profile",
+      "origin_label": "ai_generated",
+      "duration_sec": 23.0
+    },
+    {
+      "track_id": "haim_ai_acestep_0005",
+      "anomaly_score": 0.1065,
+      "is_outlier": false,
+      "reason": "Nominal acoustic profile",
+      "origin_label": "ai_generated",
+      "duration_sec": 60.0
+    },
+    {
+      "track_id": "haim_ai_acestep_0006",
+      "anomaly_score": 0.1155,
+      "is_outlier": false,
+      "reason": "Nominal acoustic profile",
+      "origin_label": "ai_generated",
+      "duration_sec": 60.0
+    },
+    {
+      "track_id": "haim_ai_acestep_0007",
+      "anomaly_score": 0.1012,
+      "is_outlier": false,
+      "reason": "Nominal acoustic profile",
+      "origin_label": "ai_generated",
+      "duration_sec": 60.0
+    },
+    {
+      "track_id": "haim_ai_acestep_0008",
+      "anomaly_score": 0.1303,
+      "is_outlier": false,
+      "reason": "Nominal acoustic profile",
+      "origin_label": "ai_generated",
+      "duration_sec": 60.0
+    },
+    {
+      "track_id": "haim_ai_acestep_0009",
+      "anomaly_score": 0.094,
+      "is_outlier": false,
+      "reason": "Nominal acoustic profile",
+      "origin_label": "ai_generated",
+      "duration_sec": 60.0
+    },
+    {
+      "track_id": "haim_ai_acestep_0010",
+      "anomaly_score": 0.0734,
+      "is_outlier": false,
+      "reason": "Nominal acoustic profile",
+      "origin_label": "ai_generated",
+      "duration_sec": 60.0
+    },
+    {
+      "track_id": "mtg_jamendo_948",
+      "anomaly_score": 0.0836,
+      "is_outlier": false,
+      "reason": "Nominal acoustic profile",
+      "origin_label": "human",
+      "duration_sec": 60.0
+    },
+    {
+      "track_id": "mtg_jamendo_1024",
+      "anomaly_score": 0.0599,
+      "is_outlier": false,
+      "reason": "Nominal acoustic profile",
+      "origin_label": "human",
+      "duration_sec": 60.0
+    },
+    {
+      "track_id": "mtg_jamendo_1230",
+      "anomaly_score": 0.0368,
+      "is_outlier": false,
+      "reason": "Nominal acoustic profile",
+      "origin_label": "human",
+      "duration_sec": 60.0
+    },
+    {
+      "track_id": "mtg_jamendo_1580",
+      "anomaly_score": 0.0909,
+      "is_outlier": false,
+      "reason": "Nominal acoustic profile",
+      "origin_label": "human",
+      "duration_sec": 60.0
+    },
+    {
+      "track_id": "mtg_jamendo_2890",
+      "anomaly_score": 0.0343,
+      "is_outlier": false,
+      "reason": "Nominal acoustic profile",
+      "origin_label": "human",
+      "duration_sec": 60.0
+    },
+    {
+      "track_id": "haim_human_06012",
+      "anomaly_score": 0.1055,
+      "is_outlier": false,
+      "reason": "Nominal acoustic profile",
+      "origin_label": "human",
+      "duration_sec": 60.0
+    },
+    {
+      "track_id": "haim_human_06013",
+      "anomaly_score": -0.1486,
+      "is_outlier": true,
+      "reason": "Unusual acoustic profile in manifold space",
+      "origin_label": "human",
+      "duration_sec": 60.0
+    },
+    {
+      "track_id": "haim_human_06014",
+      "anomaly_score": 0.0127,
+      "is_outlier": false,
+      "reason": "Nominal acoustic profile",
+      "origin_label": "human",
+      "duration_sec": 60.0
+    },
+    {
+      "track_id": "haim_human_06015",
+      "anomaly_score": 0.0855,
+      "is_outlier": false,
+      "reason": "Nominal acoustic profile",
+      "origin_label": "human",
+      "duration_sec": 60.0
+    },
+    {
+      "track_id": "haim_human_06016",
+      "anomaly_score": -0.0791,
+      "is_outlier": true,
+      "reason": "Unusual acoustic profile in manifold space",
+      "origin_label": "human",
+      "duration_sec": 60.0
+    },
+    {
+      "track_id": "haim_human_06017",
+      "anomaly_score": 0.1008,
+      "is_outlier": false,
+      "reason": "Nominal acoustic profile",
+      "origin_label": "human",
+      "duration_sec": 33.7
+    },
+    {
+      "track_id": "haim_human_06018",
+      "anomaly_score": 0.0423,
+      "is_outlier": false,
+      "reason": "Nominal acoustic profile",
+      "origin_label": "human",
+      "duration_sec": 60.0
+    },
+    {
+      "track_id": "haim_human_06019",
+      "anomaly_score": 0.0582,
+      "is_outlier": false,
+      "reason": "Nominal acoustic profile",
+      "origin_label": "human",
+      "duration_sec": 60.0
+    },
+    {
+      "track_id": "haim_human_06020",
+      "anomaly_score": 0.1343,
+      "is_outlier": false,
+      "reason": "Nominal acoustic profile",
+      "origin_label": "human",
+      "duration_sec": 60.0
+    },
+    {
+      "track_id": "haim_human_06021",
+      "anomaly_score": 0.0861,
+      "is_outlier": false,
+      "reason": "Nominal acoustic profile",
+      "origin_label": "human",
+      "duration_sec": 60.0
+    },
+    {
+      "track_id": "haim_human_06022",
+      "anomaly_score": 0.0509,
+      "is_outlier": false,
+      "reason": "Nominal acoustic profile",
+      "origin_label": "human",
+      "duration_sec": 60.0
+    },
+    {
+      "track_id": "haim_human_06023",
+      "anomaly_score": -0.0303,
+      "is_outlier": true,
+      "reason": "Unusual acoustic profile in manifold space",
+      "origin_label": "human",
+      "duration_sec": 60.0
+    },
+    {
+      "track_id": "haim_human_06024",
+      "anomaly_score": 0.1127,
+      "is_outlier": false,
+      "reason": "Nominal acoustic profile",
+      "origin_label": "human",
+      "duration_sec": 60.0
+    },
+    {
+      "track_id": "haim_human_06025",
+      "anomaly_score": 0.0766,
+      "is_outlier": false,
+      "reason": "Nominal acoustic profile",
+      "origin_label": "human",
+      "duration_sec": 60.0
+    },
+    {
+      "track_id": "haim_human_06026",
+      "anomaly_score": 0.0608,
+      "is_outlier": false,
+      "reason": "Nominal acoustic profile",
+      "origin_label": "human",
+      "duration_sec": 60.0
+    },
+    {
+      "track_id": "haim_ai_acestep_0011",
+      "anomaly_score": 0.0703,
+      "is_outlier": false,
+      "reason": "Nominal acoustic profile",
+      "origin_label": "ai_generated",
+      "duration_sec": 60.0
+    },
+    {
+      "track_id": "haim_ai_acestep_0012",
+      "anomaly_score": 0.0912,
+      "is_outlier": false,
+      "reason": "Nominal acoustic profile",
+      "origin_label": "ai_generated",
+      "duration_sec": 60.0
+    },
+    {
+      "track_id": "haim_ai_acestep_0013",
+      "anomaly_score": 0.1191,
+      "is_outlier": false,
+      "reason": "Nominal acoustic profile",
+      "origin_label": "ai_generated",
+      "duration_sec": 60.0
+    },
+    {
+      "track_id": "haim_ai_acestep_0014",
+      "anomaly_score": 0.1278,
+      "is_outlier": false,
+      "reason": "Nominal acoustic profile",
+      "origin_label": "ai_generated",
+      "duration_sec": 60.0
+    },
+    {
+      "track_id": "haim_ai_acestep_0015",
+      "anomaly_score": 0.1235,
+      "is_outlier": false,
+      "reason": "Nominal acoustic profile",
+      "origin_label": "ai_generated",
+      "duration_sec": 60.0
+    },
+    {
+      "track_id": "haim_ai_acestep_0016",
+      "anomaly_score": 0.1343,
+      "is_outlier": false,
+      "reason": "Nominal acoustic profile",
+      "origin_label": "ai_generated",
+      "duration_sec": 60.0
+    },
+    {
+      "track_id": "haim_ai_acestep_0017",
+      "anomaly_score": 0.0877,
+      "is_outlier": false,
+      "reason": "Nominal acoustic profile",
+      "origin_label": "ai_generated",
+      "duration_sec": 60.0
+    },
+    {
+      "track_id": "haim_ai_acestep_0018",
+      "anomaly_score": 0.0655,
+      "is_outlier": false,
+      "reason": "Nominal acoustic profile",
+      "origin_label": "ai_generated",
+      "duration_sec": 60.0
+    },
+    {
+      "track_id": "haim_ai_acestep_0019",
+      "anomaly_score": 0.0936,
+      "is_outlier": false,
+      "reason": "Nominal acoustic profile",
+      "origin_label": "ai_generated",
+      "duration_sec": 60.0
+    },
+    {
+      "track_id": "haim_ai_acestep_0020",
+      "anomaly_score": 0.0482,
+      "is_outlier": false,
+      "reason": "Nominal acoustic profile",
+      "origin_label": "ai_generated",
+      "duration_sec": 60.0
+    },
+    {
+      "track_id": "haim_ai_acestep_0021",
+      "anomaly_score": 0.1046,
+      "is_outlier": false,
+      "reason": "Nominal acoustic profile",
+      "origin_label": "ai_generated",
+      "duration_sec": 60.0
+    },
+    {
+      "track_id": "haim_ai_acestep_0022",
+      "anomaly_score": 0.1419,
+      "is_outlier": false,
+      "reason": "Nominal acoustic profile",
+      "origin_label": "ai_generated",
+      "duration_sec": 60.0
+    },
+    {
+      "track_id": "haim_ai_acestep_0023",
+      "anomaly_score": 0.1461,
+      "is_outlier": false,
+      "reason": "Nominal acoustic profile",
+      "origin_label": "ai_generated",
+      "duration_sec": 60.0
+    },
+    {
+      "track_id": "haim_ai_acestep_0024",
+      "anomaly_score": 0.1022,
+      "is_outlier": false,
+      "reason": "Nominal acoustic profile",
+      "origin_label": "ai_generated",
+      "duration_sec": 60.0
+    },
+    {
+      "track_id": "haim_hybrid_b1_06001",
+      "anomaly_score": 0.1291,
+      "is_outlier": false,
+      "reason": "Nominal acoustic profile",
+      "origin_label": "hybrid",
+      "duration_sec": 60.0
+    },
+    {
+      "track_id": "haim_hybrid_b1_06002",
+      "anomaly_score": 0.0501,
+      "is_outlier": false,
+      "reason": "Nominal acoustic profile",
+      "origin_label": "hybrid",
+      "duration_sec": 60.0
+    },
+    {
+      "track_id": "haim_hybrid_b1_06003",
+      "anomaly_score": 0.0976,
+      "is_outlier": false,
+      "reason": "Nominal acoustic profile",
+      "origin_label": "hybrid",
+      "duration_sec": 60.0
+    },
+    {
+      "track_id": "haim_hybrid_b1_06004",
+      "anomaly_score": -0.0211,
+      "is_outlier": true,
+      "reason": "Unusual acoustic profile in manifold space",
+      "origin_label": "hybrid",
+      "duration_sec": 60.0
+    },
+    {
+      "track_id": "haim_hybrid_b1_06005",
+      "anomaly_score": 0.033,
+      "is_outlier": false,
+      "reason": "Nominal acoustic profile",
+      "origin_label": "hybrid",
+      "duration_sec": 60.0
+    },
+    {
+      "track_id": "haim_temporal_mix_C1_00000",
+      "anomaly_score": 0.1489,
+      "is_outlier": false,
+      "reason": "Nominal acoustic profile",
+      "origin_label": "temporal_mix",
+      "duration_sec": 60.0
+    },
+    {
+      "track_id": "haim_temporal_mix_C1_00001",
+      "anomaly_score": 0.1036,
+      "is_outlier": false,
+      "reason": "Nominal acoustic profile",
+      "origin_label": "temporal_mix",
+      "duration_sec": 60.0
+    },
+    {
+      "track_id": "haim_temporal_mix_C1_00002",
+      "anomaly_score": 0.1114,
+      "is_outlier": false,
+      "reason": "Nominal acoustic profile",
+      "origin_label": "temporal_mix",
+      "duration_sec": 60.0
+    },
+    {
+      "track_id": "haim_temporal_mix_C1_00003",
+      "anomaly_score": 0.1299,
+      "is_outlier": false,
+      "reason": "Nominal acoustic profile",
+      "origin_label": "temporal_mix",
+      "duration_sec": 60.0
+    },
+    {
+      "track_id": "haim_temporal_mix_C1_00004",
+      "anomaly_score": 0.1081,
+      "is_outlier": false,
+      "reason": "Nominal acoustic profile",
+      "origin_label": "temporal_mix",
+      "duration_sec": 60.0
+    },
+    {
+      "track_id": "mtg_jamendo_3410",
+      "anomaly_score": 0.0516,
+      "is_outlier": false,
+      "reason": "Nominal acoustic profile",
+      "origin_label": "human",
+      "duration_sec": 60.0
+    },
+    {
+      "track_id": "mtg_jamendo_3890",
+      "anomaly_score": 0.0943,
+      "is_outlier": false,
+      "reason": "Nominal acoustic profile",
+      "origin_label": "human",
+      "duration_sec": 60.0
+    },
+    {
+      "track_id": "mtg_jamendo_4890",
+      "anomaly_score": 0.0439,
+      "is_outlier": false,
+      "reason": "Nominal acoustic profile",
+      "origin_label": "human",
+      "duration_sec": 60.0
+    },
+    {
+      "track_id": "mtg_jamendo_5210",
+      "anomaly_score": 0.0732,
+      "is_outlier": false,
+      "reason": "Nominal acoustic profile",
+      "origin_label": "human",
+      "duration_sec": 60.0
+    }
+  ],
+  "generated_at": "2026-10-31 10:44:41 UTC",
+  "plots_generated": [
+    "kmeans_evaluation.png",
+    "outlier_analysis.png"
+  ],
+  "academic_disclaimer": "Unsupervised cluster boundaries reflect geometric distribution in acoustic feature space and do not constitute definitive proof of musical genres, compositional lineages, or creative origin."
+}
