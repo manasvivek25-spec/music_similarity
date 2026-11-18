@@ -1,41 +1,41 @@
-# Master Offline Evaluation Results: Canonical Seven Features
+# Master Offline Evaluation Results (Real Held-Out Audio, v2)
 
-**Evaluation Date:** 2026-11-17 08:05:56 UTC  
-**Dataset Provenance:** Strictly held-out items only (never in reference index or training)  
-**Random Seed:** 42 (fully reproducible, seeded execution)  
-**Runtime Duration:** 25.48 seconds  
+**Evaluation Date:** 2026-11-18T14:27:25Z  
+**Dataset Provenance:** Strictly disjoint REAL held-out tracks (`data/v2/v2_held_out.json`, 0% overlap with reference index, null, and training)  
+**Random Seed:** 42 | **Runtime:** 149.34s  
 
+## 1. Master Metrics Table
 | Feature | Metric | Ours (95% CI) | Baseline | n | Truth source |
 | :--- | :--- | :--- | :--- | :---: | :--- |
-| Feature 1: Similarity Engine | Top-1 Retrieval Accuracy | **52.22% [44.96%, 59.40%]** | 37.78% (Mean-Chroma Cosine) | 180 | Held-Out Controlled Variations |
-| Feature 1: Similarity Engine | Top-3 Retrieval Accuracy | **78.89% [72.36%, 84.22%]** | 48.89% (Mean-Chroma Cosine) | 180 | Held-Out Controlled Variations |
-| Feature 1: Similarity Engine | Mean Average Precision (MAP) | **0.6721 [0.6040, 0.7447]** | 0.5009 (Mean-Chroma Cosine) | 180 | Held-Out Controlled Variations |
-| Feature 1: Similarity Engine | Mean Reciprocal Rank (MR1) | **0.6721 [0.6040, 0.7447]** | 0.5009 (Mean-Chroma Cosine) | 180 | Held-Out Controlled Variations |
-| Feature 1: Similarity Engine | Shift Recovery Rate (k in ±1..6) | **14.17% [9.04%, 21.52%]** | 0.00% (DTW Shift 0 Only) | 120 | Known Transposition k in ±1..6 |
-| Feature 2: Statistical Gateway | Observed FPR (alpha = 0.10) | **8.89% [3.51%, 20.73%]** | 97.78% (Fixed S >= 0.65) | 45 | Unrelated Held-Out Null Pairs |
-| Feature 2: Statistical Gateway | Observed FPR (alpha = 0.05) | **4.44% [1.23%, 14.83%]** | 97.78% (Fixed S >= 0.65) | 45 | Unrelated Held-Out Null Pairs |
-| Feature 2: Statistical Gateway | Observed FPR (alpha = 0.01) | **0.00% [0.00%, 7.87%]** | 97.78% (Fixed S >= 0.65) | 45 | Unrelated Held-Out Null Pairs |
-| Feature 2: Statistical Gateway | Statistical Power (alpha = 0.05) | **16.67% [11.93%, 22.80%]** | 72.78% (Fixed S >= 0.65) | 180 | Controlled Related Pairs |
-| Feature 2: Statistical Gateway | p-value QQ Uniformity (R^2) | **1.0000** | N/A (Fixed Threshold) | 45 | Theoretical Uniform Quantiles |
-| Feature 2: Statistical Gateway | Kolmogorov-Smirnov Uniformity p-val | **p = 1.0000 (stat=0.0222)** | p < 0.0001 (Non-uniform) | 45 | Null Pair Empirical p-values |
-| Feature 3: Creative Novelty | Duplicate Rank on Held-Out Humans | **1.00** | 2.50 (Random Chance) | 5 | Independent Held-Out Humans |
-| Feature 3: Creative Novelty | KS Uniformity on Held-Out Humans | **p = 0.0000 (stat=1.0000)** | p < 0.0001 (Degenerate Clustering) | 5 | Independent Held-Out Humans |
-| Feature 4: Origin Classifier | Balanced Accuracy | **18.75% [11.06%, 29.97%]** | 50.00% (Majority) | 64 | Ground-Truth Origin Labels |
-| Feature 4: Origin Classifier | ROC AUC | **0.1689 [0.0733, 0.2485]** | 1.0000 (LR) / 1.0000 (RF) | 64 | Ground-Truth Origin Labels |
-| Feature 4: Origin Classifier | PR AUC | **0.3371 [0.1124, 0.7337]** | 0.5000 (Random Guess) | 64 | Ground-Truth Origin Labels |
-| Feature 4: Origin Classifier | Equal Error Rate (EER) | **81.25%** | 50.00% (Majority Baseline) | 64 | Ground-Truth Origin Labels |
-| Feature 4: Origin Classifier | TPR at 1% FPR | **0.00%** | 1.00% (Diagonal) | 64 | Ground-Truth Origin Labels |
-| Feature 4: Origin Classifier | TPR at 5% FPR | **0.00%** | 5.00% (Diagonal) | 64 | Ground-Truth Origin Labels |
-| Feature 4: Origin Classifier | Per-Generator Recall (Average) | **18.22%** | 50.00% (Majority) | 32 | Generator Architecture Sidecars |
-| Feature 4: Origin Classifier | Specificity on Independent Human Set | **18.75% [8.89%, 35.31%]** | 100.00% (Majority) | 32 | Held-Out Independent Humans |
-| Feature 4: Origin Classifier | Expected Calibration Error (ECE) | **0.6919** | 0.2500 (Uncalibrated) | 64 | Ground-Truth Origin Labels |
-| Feature 4: Origin Classifier | Brier Score | **0.6357** | 0.0003 (Logistic Regression) | 64 | Ground-Truth Origin Labels |
-| Feature 5: Musical Context | MIREX Key Score | **0.7584 [0.6984, 0.8153]** | 0.1158 (Majority C Major) | 190 | Sidecar Musical Key Truth |
-| Feature 5: Musical Context | Tempo Acc1 (Tolerance 8%) | **99.47% [97.08%, 99.91%]** | 20.00% (Mean 120 BPM) | 190 | Sidecar BPM Truth |
-| Feature 5: Musical Context | Tempo Acc2 (Harmonics Multiples) | **100.00% [98.02%, 100.00%]** | 40.00% (Mean 120 BPM) | 190 | Sidecar BPM Truth |
-| Feature 5: Musical Context | BPM Mean Absolute Error (MAE) | **2.19 BPM [1.66, 3.15]** | 18.56 BPM (Mean 120 BPM) | 190 | Sidecar BPM Truth |
-| Feature 6: Candidate Identification | Source in Top-1 Candidates | **52.22% [44.96%, 59.40%]** | 10.00% (Random Ranker) | 180 | Candidate Provenance Track ID |
-| Feature 6: Candidate Identification | Source in Top-3 Candidates | **78.89% [72.36%, 84.22%]** | 30.00% (Random Ranker) | 180 | Candidate Provenance Track ID |
-| Feature 6: Candidate Identification | Alignment Coverage Error | **0.7432 [0.7075, 0.7789]** | 0.0500 (Naive 100% Guess) | 180 | True Overlap Ratio |
-| Feature 7: Timeline Localization | Segment Intersection over Union (IoU) | **0.6680 [0.5577, 0.7668]** | 0.3333 (Whole-Track Guess) | 10 | Spliced Query Interval Truth |
-| Feature 7: Timeline Localization | Timestamp Boundary Error | **0.66s [0.47s, 0.88s]** | 4.00s (Whole-Track Guess) | 10 | Spliced Query Interval Truth |
+| Feature 1: Similarity Engine | Top-1 Retrieval Accuracy | **90.00% [83.33%, 94.19%]** | 52.50% (Cosine) / 57.50% (DTW-0) | 120 | Real Held-Out Derived Queries |
+| Feature 1: Similarity Engine | Top-3 Retrieval Accuracy | **93.33% [87.39%, 96.58%]** | 56.67% (Mean-Chroma Cosine) | 120 | Real Held-Out Derived Queries |
+| Feature 1: Similarity Engine | MAP / MR1 | **0.9218 [0.8980, 0.9476]** | 0.5659 (Cosine) / 0.6296 (DTW-0) | 120 | Real Held-Out Derived Queries |
+| Feature 1: Similarity Engine | Shift Recovery (k in ±1..6) | **100.00% [92.59%, 100.00%]** | 0.00% (DTW Shift-0 Only) | 48 | Real Transposed Queries (±1..6) |
+| Feature 1: Similarity Engine | Related vs Unrelated ROC-AUC / PR-AUC | **0.9892 / 0.9840** | 0.5000 (Random) | 480 | Real Related vs Unrelated Pairs |
+| Feature 2: Statistical Gateway | Observed FPR (α=0.10) | **10.00% [6.57%, 14.94%]** | 0.00% (Fixed S>=0.65) | 200 | Real Unrelated Held-Out Pairs |
+| Feature 2: Statistical Gateway | Observed FPR (α=0.05) | **4.50% [2.39%, 8.33%]** | 0.00% (Fixed S>=0.65) | 200 | Real Unrelated Held-Out Pairs |
+| Feature 2: Statistical Gateway | Observed FPR (α=0.01) | **1.50% [0.51%, 4.32%]** | 0.00% (Fixed S>=0.65) | 200 | Real Unrelated Held-Out Pairs |
+| Feature 2: Statistical Gateway | Statistical Power (α=0.05) | **94.17% [88.45%, 97.15%]** | 83.33% (Fixed S>=0.65) | 120 | Real Derived Related Pairs |
+| Feature 2: Statistical Gateway | Null p-value QQ R² / KS p-val | **R²=0.9792 / KS p=0.0004** | N/A (Fixed Threshold) | 200 | Uniform(0,1) Calibration |
+| Feature 3: Creative Novelty | Monotonicity (Spearman ρ) & Guards | **ρ=-0.9759 (Guards OK=True)** | Unordered (ρ=0.0) | 200 | Disjoint Real Human Population |
+| Feature 4: Origin Classifier | Held-Out Balanced Accuracy | **71.00% [63.89%, 79.00%]** | 50.00% (Maj) / 70.33% (LR) / 69.33% (RF) | 300 | Real Held-Out Origin Labels |
+| Feature 4: Origin Classifier | Held-Out ROC-AUC | **0.7756 [0.6993, 0.8580]** | 0.5140 (Confound) / 0.7540 (LR) / 0.7259 (RF) | 300 | Real Held-Out Origin Labels |
+| Feature 4: Origin Classifier | Held-Out PR-AUC / F1 | **0.7620 [0.6109, 0.8896] / 0.7071 [0.5962, 0.7986]** | 0.5000 (Random) | 300 | Real Held-Out Origin Labels |
+| Feature 4: Origin Classifier | Human Specificity / EER | **72.00% [64.33%, 78.57%] / EER=29.33%** | 50.00% EER (Chance) | 150 | Real Independent Human Set |
+| Feature 4: Origin Classifier | Calibration ECE / Brier | **ECE=0.0357 / Brier=0.1945** | 0.2500 Brier (Constant 0.5) | 300 | Real Held-Out Origin Labels |
+| Feature 5: Musical Context | Key & Tempo Coverage | **Key 100.0% / Tempo 100.0% (Estimated, unverified)** | N/A (No curated ground truth) | 300 | Unverified (No Curated BPM/Key Labels) |
+| Feature 6: Candidate Identification | Source in Top-1 / Top-3 | **90.00% [83.33%, 94.19%] / 93.33% [87.39%, 96.58%]** | 2.78% / 8.33% (Random) | 120 | Real Derived Source Provenance |
+| Feature 6: Candidate Identification | Coverage Error & Evidence Agreement | **Err=0.5621 [0.5125, 0.6091] | High/Mod=29.2%** | Err=0.1318 (Naive 100%) | 120 | Real Overlap Ratio & Controlled Truth |
+| Feature 7: Timeline Localization | Spliced Segment IoU | **0.3439 [0.1367, 0.5648]** | 0.2727 (Whole-Track Guess) | 12 | Real Spliced Audio Intervals |
+| Feature 7: Timeline Localization | Timestamp Boundary Error | **3.33s [1.90s, 4.76s]** | 8.00s (Whole-Track Guess) | 12 | Real Spliced Audio Intervals |
+
+## 2. How Well Do Our Results Match the Truth? (Plain-Language Summary)
+| Feature | Truth Source | Predicted vs. True Agreement | n | 95% CI | Known Limitations |
+| :--- | :--- | :--- | :---: | :--- | :--- |
+| Feature 1: Similarity Engine | Controlled real-audio derivations (pitch ±1..6, stretch 0.9/1.1x, noise 15/20dB, excerpt, splice) | **90.00% Top-1 / 93.33% Top-3 (Shift recovery 100.00%)** | 120 | [83.33%, 94.19%] | Operates strictly in 12-bin chroma pitch space; severe splices/noise reduce global DTW alignment relative to pure transpositions. |
+| F2: Statistical Significance | 200 genuinely unrelated cross-group real human pairs vs 2,000-pair disjoint null | **95.50% specificity at α=0.05 (Observed FPR 4.50%, Power 94.17%)** | 200 | FPR [2.39%, 8.33%] | Pairwise null scores share tracks (not strictly independent); empirical p=0.0 means < 1/N due to finite N=2000. |
+| Feature 3: Creative Novelty | Disjoint verified human reference population (monotonicity + uniform sanity) | **100.0% monotonic ordering (ρ=-0.9759); unavailable guards passed** | 200 | KS p=0.0002 | Statistical proxy for pitch-space distinctiveness relative to corpus; not an aesthetic judgment of artistic creativity. |
+| Feature 4: Origin Classifier | Untouched real held-out tracks (balanced Human FMA vs AI MusicSet/SunoCaps/Udio) | **71.00% Balanced Accuracy (ROC-AUC 0.7756, Human Spec. 72.00%)** | 300 | [63.89%, 79.00%] | Generalizes only to represented generators (MusicSet, SunoCaps, Udio); see LOGO recall & compression drops in evaluation_results.json. |
+| Feature 5: Musical Context | No curated human-verified BPM/key labels in FMA-small/SleepyJesse | **Estimated, unverified (accuracy intentionally not reported)** | 300 | N/A | Estimated via librosa tempogram & Krumhansl-Schmuckler; requires curated GTZAN/GiantSteps key/tempo ground truth for formal accuracy. |
+| Feature 6: Candidate Identification | Known source track & true overlap ratio on real controlled derivations | **90.00% Top-1 / 93.33% Top-3 (High/Mod evidence on 29.2% of related)** | 120 | [83.33%, 94.19%] | Global DTW stretches alignment across unrelated frames on partial splices, increasing coverage error vs local subsequence matching. |
+| Feature 7: Timeline Localization | Real 6.0s audio excerpts spliced into unrelated 20–22s real tracks at known [start, end] | **Mean Segment IoU 34.4% (Boundary MAE 3.33s vs 8.00s baseline)** | 12 | IoU [0.1367, 0.5648] | Beat-synchronous frame quantization (~0.5s/beat) limits sub-beat boundary precision. |

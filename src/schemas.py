@@ -103,8 +103,10 @@ class GenreMapResult(BaseModel):
 # ---------------------------------------------------------------------------
 
 class StatisticalGatewayResult(BaseModel):
-    p_value: Optional[float] = Field(None, description="Empirical p-value against null distribution")
+    p_value: Optional[float] = Field(None, description="Empirical p-value against null distribution (k/N)")
+    smoothed_p_value: Optional[float] = Field(None, description="Research column: plus-one smoothed p-value (k+1)/(N+1); does not replace primary p_value")
     adjusted_p_value: Optional[float] = Field(None, description="Benjamini-Hochberg FDR adjusted p-value (q-value)")
+    bh_population_size: Optional[int] = Field(None, description="Number of valid evaluated candidates used in Benjamini-Hochberg FDR correction")
     null_sample_count: int = Field(..., description="Number of pairwise comparisons in null distribution")
     exceedance_count: Optional[int] = Field(None, description="Count of null distribution scores >= query score (k)")
     null_sample_size: Optional[int] = Field(None, description="Total valid, finite null comparisons evaluated (N)")
@@ -113,6 +115,10 @@ class StatisticalGatewayResult(BaseModel):
     fallback_source: str = Field(..., description="'genre_specific', 'global_null', or 'none'")
     min_required: int = Field(5, description="Minimum null pairs required for empirical p-value")
     explanation: Optional[str] = Field(None, description="Explanation when null population is insufficient or finite sample note")
+    independence_note: str = Field(
+        "Pairwise null comparisons sharing underlying reference tracks are not strictly independent observations; "
+        "sample-size confidence tiers are operational indicators rather than formal probability guarantees."
+    )
 
 
 class NullTestRequest(BaseModel):
@@ -162,6 +168,11 @@ class CreativeScoreResult(BaseModel):
     is_available: bool = Field(..., description="Whether sufficient reference population existed to calculate")
     evaluated_genres: List[str] = Field(default_factory=list, description="Target genres evaluated")
     broad_score_ci: Optional[Tuple[float, float]] = Field(None, description="Bootstrap 95% confidence interval (lower, upper)")
+    population_source: Optional[str] = Field(None, description="Reference population used (e.g., genre-specific or labelled global fallback)")
+    cross_genre_scores: Optional[Dict[str, Optional[float]]] = Field(None, description="For Case A cross-genre matches: novelty scored against native and matched genres")
+    statistical_proxy_note: str = Field(
+        "Creative score is a statistical proxy for relative structural distinctiveness within pitch space, not a measure of artistic creativity."
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -171,9 +182,12 @@ class CreativeScoreResult(BaseModel):
 class OriginClassifierResult(BaseModel):
     predicted_origin: str = Field(..., description="'Human', 'AI', or 'Unconfigured'")
     confidence: Optional[float] = Field(None, description="Confidence in predicted origin [0, 1]")
-    probability_ai: Optional[float] = Field(None, description="Model probability that track is AI-generated")
+    probability_ai: Optional[float] = Field(None, description="Calibrated model probability that track is AI-generated")
     model_status: str = Field(..., description="'Trained & Active' or 'Unconfigured / Missing Labeled Data'")
     model_version: Optional[str] = Field(None, description="Model version string if active")
+    scope_note: str = Field(
+        "Scope: Generalizes only to generators represented in training data. Origin is estimated independently and never inferred from DTW similarity."
+    )
 
 
 class OriginClassifyResponse(BaseModel):
@@ -220,6 +234,7 @@ class MimicCandidate(BaseModel):
     normalized_distance: Optional[float] = Field(None, ge=0.0, description="Normalized DTW distance")
     similarity_tier: str
     p_value: Optional[float] = None
+    smoothed_p_value: Optional[float] = Field(None, description="Research column: (k+1)/(N+1) smoothed empirical p-value")
     adjusted_p_value: Optional[float] = Field(None, description="Benjamini-Hochberg FDR adjusted p-value")
     exceedance_count: Optional[int] = Field(None, description="Count of null distribution scores >= query score (k)")
     null_sample_size: Optional[int] = Field(None, description="Total valid null scores evaluated (N)")
@@ -232,6 +247,11 @@ class MimicCandidate(BaseModel):
     alignment_coverage: Optional[float] = Field(None, ge=0.0, le=1.0, description="Unique query frames aligned at strong similarity / total query frames")
     coverage_percent: Optional[float] = Field(None, ge=0.0, le=100.0, description="Alignment coverage percentage")
     coverage_interpretation: Optional[str] = Field(None, description="'Isolated passage' (0-20%), 'Partial structural match' (>20-50%), or 'Broad structural overlap' (>50-100%)")
+    significant_region_count: Optional[int] = Field(None, ge=0, description="Number of distinct contiguous significant matching regions along the DTW path")
+    region_continuity: Optional[float] = Field(None, ge=0.0, le=1.0, description="Continuity/coherence of matching regions (coherent qualifying steps / total qualifying steps)")
+    sequential_consistency: Optional[float] = Field(None, ge=0.0, le=1.0, description="Monotonic temporal progression consistency of matched regions")
+    local_similarity_concentration: Optional[float] = Field(None, ge=0.0, le=1.0, description="Fraction of total DTW path local similarity mass concentrated in qualifying steps")
+    mimic_evidence_level: str = Field("Not applicable", description="Composite F6 Mimic Evidence tier: 'High', 'Moderate', 'Low', or 'Not applicable'")
     duration_sec: Optional[float] = Field(None, description="Candidate track duration in seconds")
     duration_disparity_warning: bool = Field(False, description="True if candidate duration is drastically different from query")
     disparity_explanation: Optional[str] = Field(None, description="Explanation of duration disparity and DTW path stretching")
@@ -353,6 +373,8 @@ class PipelineAnalysisResponse(BaseModel):
     evidence_timeline: List[EvidenceTimelineItem] = Field(default_factory=list)
     extra_features: Optional[Dict[str, Any]] = Field(None, description="Independent acoustic and rhythmic descriptors (MFCC, HPSS, spectral, rhythm)")
     mert_status: Optional[Dict[str, Any]] = Field(None, description="MERT representation readiness and hardware status")
+    bh_correction_population_size: Optional[int] = Field(None, description="Number of valid evaluated candidates used for Benjamini-Hochberg FDR adjustment")
+    truth_match: Optional[Dict[str, Any]] = Field(None, description="Held-out manifest ground-truth comparison if uploaded content hash matches an evaluation item")
     final_verdict: FinalVerdict
     disclaimer: str = Field(
         "System parameters focus exclusively on harmonic and melodic pitch space. "

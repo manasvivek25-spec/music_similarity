@@ -292,9 +292,15 @@ def run_pipeline(
     # 3. Stage 3: Loading Complete Indexed Dataset
     _emit_progress(3, "Loading complete indexed dataset", 25.0, 0, 1, "Loading indexed dataset corpus...")
     from src.remote_dataset import load_remote_index
-    from src.config import REPO_ROOT, DURATION_DISPARITY_RATIO, MIN_NULL_PAIRS
+    from src.config import (
+        REPO_ROOT, DURATION_DISPARITY_RATIO, MIN_NULL_PAIRS,
+        V2_INDEX_FILE, V2_NULL_CACHE_FILE, V2_MODEL_FILE,
+        is_fresh_production_mode_active, is_legacy_mode_active,
+    )
+    import json as _json
 
     remote_index = load_remote_index()
+    active_dataset_name = remote_index.get("dataset_name", "SleepyJesse/ai_music_large")
     remote_tracks = remote_index.get("tracks", {})
     is_index_complete = bool(remote_index.get("is_complete", False))
 
@@ -340,7 +346,7 @@ def run_pipeline(
         cand_source = raw_m.get("source") or r_info.get("dataset_name") or "SleepyJesse/ai_music_large"
 
         c_meta = {
-            "title": r_info.get("track_id", track_id),
+            "title": r_info.get("title") or r_info.get("track_id", track_id),
             "artist": cand_artist,
             "genre": r_info.get("genre"),  # Strictly no default ambient fallback
             "origin_label": r_info.get("origin_label", "unknown"),
@@ -507,13 +513,18 @@ def run_pipeline(
     _emit_progress(6, "Loading or building statistical null distributions", 62.0, 0, 1, "Accessing cached pairwise null distribution...")
     from src.stats_test import get_or_build_cached_null_distribution
 
-    # Load from precomputed global null distribution cache if available
+    # Load from precomputed global null distribution cache if authorized
     global_null: List[float] = []
     genre_null_dict: Dict[str, List[float]] = {}
-    if NULL_DIST_CACHE_FILE.is_file():
+    active_null_file = (
+        V2_NULL_CACHE_FILE
+        if (is_fresh_production_mode_active() and V2_NULL_CACHE_FILE.is_file())
+        else (NULL_DIST_CACHE_FILE if is_legacy_mode_active() else None)
+    )
+    if active_null_file is not None and active_null_file.is_file():
         try:
-            with open(NULL_DIST_CACHE_FILE, "r", encoding="utf-8") as f:
-                c_data = json.load(f)
+            with open(active_null_file, "r", encoding="utf-8") as f:
+                c_data = _json.load(f)
             cached_scores = c_data.get("null_scores", [])
             if len(cached_scores) >= MIN_NULL_PAIRS:
                 global_null = [float(s) for s in cached_scores]
@@ -562,6 +573,7 @@ def run_pipeline(
             min_null_pairs=MIN_NULL_PAIRS,
         )
         rec["p_value"] = gw_res.p_value
+        rec["smoothed_p_value"] = gw_res.smoothed_p_value
         rec["exceedance_count"] = gw_res.exceedance_count
         rec["null_sample_size"] = gw_res.null_sample_size
         rec["confidence"] = gw_res.confidence
@@ -570,6 +582,7 @@ def run_pipeline(
 
     from src.stats_test import benjamini_hochberg_correction
     raw_pvals = [r.get("p_value") for r in evaluated_records]
+    bh_correction_population_size = sum(1 for _p in raw_pvals if _p is not None and np.isfinite(_p))
     adj_pvals = benjamini_hochberg_correction(raw_pvals)
     for r, adj_p in zip(evaluated_records, adj_pvals):
         r["adjusted_p_value"] = adj_p
@@ -693,6 +706,16 @@ def run_pipeline(
                     evaluated_genres=target_genres[:2],
                     min_pool_size=5,
                 )
+                # Case A: score against BOTH native genre and matched genre
+                cg_scores: Dict[str, Optional[float]] = {}
+                for _gname in (native_genre, match_genre):
+                    _pool = genre_query_to_human_scores.get(_gname, [])
+                    if len(_pool) >= 5:
+                        _cr = compute_creative_score(top_match["similarity"], _pool, min_pool_size=5)
+                        cg_scores[_gname] = _cr.broad_score_percent
+                    else:
+                        cg_scores[f"{_gname} (global fallback)"] = creative_res.broad_score_percent
+                creative_res.cross_genre_scores = cg_scores
             else:
                 # Case B: Same-Genre Candidate
                 case_routing = CaseRoutingResult(
@@ -723,11 +746,18 @@ def run_pipeline(
                 evaluated_genres=[native_genre or match_genre or "General"],
                 min_pool_size=5,
             )
+    if ref_genres:
+        creative_res.population_source = f"{', '.join(ref_genres)} (n={len(ref_population_scores)})"
+    else:
+        creative_res.population_source = "Insufficient human reference population"
     _emit_progress(8, "Creative scoring", 79.0, 1, 1, "Creative score evaluated.")
 
     # 10. Stage 9: Origin-Classifier Availability Check
     _emit_progress(9, "Origin-classifier availability check", 81.0, 0, 1, "Checking origin classifier...")
-    origin_res = predict_origin(query_audio_path)
+    if is_fresh_production_mode_active() and V2_MODEL_FILE.is_file():
+        origin_res = predict_origin(query_audio_path, model_path=V2_MODEL_FILE)
+    else:
+        origin_res = predict_origin(query_audio_path)
     _emit_progress(9, "Origin-classifier availability check", 84.0, 1, 1, f"Origin check: {origin_res.model_status}.")
 
     # 11. Stage 10: Musical-Context Estimation
@@ -741,7 +771,9 @@ def run_pipeline(
         rec_copy["origin_prediction"] = origin_res.predicted_origin
         mimic_records.append(rec_copy)
 
-    mimic_analysis = build_mimic_analysis(query_context, mimic_records, max_mimic_candidates=3)
+    mimic_analysis = build_mimic_analysis(
+        query_context, mimic_records, max_mimic_candidates=3, case_type=case_routing.case_type
+    )
     _emit_progress(11, "Mimic ranking and alignment-coverage calculation", 93.0, 1, 1, "Mimic ranking complete.")
 
     # 13. Stage 12: Evidence Timeline and Suggestions
@@ -765,7 +797,23 @@ def run_pipeline(
     best_sim_for_verdict = stat_survivors[0]["similarity"] if stat_survivors else (
         max([r["similarity"] for r in evaluated_records], default=0.0) if evaluated_records else 0.0
     )
-    best_pval_for_verdict = stat_survivors[0].get("p_value") if stat_survivors else None
+    if stat_survivors:
+        best_pval_for_verdict = stat_survivors[0].get("p_value")
+    elif null_count >= MIN_NULL_PAIRS:
+        valid_eval_p = [r["p_value"] for r in evaluated_records if r.get("p_value") is not None]
+        if valid_eval_p:
+            best_pval_for_verdict = min(valid_eval_p)
+        else:
+            best_pval_for_verdict = evaluate_statistical_gateway(
+                query_score=best_sim_for_verdict,
+                genre=query_context.genre,
+                genre_null_scores=genre_null_dict,
+                global_null_scores=global_null,
+                min_genre_samples=30,
+                min_null_pairs=MIN_NULL_PAIRS,
+            ).p_value
+    else:
+        best_pval_for_verdict = None
     norm_creative = creative_res.broad_score_normalized if creative_res.is_available else None
     top_confidence = stat_survivors[0].get("confidence") if stat_survivors else (
         evaluated_records[0].get("confidence") if evaluated_records else "Low"
@@ -790,10 +838,29 @@ def run_pipeline(
         )
 
     corpus_status = (
-        f"Complete Dataset ({total_corpus_size} tracks indexed of SleepyJesse/ai_music_large)"
+        f"Complete Dataset ({total_corpus_size} tracks indexed of {active_dataset_name})"
         if is_index_complete
-        else f"Partial Dataset Index ({total_corpus_size} tracks indexed of SleepyJesse/ai_music_large). Analysis covers indexed subset only; full-dataset scan in progress or incomplete."
+        else f"Partial Dataset Index ({total_corpus_size} tracks indexed of {active_dataset_name}). Analysis covers indexed subset only; full-dataset scan in progress or incomplete."
     )
+
+    # Truth Panel lookup (content-hash match against held-out manifest)
+    truth_match_dict: Optional[Dict[str, Any]] = None
+    try:
+        from src.truth_lookup import lookup_upload_ground_truth
+        top_shift = stat_survivors[0].get("best_shift") if stat_survivors else (
+            evaluated_records[0].get("best_shift") if evaluated_records else None
+        )
+        det_segs = []
+        if evidence_timeline and evidence_timeline[0].flagged_segments:
+            det_segs = [s.model_dump() for s in evidence_timeline[0].flagged_segments]
+        truth_match_dict = lookup_upload_ground_truth(
+            Path(query_audio_path),
+            predicted_origin=origin_res.predicted_origin,
+            detected_best_shift=top_shift,
+            detected_segments=det_segs,
+        )
+    except Exception:
+        truth_match_dict = {"available": False, "message": "No ground truth available for this upload."}
 
     response = PipelineAnalysisResponse(
         query_track=query_context,
@@ -820,6 +887,8 @@ def run_pipeline(
         evidence_timeline=evidence_timeline,
         extra_features=extra_features_dict,
         mert_status=mert_status_dict,
+        bh_correction_population_size=bh_correction_population_size,
+        truth_match=truth_match_dict,
         final_verdict=final_verdict,
     )
 

@@ -319,7 +319,8 @@ def test_zero_silent_fallback_guarantee(monkeypatch, tmp_path):
     clf = load_origin_classifier(model_path=None, strict=False)
     assert clf is None, "Must not silently fall back to legacy classifier"
 
-    # Index: load default must return empty skeleton, not 261 tracks
+    # Index: when no fresh v2 index exists, load default must return empty skeleton, not legacy 261 tracks
+    monkeypatch.setattr("src.remote_dataset.V2_INDEX_FILE", tmp_path / "nonexistent_v2_index.json")
     idx = load_remote_index(index_file=None, strict=False)
     assert idx["total_indexed"] == 0
     assert len(idx["tracks"]) == 0

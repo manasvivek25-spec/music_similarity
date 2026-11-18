@@ -440,6 +440,73 @@ def predict_origin(
 
     is_fixture = is_test_fixture_model(model) or (model_path and is_test_fixture_model(model_path))
 
+    # Support v2 fresh_production calibrated model bundle (dict with explicit metadata)
+    if isinstance(model, dict) and model.get("fresh_production") is True and "model" in model:
+        try:
+            import soundfile as sf
+            import tempfile
+            from src.v2_indexer import normalize_waveform, extract_features_from_waveform
+            from src.mert_embedding import extract_mert_embedding
+
+            clf = model["model"]
+            fset = model.get("feature_set", "acoustic_56")
+            threshold = float(model.get("threshold", 0.50))
+            ver = str(model.get("model_version", "2.0.0-fresh_production"))
+            reps = model.get("represented_generators", [])
+            target_sec = float(model.get("index_max_seconds", 10.0))
+
+            data, sr_orig = librosa.load(str(audio_path), sr=None, mono=True)
+            y_norm, _ = normalize_waveform(data, int(sr_orig), target_sec=target_sec, target_sr=SAMPLE_RATE)
+            f56 = extract_features_from_waveform(y_norm, sr=SAMPLE_RATE)["f56"]
+
+            if fset == "acoustic_56":
+                x_vec = f56
+            else:
+                with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tf:
+                    tmp_p = Path(tf.name)
+                try:
+                    sf.write(str(tmp_p), y_norm, SAMPLE_RATE, subtype="PCM_16")
+                    emb = extract_mert_embedding(tmp_p, f"infer_{tmp_p.stem}", cache_dir=tmp_p.parent)
+                finally:
+                    tmp_p.unlink(missing_ok=True)
+                    (tmp_p.parent / f"infer_{tmp_p.stem}_mert.npy").unlink(missing_ok=True)
+                if emb is None or len(emb) != 768:
+                    raise ValueError("MERT embedding unavailable for v2 MERT/combined classifier")
+                x_vec = emb.astype(np.float32) if fset == "mert_768" else np.concatenate([f56, emb.astype(np.float32)])
+
+            x_2d = x_vec.reshape(1, -1)
+            if hasattr(clf, "predict_proba"):
+                prob_ai = float(clf.predict_proba(x_2d)[0][1])
+            elif hasattr(clf, "decision_function"):
+                z = float(clf.decision_function(x_2d)[0])
+                prob_ai = float(1.0 / (1.0 + np.exp(-np.clip(z, -30, 30))))
+            else:
+                prob_ai = float(clf.predict(x_2d)[0])
+
+            label = "AI" if prob_ai >= threshold else "Human"
+            confidence = prob_ai if label == "AI" else (1.0 - prob_ai)
+            gen_txt = ", ".join(reps) if reps else "represented training generators"
+            return OriginClassifierResult(
+                predicted_origin=label,
+                confidence=round(confidence, 4),
+                probability_ai=round(prob_ai, 4),
+                model_status="Trained & Active (Fresh Production)",
+                model_version=ver,
+                scope_note=(
+                    f"Scope: Generalizes only to generators represented in training data ({gen_txt}). "
+                    f"Calibrated probability (threshold={threshold:.2f}); independent of DTW similarity."
+                ),
+            )
+        except Exception as exc:
+            logger.warning(f"v2 fresh_production origin inference failed gracefully: {exc}")
+            return OriginClassifierResult(
+                predicted_origin="Unconfigured",
+                confidence=None,
+                probability_ai=None,
+                model_status="Unconfigured / Inference Fallback",
+                model_version=None,
+            )
+
     try:
         features = extract_origin_features_from_audio(audio_path)
         features_2d = features.reshape(1, -1)

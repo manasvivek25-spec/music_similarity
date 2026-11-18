@@ -118,15 +118,27 @@ def health_check():
     human_files = list_audio_files(HUMAN_DIR)
     ai_files = list_audio_files(AI_DIR)
 
-    model_path = get_default_model_path()
-    classifier_active = model_path.is_file() and load_origin_classifier(model_path) is not None
-    classifier_status = "Trained & Active" if classifier_active else "Unconfigured / Missing Labeled Data"
+    from src.config import (
+        V2_MODEL_FILE, V2_INDEX_FILE, V2_NULL_CACHE_FILE,
+        is_fresh_production_mode_active, is_legacy_mode_active,
+    )
+    if is_fresh_production_mode_active() and V2_MODEL_FILE.is_file():
+        classifier_active = load_origin_classifier(V2_MODEL_FILE) is not None
+        classifier_status = "Trained & Active (Fresh Production)" if classifier_active else "Unconfigured / Missing Labeled Data"
+    else:
+        model_path = get_default_model_path()
+        classifier_active = model_path.is_file() and load_origin_classifier(model_path) is not None
+        classifier_status = "Trained & Active" if classifier_active else "Unconfigured / Missing Labeled Data"
 
     remote_tracks: Dict[str, Any] = {}
     try:
-        from src.remote_dataset import load_remote_index
-        r_idx = load_remote_index()
-        remote_tracks = r_idx.get("tracks", {})
+        if is_fresh_production_mode_active() and V2_INDEX_FILE.is_file():
+            with open(V2_INDEX_FILE, "r", encoding="utf-8") as _f:
+                remote_tracks = json.load(_f).get("tracks", {})
+        else:
+            from src.remote_dataset import load_remote_index
+            r_idx = load_remote_index()
+            remote_tracks = r_idx.get("tracks", {})
     except Exception:
         pass
 
@@ -149,9 +161,14 @@ def health_check():
 
     global_null_path = FEATURES_DIR / "global_null_distribution.npy"
     null_pairs_global: Optional[int] = None
-    if NULL_DIST_CACHE_FILE.is_file():
+    active_null_p = (
+        V2_NULL_CACHE_FILE
+        if (is_fresh_production_mode_active() and V2_NULL_CACHE_FILE.is_file())
+        else (NULL_DIST_CACHE_FILE if is_legacy_mode_active() else None)
+    )
+    if active_null_p is not None and active_null_p.is_file():
         try:
-            with open(NULL_DIST_CACHE_FILE, "r", encoding="utf-8") as f:
+            with open(active_null_p, "r", encoding="utf-8") as f:
                 nd = json.load(f)
             cnt = nd.get("sample_pairs_count")
             null_pairs_global = cnt if cnt and cnt > 0 else None
@@ -235,7 +252,18 @@ def save_and_validate_upload(
                 detail="Uploaded audio file is empty.",
             )
 
-        duration = get_audio_duration(target_path)
+        try:
+            duration = get_audio_duration(target_path)
+        except Exception as exc:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Invalid or unreadable audio file: {exc}",
+            )
+        if duration is None or not np.isfinite(duration) or duration <= 0.0:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Uploaded audio file could not be decoded or has zero duration.",
+            )
         if min_duration_sec > 0.0 and duration < min_duration_sec:
             raise HTTPException(
                 status_code=422,
@@ -1075,6 +1103,56 @@ def get_dataset_index_status():
     """
     Query dataset indexing status, completeness flag, and unresolved failures.
     """
+    from src.config import V2_INDEX_FILE, V2_INDEX_STATE_FILE, V2_NULL_CACHE_FILE, is_fresh_production_mode_active
+    if not dataset_scan_manager.is_running() and is_fresh_production_mode_active() and V2_INDEX_FILE.is_file():
+        try:
+            with open(V2_INDEX_FILE, "r", encoding="utf-8") as _f:
+                v2_idx = json.load(_f)
+            v2_state = {}
+            if V2_INDEX_STATE_FILE.is_file():
+                with open(V2_INDEX_STATE_FILE, "r", encoding="utf-8") as _sf:
+                    v2_state = json.load(_sf)
+            tracks = v2_idx.get("tracks", {})
+            h_cnt = sum(1 for r in tracks.values() if r.get("origin_label") == "human")
+            a_cnt = sum(1 for r in tracks.values() if r.get("origin_label") == "ai")
+            u_cnt = len(tracks) - h_cnt - a_cnt
+            vg_cnt = sum(1 for r in tracks.values() if r.get("genre") and str(r.get("genre")).lower() != "unknown")
+            null_cnt = None
+            if V2_NULL_CACHE_FILE.is_file():
+                with open(V2_NULL_CACHE_FILE, "r", encoding="utf-8") as _nf:
+                    null_cnt = json.load(_nf).get("sample_pairs_count")
+            is_comp = bool(v2_idx.get("is_complete", False) and v2_state.get("status", "COMPLETED") == "COMPLETED")
+            st_lbl = "Complete" if is_comp else ("Partial" if len(tracks) > 0 else "Not Started")
+            return IndexStatusResponse(
+                total_indexed=len(tracks),
+                is_complete=is_comp,
+                status=st_lbl,
+                dataset_name=v2_idx.get("dataset_name", "v2_balanced_fma_sleepyjesse_real"),
+                split="reference_index (disjoint v2)",
+                records_scanned=int(v2_state.get("discovered", len(tracks))),
+                audio_indexed=int(v2_state.get("indexed", len(tracks))),
+                existing_reused=int(v2_state.get("reused", 0)),
+                duplicate_records=int(v2_state.get("duplicates", 0)),
+                failed_records=int(v2_state.get("failed", 0)),
+                records_awaiting_retry=0,
+                human_tracks=h_cnt,
+                ai_tracks=a_cnt,
+                unknown_origin_tracks=u_cnt,
+                verified_genre_tracks=vg_cnt,
+                estimated_genre_tracks=0,
+                unknown_genre_tracks=len(tracks) - vg_cnt,
+                unresolved_records_count=int(v2_state.get("failed", 0)),
+                unresolved_records=[],
+                null_pairs_cached=null_cnt,
+                current_operation="v2 reference index ready" if is_comp else "Partial v2 index",
+                elapsed_sec=float(v2_state.get("elapsed_sec", 0.0)),
+                downloaded_bytes=0,
+                is_scanning=False,
+                created_at=v2_idx.get("created_at"),
+                updated_at=v2_state.get("updated_at") or v2_idx.get("created_at"),
+            )
+        except Exception:
+            pass
     return dataset_scan_manager.get_status()
 
 
@@ -1246,6 +1324,64 @@ def download_scientific_report(report_type: str = Query("evaluation", pattern="^
     raise HTTPException(status_code=404, detail=f"Report {filename} not found.")
 
 
+@app.get("/api/evaluation/results", tags=["Scientific Evaluation"])
+def get_offline_evaluation_results():
+    """Return run-derived offline evaluation results from reports/evaluation_results.json."""
+    from src.config import REPO_ROOT
+    res_p = REPO_ROOT / "reports" / "evaluation_results.json"
+    if not res_p.is_file():
+        raise HTTPException(status_code=404, detail="Evaluation results artifact not generated yet.")
+    with open(res_p, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+@app.get("/api/evaluation/audit", tags=["Scientific Evaluation"])
+def get_dataset_audit_endpoint():
+    """Return dataset cleaning, bias control, confound probes, and leakage audit JSON."""
+    from src.config import REPO_ROOT
+    aud_p = REPO_ROOT / "reports" / "dataset_audit.json"
+    if not aud_p.is_file():
+        raise HTTPException(status_code=404, detail="Dataset audit artifact not generated yet.")
+    with open(aud_p, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+@app.get("/api/model/specs", tags=["Origin Classification"])
+def get_model_specs_endpoint():
+    """Return fresh_production F4 origin classifier specs, hyperparameters, CV, and robustness metrics."""
+    from src.config import V2_MODEL_METRICS_FILE
+    if not V2_MODEL_METRICS_FILE.is_file():
+        raise HTTPException(status_code=404, detail="Fresh-production origin classifier metrics not available.")
+    with open(V2_MODEL_METRICS_FILE, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+@app.get("/api/figures/{filename}", tags=["Reports"])
+def serve_report_figure(filename: str):
+    """Serve generated PNG evaluation/EDA figures safely."""
+    from src.config import REPO_ROOT
+    safe_name = Path(filename).name
+    if not safe_name.endswith(".png") or safe_name != filename:
+        raise HTTPException(status_code=400, detail="Invalid figure filename.")
+    fig_p = REPO_ROOT / "reports" / "figures" / safe_name
+    if not fig_p.is_file():
+        raise HTTPException(status_code=404, detail="Figure not found.")
+    return FileResponse(str(fig_p), media_type="image/png")
+
+
+@app.get("/api/audio/reference/{track_id}", tags=["Audio Playback"])
+def serve_reference_audio_excerpt(track_id: str):
+    """Serve compact 10s normalized WAV excerpt for click-to-play timeline playback."""
+    from src.config import V2_DATA_DIR
+    safe_id = Path(track_id).name
+    if safe_id != track_id or ".." in track_id or "/" in track_id or "\\" in track_id:
+        raise HTTPException(status_code=400, detail="Invalid track_id.")
+    wav_p = V2_DATA_DIR / "audio" / "norm10s" / f"{safe_id}.wav"
+    if not wav_p.is_file():
+        raise HTTPException(status_code=404, detail="Audio excerpt not available for this track.")
+    return FileResponse(str(wav_p), media_type="audio/wav")
+
+
 # ---------------------------------------------------------------------------
 # Frontend Static Files & SPA Routing
 # ---------------------------------------------------------------------------
@@ -1256,9 +1392,10 @@ if FRONTEND_DIR.is_dir():
     @app.get("/styles.css", include_in_schema=False)
     @app.get("/style.css", include_in_schema=False)
     def serve_css():
-        css_file = FRONTEND_DIR / "styles.css"
-        if css_file.is_file():
-            return FileResponse(str(css_file), media_type="text/css")
+        for cname in ("style.css", "styles.css"):
+            css_file = FRONTEND_DIR / cname
+            if css_file.is_file():
+                return FileResponse(str(css_file), media_type="text/css")
         return Response(content="", media_type="text/css")
 
     @app.get("/app.js", include_in_schema=False)

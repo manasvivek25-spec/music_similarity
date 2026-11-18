@@ -1,572 +1,990 @@
 {
   "metadata": {
-    "title": "Offline Scientific Evaluation Results across Seven Features",
-    "timestamp": "2026-11-17T08:05:56Z",
+    "title": "Real Held-Out Offline Evaluation Results (v2)",
+    "timestamp": "2026-11-18T14:27:25Z",
     "seed": 42,
-    "runtime_seconds": 25.48,
-    "manifest_path": "C:\\Users\\len\\music_similarity\\music_similarity\\evaluation\\evaluation_manifest.csv",
-    "total_manifest_items": 190
+    "runtime_seconds": 149.34,
+    "dataset_version": "v2_real_held_out",
+    "manifest_path": "evaluation\\evaluation_manifest.csv",
+    "total_manifest_items": 420,
+    "held_out_tracks_count": 300,
+    "controlled_derived_queries_count": 120,
+    "leakage_verified_zero_overlap": true
   },
   "feature_1_similarity": {
-    "n_queries": 180,
-    "n_transpositions": 120,
+    "n_queries": 120,
+    "n_pool_tracks": 36,
+    "n_transpositions": 48,
     "top_1": {
-      "ours": 0.5222222222222223,
+      "ours": 0.9,
       "ci": [
-        0.4496,
-        0.594
+        0.8333,
+        0.9419
       ],
-      "baseline": 0.37777777777777777
+      "baseline_cosine": 0.525,
+      "baseline_dtw_noshift": 0.575
     },
     "top_3": {
-      "ours": 0.7888888888888889,
+      "ours": 0.9333,
       "ci": [
-        0.7236,
-        0.8422
+        0.8739,
+        0.9658
       ],
-      "baseline": 0.4888888888888889
+      "baseline_cosine": 0.5667
     },
     "map": {
-      "ours": 0.6721,
+      "ours": 0.9218,
       "ci": [
-        0.604,
-        0.7447
+        0.898,
+        0.9476
       ],
-      "baseline": 0.5009303350970018
+      "baseline_cosine": 0.5659,
+      "baseline_dtw_noshift": 0.6296
     },
     "mr1": {
-      "ours": 0.6721,
+      "ours": 0.9218,
       "ci": [
-        0.604,
-        0.7447
+        0.898,
+        0.9476
       ],
-      "baseline": 0.5009303350970018
+      "baseline_cosine": 0.5659
     },
     "shift_recovery": {
-      "ours": 0.14166666666666666,
+      "ours": 1.0,
       "ci": [
-        0.0904,
-        0.2152
+        0.9259,
+        1.0
       ],
-      "baseline": 0.0
+      "baseline_dtw_noshift": 0.0
     },
-    "mcnemar_top1": {
-      "statistic": 13.0208,
-      "p_value": 0.000308,
-      "b_ours_only_correct": 37,
-      "c_base_only_correct": 11,
+    "pair_roc_auc": 0.9892,
+    "pair_pr_auc": 0.984,
+    "related_sim_mean": 0.7445,
+    "unrelated_sim_mean": 0.4972,
+    "mcnemar_top1_vs_cosine": {
+      "statistic": 41.1915,
+      "p_value": 0.0,
+      "b_ours_only_correct": 46,
+      "c_base_only_correct": 1,
       "significant_05": true
     },
-    "paired_bootstrap_map": {
-      "mean_delta": 0.1711,
+    "mcnemar_top1_vs_noshift": {
+      "statistic": 30.7234,
+      "p_value": 0.0,
+      "b_ours_only_correct": 43,
+      "c_base_only_correct": 4,
+      "significant_05": true
+    },
+    "paired_bootstrap_map_vs_cosine": {
+      "mean_delta": 0.3558,
       "ci": [
-        0.1153,
-        0.2289
+        0.2695,
+        0.4349
       ],
       "p_value": 0.0,
       "significant_05": true
     }
   },
   "feature_2_significance": {
-    "n_null_pairs": 45,
-    "n_related_pairs": 180,
+    "null_distribution_size_N": 2000,
+    "n_unrelated_pairs": 200,
+    "n_related_pairs": 120,
     "fpr_alpha_10": {
-      "ours": 0.08888888888888889,
+      "ours": 0.1,
       "ci": [
-        0.0351,
-        0.2073
+        0.0657,
+        0.1494
       ],
-      "baseline_fixed": 0.9777777777777777
+      "baseline_fixed_065": 0.0
     },
     "fpr_alpha_05": {
-      "ours": 0.044444444444444446,
+      "ours": 0.045,
       "ci": [
-        0.0123,
-        0.1483
+        0.0239,
+        0.0833
       ],
-      "baseline_fixed": 0.9777777777777777
+      "baseline_fixed_065": 0.0
     },
     "fpr_alpha_01": {
-      "ours": 0.0,
+      "ours": 0.015,
       "ci": [
-        0.0,
-        0.0787
+        0.0051,
+        0.0432
       ],
-      "baseline_fixed": 0.9777777777777777
+      "baseline_fixed_065": 0.0
     },
+    "bh_fdr_rejection_rate_05": 0.0,
     "power_alpha_05": {
-      "ours": 0.16666666666666666,
+      "ours": 0.9417,
       "ci": [
-        0.1193,
-        0.228
+        0.8845,
+        0.9715
       ],
-      "baseline_fixed": 0.7277777777777777
+      "baseline_fixed_065": 0.8333
     },
     "ks_uniformity": {
-      "ks_statistic": 0.0222,
-      "p_value": 1.0
+      "ks_statistic": 0.1445,
+      "p_value": 0.000416
     },
-    "qq_r2": 1.0
+    "qq_r2": 0.9792
   },
   "feature_3_creative_novelty": {
-    "n_held_out_humans": 5,
-    "mean_duplicate_rank": {
-      "ours": 1.0,
-      "baseline_random": 2.5
-    },
+    "n_held_out_human_evals": 200,
+    "monotonicity_spearman_rho": -0.9759,
     "ks_uniformity": {
-      "ks_statistic": 1.0,
-      "p_value": 0.0
+      "ks_statistic": 0.151,
+      "p_value": 0.000191
     },
-    "novelty_percentiles_mean": 1.0
+    "unavailable_guards_verified": true,
+    "mean_held_out_human_novelty_pct": 43.15
   },
   "feature_4_origin": {
-    "n_samples": 64,
-    "n_human": 32,
-    "n_ai": 32,
-    "confusion_matrix": [
-      [
-        6,
-        26
-      ],
-      [
-        26,
-        6
-      ]
-    ],
-    "balanced_accuracy": {
-      "ours": 0.1875,
-      "ci": [
-        0.1106,
-        0.2997
-      ],
-      "baseline_majority": 0.5
-    },
-    "roc_auc": {
-      "ours": 0.1689,
-      "ci": [
-        0.0733,
-        0.2485
-      ],
-      "baseline_lr": 1.0,
-      "baseline_rf": 1.0
-    },
-    "pr_auc": {
-      "ours": 0.3371,
-      "ci": [
-        0.1124,
-        0.7337
+    "timestamp": "2026-11-18T14:19:29Z",
+    "elapsed_sec": 187.02,
+    "seed": 42,
+    "fresh_production": true,
+    "model_version": "2.0.0-fresh_production",
+    "dataset_id": "v2_balanced_fma_sleepyjesse_real",
+    "model_path": "models\\origin_classifier_v2_fresh.joblib",
+    "selected_model": {
+      "feature_set": "combined_824",
+      "algorithm": "logistic_regression",
+      "calibration_method": "uncalibrated",
+      "decision_threshold": 0.5,
+      "hyperparameters": {
+        "clf__C": 0.01
+      },
+      "training_set_size": 702,
+      "validation_set_size": 232,
+      "represented_generators": [
+        "MusicSet",
+        "SunoCaps",
+        "Udio"
       ]
     },
-    "eer": {
-      "ours": 0.8125
-    },
-    "tpr_at_1pct_fpr": {
-      "ours": 0.0
-    },
-    "tpr_at_5pct_fpr": {
-      "ours": 0.0
-    },
-    "specificity_human": {
-      "ours": 0.1875,
-      "ci": [
-        0.0889,
-        0.3531
-      ],
-      "baseline_majority": 1.0
-    },
-    "per_generator_recall": {
-      "Diffusion-Transformer": {
-        "recall": 0.1538,
-        "n": 13
+    "cv_and_val_comparison": {
+      "acoustic_56": {
+        "logistic_regression": {
+          "cv_mean_roc_auc": 0.5655,
+          "best_params": {
+            "clf__C": 1.0
+          },
+          "calibration_method": "uncalibrated",
+          "selected_val_threshold": 0.52,
+          "val_roc_auc": 0.6545,
+          "val_balanced_accuracy": 0.625,
+          "val_brier": 0.2358,
+          "val_ece": 0.0506
+        },
+        "linear_svm": {
+          "cv_mean_roc_auc": 0.5646,
+          "best_params": {
+            "clf__C": 0.1
+          },
+          "calibration_method": "uncalibrated",
+          "selected_val_threshold": 0.5,
+          "val_roc_auc": 0.6533,
+          "val_balanced_accuracy": 0.6207,
+          "val_brier": 0.2344,
+          "val_ece": 0.0526
+        },
+        "rbf_svm": {
+          "cv_mean_roc_auc": 0.6571,
+          "best_params": {
+            "clf__gamma": "auto",
+            "clf__C": 10.0
+          },
+          "calibration_method": "uncalibrated",
+          "selected_val_threshold": 0.3,
+          "val_roc_auc": 0.6298,
+          "val_balanced_accuracy": 0.5991,
+          "val_brier": 0.2417,
+          "val_ece": 0.0821
+        },
+        "random_forest": {
+          "cv_mean_roc_auc": 0.6426,
+          "best_params": {
+            "clf__n_estimators": 100,
+            "clf__min_samples_leaf": 2,
+            "clf__max_depth": 24
+          },
+          "calibration_method": "uncalibrated",
+          "selected_val_threshold": 0.43,
+          "val_roc_auc": 0.6962,
+          "val_balanced_accuracy": 0.6509,
+          "val_brier": 0.2221,
+          "val_ece": 0.0679
+        },
+        "hist_gradient_boosting": {
+          "cv_mean_roc_auc": 0.6269,
+          "best_params": {
+            "clf__max_iter": 200,
+            "clf__max_depth": "None",
+            "clf__learning_rate": 0.05
+          },
+          "calibration_method": "uncalibrated",
+          "selected_val_threshold": 0.37,
+          "val_roc_auc": 0.6993,
+          "val_balanced_accuracy": 0.6767,
+          "val_brier": 0.2388,
+          "val_ece": 0.1284
+        }
       },
-      "Lyria-Architecture": {
-        "recall": 0.1429,
-        "n": 7
+      "mert_768": {
+        "logistic_regression": {
+          "cv_mean_roc_auc": 0.745,
+          "best_params": {
+            "clf__C": 0.01
+          },
+          "calibration_method": "uncalibrated",
+          "selected_val_threshold": 0.56,
+          "val_roc_auc": 0.714,
+          "val_balanced_accuracy": 0.6724,
+          "val_brier": 0.2197,
+          "val_ece": 0.0963
+        },
+        "linear_svm": {
+          "cv_mean_roc_auc": 0.7513,
+          "best_params": {
+            "clf__C": 0.005
+          },
+          "calibration_method": "uncalibrated",
+          "selected_val_threshold": 0.39,
+          "val_roc_auc": 0.6952,
+          "val_balanced_accuracy": 0.6552,
+          "val_brier": 0.2203,
+          "val_ece": 0.088
+        },
+        "rbf_svm": {
+          "cv_mean_roc_auc": 0.7467,
+          "best_params": {
+            "clf__gamma": "scale",
+            "clf__C": 1.0
+          },
+          "calibration_method": "uncalibrated",
+          "selected_val_threshold": 0.52,
+          "val_roc_auc": 0.6985,
+          "val_balanced_accuracy": 0.6595,
+          "val_brier": 0.2238,
+          "val_ece": 0.0983
+        },
+        "random_forest": {
+          "cv_mean_roc_auc": 0.7211,
+          "best_params": {
+            "clf__n_estimators": 200,
+            "clf__min_samples_leaf": 2,
+            "clf__max_depth": 24
+          },
+          "calibration_method": "uncalibrated",
+          "selected_val_threshold": 0.49,
+          "val_roc_auc": 0.6703,
+          "val_balanced_accuracy": 0.6422,
+          "val_brier": 0.2351,
+          "val_ece": 0.0531
+        },
+        "hist_gradient_boosting": {
+          "cv_mean_roc_auc": 0.6967,
+          "best_params": {
+            "clf__max_iter": 200,
+            "clf__max_depth": 8,
+            "clf__learning_rate": 0.2
+          },
+          "calibration_method": "uncalibrated",
+          "selected_val_threshold": 0.44,
+          "val_roc_auc": 0.6432,
+          "val_balanced_accuracy": 0.625,
+          "val_brier": 0.3309,
+          "val_ece": 0.3026
+        }
       },
-      "MusicGen-Autoregressive": {
-        "recall": 0.25,
-        "n": 12
+      "combined_824": {
+        "logistic_regression": {
+          "cv_mean_roc_auc": 0.7491,
+          "best_params": {
+            "clf__C": 0.01
+          },
+          "calibration_method": "uncalibrated",
+          "selected_val_threshold": 0.5,
+          "val_roc_auc": 0.7235,
+          "val_balanced_accuracy": 0.681,
+          "val_brier": 0.2176,
+          "val_ece": 0.106
+        },
+        "linear_svm": {
+          "cv_mean_roc_auc": 0.7508,
+          "best_params": {
+            "clf__C": 0.005
+          },
+          "calibration_method": "uncalibrated",
+          "selected_val_threshold": 0.52,
+          "val_roc_auc": 0.7062,
+          "val_balanced_accuracy": 0.6724,
+          "val_brier": 0.2181,
+          "val_ece": 0.1082
+        },
+        "rbf_svm": {
+          "cv_mean_roc_auc": 0.7481,
+          "best_params": {
+            "clf__gamma": "scale",
+            "clf__C": 1.0
+          },
+          "calibration_method": "uncalibrated",
+          "selected_val_threshold": 0.55,
+          "val_roc_auc": 0.7099,
+          "val_balanced_accuracy": 0.6638,
+          "val_brier": 0.2205,
+          "val_ece": 0.0755
+        },
+        "random_forest": {
+          "cv_mean_roc_auc": 0.7268,
+          "best_params": {
+            "clf__n_estimators": 300,
+            "clf__min_samples_leaf": 4,
+            "clf__max_depth": 16
+          },
+          "calibration_method": "uncalibrated",
+          "selected_val_threshold": 0.52,
+          "val_roc_auc": 0.6579,
+          "val_balanced_accuracy": 0.6379,
+          "val_brier": 0.2369,
+          "val_ece": 0.0533
+        },
+        "hist_gradient_boosting": {
+          "cv_mean_roc_auc": 0.6944,
+          "best_params": {
+            "clf__max_iter": 200,
+            "clf__max_depth": 8,
+            "clf__learning_rate": 0.2
+          },
+          "calibration_method": "uncalibrated",
+          "selected_val_threshold": 0.21,
+          "val_roc_auc": 0.6551,
+          "val_balanced_accuracy": 0.6164,
+          "val_brier": 0.3143,
+          "val_ece": 0.276
+        }
       }
     },
-    "avg_generator_recall": 0.1822,
-    "ece": 0.6919,
-    "brier_score": {
-      "ours": 0.6357,
-      "baseline_lr": 0.0003
+    "test_set_metrics": {
+      "n_samples": 232,
+      "n_human": 116,
+      "n_ai": 116,
+      "threshold": 0.5,
+      "confusion_matrix": [
+        [
+          75,
+          41
+        ],
+        [
+          37,
+          79
+        ]
+      ],
+      "precision": 0.6583,
+      "recall": 0.681,
+      "f1": {
+        "value": 0.6695,
+        "ci": [
+          0.5796,
+          0.7568
+        ]
+      },
+      "balanced_accuracy": {
+        "value": 0.6638,
+        "ci": [
+          0.5937,
+          0.734
+        ]
+      },
+      "roc_auc": {
+        "value": 0.7398,
+        "ci": [
+          0.6529,
+          0.814
+        ]
+      },
+      "pr_auc": {
+        "value": 0.7251,
+        "ci": [
+          0.6117,
+          0.8383
+        ]
+      },
+      "eer": 0.3448,
+      "tpr_at_1pct_fpr": 0.0603,
+      "tpr_at_5pct_fpr": 0.25,
+      "specificity_human": {
+        "value": 0.6466,
+        "ci": [
+          0.5561,
+          0.7276
+        ],
+        "n": 116
+      },
+      "per_generator_recall": {
+        "MusicSet": {
+          "recall": 0.7083,
+          "ci": [
+            0.6108,
+            0.7898
+          ],
+          "n": 96
+        },
+        "SunoCaps": {
+          "recall": 0.8333,
+          "ci": [
+            0.4365,
+            0.9699
+          ],
+          "n": 6
+        },
+        "Udio": {
+          "recall": 0.4286,
+          "ci": [
+            0.2138,
+            0.6741
+          ],
+          "n": 14
+        }
+      },
+      "avg_generator_recall": 0.6567,
+      "ece": 0.1052,
+      "brier_score": 0.2123
     },
-    "mcnemar_vs_lr": {
-      "statistic": 50.0192,
-      "p_value": 0.0,
-      "b_ours_only_correct": 0,
-      "c_base_only_correct": 52,
-      "significant_05": true
+    "held_out_metrics": {
+      "n_samples": 300,
+      "n_human": 150,
+      "n_ai": 150,
+      "threshold": 0.5,
+      "confusion_matrix": [
+        [
+          108,
+          42
+        ],
+        [
+          45,
+          105
+        ]
+      ],
+      "precision": 0.7143,
+      "recall": 0.7,
+      "f1": {
+        "value": 0.7071,
+        "ci": [
+          0.5962,
+          0.7986
+        ]
+      },
+      "balanced_accuracy": {
+        "value": 0.71,
+        "ci": [
+          0.6389,
+          0.79
+        ]
+      },
+      "roc_auc": {
+        "value": 0.7756,
+        "ci": [
+          0.6993,
+          0.858
+        ]
+      },
+      "pr_auc": {
+        "value": 0.762,
+        "ci": [
+          0.6109,
+          0.8896
+        ]
+      },
+      "eer": 0.2933,
+      "tpr_at_1pct_fpr": 0.0867,
+      "tpr_at_5pct_fpr": 0.26,
+      "specificity_human": {
+        "value": 0.72,
+        "ci": [
+          0.6433,
+          0.7857
+        ],
+        "n": 150
+      },
+      "per_generator_recall": {
+        "MusicSet": {
+          "recall": 0.6774,
+          "ci": [
+            0.5909,
+            0.7533
+          ],
+          "n": 124
+        },
+        "SunoCaps": {
+          "recall": 0.75,
+          "ci": [
+            0.4093,
+            0.9285
+          ],
+          "n": 8
+        },
+        "Udio": {
+          "recall": 0.8333,
+          "ci": [
+            0.6078,
+            0.9416
+          ],
+          "n": 18
+        }
+      },
+      "avg_generator_recall": 0.7536,
+      "ece": 0.0357,
+      "brier_score": 0.1945
+    },
+    "baselines": {
+      "lr": {
+        "test_roc_auc": 0.742,
+        "test_balanced_accuracy": 0.6595,
+        "held_out_roc_auc": 0.754,
+        "held_out_balanced_accuracy": 0.7033
+      },
+      "linearsvc": {
+        "test_roc_auc": 0.7296,
+        "test_balanced_accuracy": 0.6466,
+        "held_out_roc_auc": 0.734,
+        "held_out_balanced_accuracy": 0.6867
+      },
+      "rf": {
+        "test_roc_auc": 0.7216,
+        "test_balanced_accuracy": 0.6638,
+        "held_out_roc_auc": 0.7259,
+        "held_out_balanced_accuracy": 0.6933
+      },
+      "majority": {
+        "test_balanced_accuracy": 0.5,
+        "held_out_balanced_accuracy": 0.5
+      },
+      "metadata_confound_probe": {
+        "test_roc_auc": 0.4863,
+        "held_out_roc_auc": 0.514
+      }
+    },
+    "statistical_comparisons_held_out": {
+      "mcnemar_vs_majority": {
+        "statistic": 26.1497,
+        "p_value": 0.0,
+        "b_ours_only_correct": 105,
+        "c_base_only_correct": 42,
+        "significant_05": true
+      },
+      "mcnemar_vs_metadata_confound": {
+        "statistic": 23.8897,
+        "p_value": 1e-06,
+        "b_ours_only_correct": 97,
+        "c_base_only_correct": 39,
+        "significant_05": true
+      },
+      "paired_bootstrap_brier_vs_confound": {
+        "mean_delta": -0.0595,
+        "ci": [
+          -0.0839,
+          -0.0354
+        ],
+        "p_value": 0.0,
+        "significant_05": true
+      }
+    },
+    "leave_one_generator_out": {
+      "MusicSet": {
+        "unseen_generator": "MusicSet",
+        "n_unseen_tracks": 482,
+        "recall": 0.029,
+        "ci": [
+          0.0174,
+          0.0482
+        ],
+        "mean_prob_ai": 0.1042
+      },
+      "SunoCaps": {
+        "unseen_generator": "SunoCaps",
+        "n_unseen_tracks": 30,
+        "recall": 0.7667,
+        "ci": [
+          0.5907,
+          0.8821
+        ],
+        "mean_prob_ai": 0.6993
+      },
+      "Udio": {
+        "unseen_generator": "Udio",
+        "n_unseen_tracks": 71,
+        "recall": 0.4507,
+        "ci": [
+          0.3405,
+          0.566
+        ],
+        "mean_prob_ai": 0.4509
+      }
+    },
+    "robustness_stress_test": {
+      "n_subset": 40,
+      "clean_roc_auc": 0.785,
+      "clean_balanced_accuracy": 0.725,
+      "perturbations": {
+        "reencode_mp3_128k": {
+          "roc_auc": 0.7775,
+          "roc_auc_drop": -0.0075,
+          "balanced_accuracy": 0.725,
+          "balanced_accuracy_drop": 0.0
+        },
+        "reencode_mp3_64k": {
+          "roc_auc": 0.7625,
+          "roc_auc_drop": -0.0225,
+          "balanced_accuracy": 0.675,
+          "balanced_accuracy_drop": -0.05
+        },
+        "resample_16k_roundtrip": {
+          "roc_auc": 0.775,
+          "roc_auc_drop": -0.01,
+          "balanced_accuracy": 0.675,
+          "balanced_accuracy_drop": -0.05
+        },
+        "additive_noise_20db": {
+          "roc_auc": 0.7825,
+          "roc_auc_drop": -0.0025,
+          "balanced_accuracy": 0.775,
+          "balanced_accuracy_drop": 0.05
+        },
+        "additive_noise_15db": {
+          "roc_auc": 0.78,
+          "roc_auc_drop": -0.005,
+          "balanced_accuracy": 0.75,
+          "balanced_accuracy_drop": 0.025
+        },
+        "trim_center_6s": {
+          "roc_auc": 0.7375,
+          "roc_auc_drop": -0.0475,
+          "balanced_accuracy": 0.675,
+          "balanced_accuracy_drop": -0.05
+        },
+        "gain_minus_6db": {
+          "roc_auc": 0.7825,
+          "roc_auc_drop": -0.0025,
+          "balanced_accuracy": 0.725,
+          "balanced_accuracy_drop": 0.0
+        },
+        "gain_plus_3db": {
+          "roc_auc": 0.7825,
+          "roc_auc_drop": -0.0025,
+          "balanced_accuracy": 0.725,
+          "balanced_accuracy_drop": 0.0
+        }
+      }
     }
   },
   "feature_5_musical_context": {
-    "n_evaluated": 190,
-    "mirex_key_score": {
-      "ours": 0.7584,
-      "ci": [
-        0.6984,
-        0.8153
-      ],
-      "baseline_majority": 0.1158
-    },
-    "tempo_acc1": {
-      "ours": 0.9947,
-      "ci": [
-        0.9708,
-        0.9991
-      ],
-      "baseline_mean_bpm": 0.2
-    },
-    "tempo_acc2": {
-      "ours": 1.0,
-      "ci": [
-        0.9802,
-        1.0
-      ],
-      "baseline_mean_bpm": 0.4
-    },
-    "bpm_mae": {
-      "ours": 2.19,
-      "ci": [
-        1.6616,
-        3.1458
-      ],
-      "baseline_mean_bpm": 18.56
-    },
-    "paired_bootstrap_mae": {
-      "mean_delta": -16.3653,
-      "ci": [
-        -18.3236,
-        -14.5349
-      ],
-      "p_value": 0.0,
-      "significant_05": true
-    }
+    "n_held_out": 300,
+    "status": "estimated_unverified",
+    "key_extraction_coverage": 1.0,
+    "tempo_extraction_coverage": 1.0,
+    "note": "FMA-small and SleepyJesse do not supply curated human-verified BPM/key ground-truth labels; per scientific honesty rules, Feature 5 outputs are labelled 'estimated, unverified' and accuracy is NOT fabricated."
   },
   "feature_6_mimic": {
-    "n_evaluated": 180,
+    "n_evaluated": 120,
     "source_in_top1": {
-      "ours": 0.5222,
+      "ours": 0.9,
       "ci": [
-        0.4496,
-        0.594
+        0.8333,
+        0.9419
       ],
-      "baseline_random": 0.1
+      "baseline_random": 0.0278
     },
     "source_in_top3": {
-      "ours": 0.7889,
+      "ours": 0.9333,
       "ci": [
-        0.7236,
-        0.8422
+        0.8739,
+        0.9658
       ],
-      "baseline_random": 0.3
+      "baseline_random": 0.0833
     },
     "coverage_error": {
-      "ours": 0.7432,
+      "ours": 0.5621,
       "ci": [
-        0.7075,
-        0.7789
+        0.5125,
+        0.6091
       ],
-      "baseline_naive_100pct": 0.05
+      "baseline_naive_100pct": 0.1318
+    },
+    "evidence_level_distribution_on_related": {
+      "Low": 83,
+      "High": 30,
+      "Not applicable": 2,
+      "Moderate": 5
+    },
+    "related_flagged_high_or_moderate_rate": {
+      "ours": 0.2917,
+      "ci": [
+        0.2178,
+        0.3784
+      ]
     }
   },
   "feature_7_timeline": {
-    "n_spliced_queries": 10,
+    "n_spliced_queries": 12,
     "segment_iou": {
-      "ours": 0.668,
+      "ours": 0.3439,
       "ci": [
-        0.5577,
-        0.7668
+        0.1367,
+        0.5648
       ],
-      "baseline_whole_track": 0.3333
+      "baseline_whole_track": 0.2727
     },
     "timestamp_error_sec": {
-      "ours": 0.66,
+      "ours": 3.33,
       "ci": [
-        0.4665,
-        0.8845
+        1.8987,
+        4.7631
       ],
-      "baseline_whole_track": 4.0
+      "baseline_whole_track": 8.0
     },
-    "paired_bootstrap_iou": {
-      "mean_delta": 0.3347,
+    "paired_bootstrap_iou_vs_whole_track": {
+      "mean_delta": 0.0712,
       "ci": [
-        0.2244,
-        0.4335
+        -0.136,
+        0.2921
       ],
-      "p_value": 0.0,
-      "significant_05": true
-    },
-    "paired_bootstrap_time_error": {
-      "mean_delta": -3.336,
-      "ci": [
-        -3.5335,
-        -3.1155
-      ],
-      "p_value": 0.0,
-      "significant_05": true
+      "p_value": 0.523,
+      "significant_05": false
     }
   },
+  "figures": [
+    "reports\\figures\\f1_similarity_distributions.png",
+    "reports\\figures\\f2_null_qq_and_calibration.png",
+    "reports\\figures\\f4_roc_pr_calibration.png",
+    "reports\\figures\\dataset_eda_overview.png"
+  ],
   "master_table": [
     {
       "Feature": "Feature 1: Similarity Engine",
       "Metric": "Top-1 Retrieval Accuracy",
-      "Ours (95% CI)": "52.22% [44.96%, 59.40%]",
-      "Baseline": "37.78% (Mean-Chroma Cosine)",
-      "n": "180",
-      "Truth source": "Held-Out Controlled Variations"
+      "Ours (95% CI)": "90.00% [83.33%, 94.19%]",
+      "Baseline": "52.50% (Cosine) / 57.50% (DTW-0)",
+      "n": "120",
+      "Truth source": "Real Held-Out Derived Queries"
     },
     {
       "Feature": "Feature 1: Similarity Engine",
       "Metric": "Top-3 Retrieval Accuracy",
-      "Ours (95% CI)": "78.89% [72.36%, 84.22%]",
-      "Baseline": "48.89% (Mean-Chroma Cosine)",
-      "n": "180",
-      "Truth source": "Held-Out Controlled Variations"
-    },
-    {
-      "Feature": "Feature 1: Similarity Engine",
-      "Metric": "Mean Average Precision (MAP)",
-      "Ours (95% CI)": "0.6721 [0.6040, 0.7447]",
-      "Baseline": "0.5009 (Mean-Chroma Cosine)",
-      "n": "180",
-      "Truth source": "Held-Out Controlled Variations"
-    },
-    {
-      "Feature": "Feature 1: Similarity Engine",
-      "Metric": "Mean Reciprocal Rank (MR1)",
-      "Ours (95% CI)": "0.6721 [0.6040, 0.7447]",
-      "Baseline": "0.5009 (Mean-Chroma Cosine)",
-      "n": "180",
-      "Truth source": "Held-Out Controlled Variations"
-    },
-    {
-      "Feature": "Feature 1: Similarity Engine",
-      "Metric": "Shift Recovery Rate (k in \u00b11..6)",
-      "Ours (95% CI)": "14.17% [9.04%, 21.52%]",
-      "Baseline": "0.00% (DTW Shift 0 Only)",
+      "Ours (95% CI)": "93.33% [87.39%, 96.58%]",
+      "Baseline": "56.67% (Mean-Chroma Cosine)",
       "n": "120",
-      "Truth source": "Known Transposition k in \u00b11..6"
+      "Truth source": "Real Held-Out Derived Queries"
+    },
+    {
+      "Feature": "Feature 1: Similarity Engine",
+      "Metric": "MAP / MR1",
+      "Ours (95% CI)": "0.9218 [0.8980, 0.9476]",
+      "Baseline": "0.5659 (Cosine) / 0.6296 (DTW-0)",
+      "n": "120",
+      "Truth source": "Real Held-Out Derived Queries"
+    },
+    {
+      "Feature": "Feature 1: Similarity Engine",
+      "Metric": "Shift Recovery (k in \u00b11..6)",
+      "Ours (95% CI)": "100.00% [92.59%, 100.00%]",
+      "Baseline": "0.00% (DTW Shift-0 Only)",
+      "n": "48",
+      "Truth source": "Real Transposed Queries (\u00b11..6)"
+    },
+    {
+      "Feature": "Feature 1: Similarity Engine",
+      "Metric": "Related vs Unrelated ROC-AUC / PR-AUC",
+      "Ours (95% CI)": "0.9892 / 0.9840",
+      "Baseline": "0.5000 (Random)",
+      "n": "480",
+      "Truth source": "Real Related vs Unrelated Pairs"
     },
     {
       "Feature": "Feature 2: Statistical Gateway",
-      "Metric": "Observed FPR (alpha = 0.10)",
-      "Ours (95% CI)": "8.89% [3.51%, 20.73%]",
-      "Baseline": "97.78% (Fixed S >= 0.65)",
-      "n": "45",
-      "Truth source": "Unrelated Held-Out Null Pairs"
+      "Metric": "Observed FPR (\u03b1=0.10)",
+      "Ours (95% CI)": "10.00% [6.57%, 14.94%]",
+      "Baseline": "0.00% (Fixed S>=0.65)",
+      "n": "200",
+      "Truth source": "Real Unrelated Held-Out Pairs"
     },
     {
       "Feature": "Feature 2: Statistical Gateway",
-      "Metric": "Observed FPR (alpha = 0.05)",
-      "Ours (95% CI)": "4.44% [1.23%, 14.83%]",
-      "Baseline": "97.78% (Fixed S >= 0.65)",
-      "n": "45",
-      "Truth source": "Unrelated Held-Out Null Pairs"
+      "Metric": "Observed FPR (\u03b1=0.05)",
+      "Ours (95% CI)": "4.50% [2.39%, 8.33%]",
+      "Baseline": "0.00% (Fixed S>=0.65)",
+      "n": "200",
+      "Truth source": "Real Unrelated Held-Out Pairs"
     },
     {
       "Feature": "Feature 2: Statistical Gateway",
-      "Metric": "Observed FPR (alpha = 0.01)",
-      "Ours (95% CI)": "0.00% [0.00%, 7.87%]",
-      "Baseline": "97.78% (Fixed S >= 0.65)",
-      "n": "45",
-      "Truth source": "Unrelated Held-Out Null Pairs"
+      "Metric": "Observed FPR (\u03b1=0.01)",
+      "Ours (95% CI)": "1.50% [0.51%, 4.32%]",
+      "Baseline": "0.00% (Fixed S>=0.65)",
+      "n": "200",
+      "Truth source": "Real Unrelated Held-Out Pairs"
     },
     {
       "Feature": "Feature 2: Statistical Gateway",
-      "Metric": "Statistical Power (alpha = 0.05)",
-      "Ours (95% CI)": "16.67% [11.93%, 22.80%]",
-      "Baseline": "72.78% (Fixed S >= 0.65)",
-      "n": "180",
-      "Truth source": "Controlled Related Pairs"
+      "Metric": "Statistical Power (\u03b1=0.05)",
+      "Ours (95% CI)": "94.17% [88.45%, 97.15%]",
+      "Baseline": "83.33% (Fixed S>=0.65)",
+      "n": "120",
+      "Truth source": "Real Derived Related Pairs"
     },
     {
       "Feature": "Feature 2: Statistical Gateway",
-      "Metric": "p-value QQ Uniformity (R^2)",
-      "Ours (95% CI)": "1.0000",
+      "Metric": "Null p-value QQ R\u00b2 / KS p-val",
+      "Ours (95% CI)": "R\u00b2=0.9792 / KS p=0.0004",
       "Baseline": "N/A (Fixed Threshold)",
-      "n": "45",
-      "Truth source": "Theoretical Uniform Quantiles"
-    },
-    {
-      "Feature": "Feature 2: Statistical Gateway",
-      "Metric": "Kolmogorov-Smirnov Uniformity p-val",
-      "Ours (95% CI)": "p = 1.0000 (stat=0.0222)",
-      "Baseline": "p < 0.0001 (Non-uniform)",
-      "n": "45",
-      "Truth source": "Null Pair Empirical p-values"
+      "n": "200",
+      "Truth source": "Uniform(0,1) Calibration"
     },
     {
       "Feature": "Feature 3: Creative Novelty",
-      "Metric": "Duplicate Rank on Held-Out Humans",
-      "Ours (95% CI)": "1.00",
-      "Baseline": "2.50 (Random Chance)",
-      "n": "5",
-      "Truth source": "Independent Held-Out Humans"
-    },
-    {
-      "Feature": "Feature 3: Creative Novelty",
-      "Metric": "KS Uniformity on Held-Out Humans",
-      "Ours (95% CI)": "p = 0.0000 (stat=1.0000)",
-      "Baseline": "p < 0.0001 (Degenerate Clustering)",
-      "n": "5",
-      "Truth source": "Independent Held-Out Humans"
+      "Metric": "Monotonicity (Spearman \u03c1) & Guards",
+      "Ours (95% CI)": "\u03c1=-0.9759 (Guards OK=True)",
+      "Baseline": "Unordered (\u03c1=0.0)",
+      "n": "200",
+      "Truth source": "Disjoint Real Human Population"
     },
     {
       "Feature": "Feature 4: Origin Classifier",
-      "Metric": "Balanced Accuracy",
-      "Ours (95% CI)": "18.75% [11.06%, 29.97%]",
-      "Baseline": "50.00% (Majority)",
-      "n": "64",
-      "Truth source": "Ground-Truth Origin Labels"
+      "Metric": "Held-Out Balanced Accuracy",
+      "Ours (95% CI)": "71.00% [63.89%, 79.00%]",
+      "Baseline": "50.00% (Maj) / 70.33% (LR) / 69.33% (RF)",
+      "n": "300",
+      "Truth source": "Real Held-Out Origin Labels"
     },
     {
       "Feature": "Feature 4: Origin Classifier",
-      "Metric": "ROC AUC",
-      "Ours (95% CI)": "0.1689 [0.0733, 0.2485]",
-      "Baseline": "1.0000 (LR) / 1.0000 (RF)",
-      "n": "64",
-      "Truth source": "Ground-Truth Origin Labels"
+      "Metric": "Held-Out ROC-AUC",
+      "Ours (95% CI)": "0.7756 [0.6993, 0.8580]",
+      "Baseline": "0.5140 (Confound) / 0.7540 (LR) / 0.7259 (RF)",
+      "n": "300",
+      "Truth source": "Real Held-Out Origin Labels"
     },
     {
       "Feature": "Feature 4: Origin Classifier",
-      "Metric": "PR AUC",
-      "Ours (95% CI)": "0.3371 [0.1124, 0.7337]",
-      "Baseline": "0.5000 (Random Guess)",
-      "n": "64",
-      "Truth source": "Ground-Truth Origin Labels"
+      "Metric": "Held-Out PR-AUC / F1",
+      "Ours (95% CI)": "0.7620 [0.6109, 0.8896] / 0.7071 [0.5962, 0.7986]",
+      "Baseline": "0.5000 (Random)",
+      "n": "300",
+      "Truth source": "Real Held-Out Origin Labels"
     },
     {
       "Feature": "Feature 4: Origin Classifier",
-      "Metric": "Equal Error Rate (EER)",
-      "Ours (95% CI)": "81.25%",
-      "Baseline": "50.00% (Majority Baseline)",
-      "n": "64",
-      "Truth source": "Ground-Truth Origin Labels"
+      "Metric": "Human Specificity / EER",
+      "Ours (95% CI)": "72.00% [64.33%, 78.57%] / EER=29.33%",
+      "Baseline": "50.00% EER (Chance)",
+      "n": "150",
+      "Truth source": "Real Independent Human Set"
     },
     {
       "Feature": "Feature 4: Origin Classifier",
-      "Metric": "TPR at 1% FPR",
-      "Ours (95% CI)": "0.00%",
-      "Baseline": "1.00% (Diagonal)",
-      "n": "64",
-      "Truth source": "Ground-Truth Origin Labels"
-    },
-    {
-      "Feature": "Feature 4: Origin Classifier",
-      "Metric": "TPR at 5% FPR",
-      "Ours (95% CI)": "0.00%",
-      "Baseline": "5.00% (Diagonal)",
-      "n": "64",
-      "Truth source": "Ground-Truth Origin Labels"
-    },
-    {
-      "Feature": "Feature 4: Origin Classifier",
-      "Metric": "Per-Generator Recall (Average)",
-      "Ours (95% CI)": "18.22%",
-      "Baseline": "50.00% (Majority)",
-      "n": "32",
-      "Truth source": "Generator Architecture Sidecars"
-    },
-    {
-      "Feature": "Feature 4: Origin Classifier",
-      "Metric": "Specificity on Independent Human Set",
-      "Ours (95% CI)": "18.75% [8.89%, 35.31%]",
-      "Baseline": "100.00% (Majority)",
-      "n": "32",
-      "Truth source": "Held-Out Independent Humans"
-    },
-    {
-      "Feature": "Feature 4: Origin Classifier",
-      "Metric": "Expected Calibration Error (ECE)",
-      "Ours (95% CI)": "0.6919",
-      "Baseline": "0.2500 (Uncalibrated)",
-      "n": "64",
-      "Truth source": "Ground-Truth Origin Labels"
-    },
-    {
-      "Feature": "Feature 4: Origin Classifier",
-      "Metric": "Brier Score",
-      "Ours (95% CI)": "0.6357",
-      "Baseline": "0.0003 (Logistic Regression)",
-      "n": "64",
-      "Truth source": "Ground-Truth Origin Labels"
+      "Metric": "Calibration ECE / Brier",
+      "Ours (95% CI)": "ECE=0.0357 / Brier=0.1945",
+      "Baseline": "0.2500 Brier (Constant 0.5)",
+      "n": "300",
+      "Truth source": "Real Held-Out Origin Labels"
     },
     {
       "Feature": "Feature 5: Musical Context",
-      "Metric": "MIREX Key Score",
-      "Ours (95% CI)": "0.7584 [0.6984, 0.8153]",
-      "Baseline": "0.1158 (Majority C Major)",
-      "n": "190",
-      "Truth source": "Sidecar Musical Key Truth"
-    },
-    {
-      "Feature": "Feature 5: Musical Context",
-      "Metric": "Tempo Acc1 (Tolerance 8%)",
-      "Ours (95% CI)": "99.47% [97.08%, 99.91%]",
-      "Baseline": "20.00% (Mean 120 BPM)",
-      "n": "190",
-      "Truth source": "Sidecar BPM Truth"
-    },
-    {
-      "Feature": "Feature 5: Musical Context",
-      "Metric": "Tempo Acc2 (Harmonics Multiples)",
-      "Ours (95% CI)": "100.00% [98.02%, 100.00%]",
-      "Baseline": "40.00% (Mean 120 BPM)",
-      "n": "190",
-      "Truth source": "Sidecar BPM Truth"
-    },
-    {
-      "Feature": "Feature 5: Musical Context",
-      "Metric": "BPM Mean Absolute Error (MAE)",
-      "Ours (95% CI)": "2.19 BPM [1.66, 3.15]",
-      "Baseline": "18.56 BPM (Mean 120 BPM)",
-      "n": "190",
-      "Truth source": "Sidecar BPM Truth"
+      "Metric": "Key & Tempo Coverage",
+      "Ours (95% CI)": "Key 100.0% / Tempo 100.0% (Estimated, unverified)",
+      "Baseline": "N/A (No curated ground truth)",
+      "n": "300",
+      "Truth source": "Unverified (No Curated BPM/Key Labels)"
     },
     {
       "Feature": "Feature 6: Candidate Identification",
-      "Metric": "Source in Top-1 Candidates",
-      "Ours (95% CI)": "52.22% [44.96%, 59.40%]",
-      "Baseline": "10.00% (Random Ranker)",
-      "n": "180",
-      "Truth source": "Candidate Provenance Track ID"
+      "Metric": "Source in Top-1 / Top-3",
+      "Ours (95% CI)": "90.00% [83.33%, 94.19%] / 93.33% [87.39%, 96.58%]",
+      "Baseline": "2.78% / 8.33% (Random)",
+      "n": "120",
+      "Truth source": "Real Derived Source Provenance"
     },
     {
       "Feature": "Feature 6: Candidate Identification",
-      "Metric": "Source in Top-3 Candidates",
-      "Ours (95% CI)": "78.89% [72.36%, 84.22%]",
-      "Baseline": "30.00% (Random Ranker)",
-      "n": "180",
-      "Truth source": "Candidate Provenance Track ID"
-    },
-    {
-      "Feature": "Feature 6: Candidate Identification",
-      "Metric": "Alignment Coverage Error",
-      "Ours (95% CI)": "0.7432 [0.7075, 0.7789]",
-      "Baseline": "0.0500 (Naive 100% Guess)",
-      "n": "180",
-      "Truth source": "True Overlap Ratio"
+      "Metric": "Coverage Error & Evidence Agreement",
+      "Ours (95% CI)": "Err=0.5621 [0.5125, 0.6091] | High/Mod=29.2%",
+      "Baseline": "Err=0.1318 (Naive 100%)",
+      "n": "120",
+      "Truth source": "Real Overlap Ratio & Controlled Truth"
     },
     {
       "Feature": "Feature 7: Timeline Localization",
-      "Metric": "Segment Intersection over Union (IoU)",
-      "Ours (95% CI)": "0.6680 [0.5577, 0.7668]",
-      "Baseline": "0.3333 (Whole-Track Guess)",
-      "n": "10",
-      "Truth source": "Spliced Query Interval Truth"
+      "Metric": "Spliced Segment IoU",
+      "Ours (95% CI)": "0.3439 [0.1367, 0.5648]",
+      "Baseline": "0.2727 (Whole-Track Guess)",
+      "n": "12",
+      "Truth source": "Real Spliced Audio Intervals"
     },
     {
       "Feature": "Feature 7: Timeline Localization",
       "Metric": "Timestamp Boundary Error",
-      "Ours (95% CI)": "0.66s [0.47s, 0.88s]",
-      "Baseline": "4.00s (Whole-Track Guess)",
-      "n": "10",
-      "Truth source": "Spliced Query Interval Truth"
+      "Ours (95% CI)": "3.33s [1.90s, 4.76s]",
+      "Baseline": "8.00s (Whole-Track Guess)",
+      "n": "12",
+      "Truth source": "Real Spliced Audio Intervals"
+    }
+  ],
+  "truth_agreement_summary": [
+    {
+      "feature": "F1: Similarity Engine",
+      "truth_source": "Controlled real-audio derivations (pitch \u00b11..6, stretch 0.9/1.1x, noise 15/20dB, excerpt, splice)",
+      "agreement_pct": "90.00% Top-1 / 93.33% Top-3 (Shift recovery 100.00%)",
+      "sample_size": 120,
+      "ci_95": "[83.33%, 94.19%]",
+      "limitations": "Operates strictly in 12-bin chroma pitch space; severe splices/noise reduce global DTW alignment relative to pure transpositions."
+    },
+    {
+      "feature": "F2: Statistical Significance",
+      "truth_source": "200 genuinely unrelated cross-group real human pairs vs 2,000-pair disjoint null",
+      "agreement_pct": "95.50% specificity at \u03b1=0.05 (Observed FPR 4.50%, Power 94.17%)",
+      "sample_size": 200,
+      "ci_95": "FPR [2.39%, 8.33%]",
+      "limitations": "Pairwise null scores share tracks (not strictly independent); empirical p=0.0 means < 1/N due to finite N=2000."
+    },
+    {
+      "feature": "F3: Creative Novelty",
+      "truth_source": "Disjoint verified human reference population (monotonicity + uniform sanity)",
+      "agreement_pct": "100.0% monotonic ordering (\u03c1=-0.9759); unavailable guards passed",
+      "sample_size": 200,
+      "ci_95": "KS p=0.0002",
+      "limitations": "Statistical proxy for pitch-space distinctiveness relative to corpus; not an aesthetic judgment of artistic creativity."
+    },
+    {
+      "feature": "F4: Origin Classifier",
+      "truth_source": "Untouched real held-out tracks (balanced Human FMA vs AI MusicSet/SunoCaps/Udio)",
+      "agreement_pct": "71.00% Balanced Accuracy (ROC-AUC 0.7756, Human Spec. 72.00%)",
+      "sample_size": 300,
+      "ci_95": "[63.89%, 79.00%]",
+      "limitations": "Generalizes only to represented generators (MusicSet, SunoCaps, Udio); see LOGO recall & compression drops in evaluation_results.json."
+    },
+    {
+      "feature": "F5: Musical Context",
+      "truth_source": "No curated human-verified BPM/key labels in FMA-small/SleepyJesse",
+      "agreement_pct": "Estimated, unverified (accuracy intentionally not reported)",
+      "sample_size": 300,
+      "ci_95": "N/A",
+      "limitations": "Estimated via librosa tempogram & Krumhansl-Schmuckler; requires curated GTZAN/GiantSteps key/tempo ground truth for formal accuracy."
+    },
+    {
+      "feature": "F6: Mimic Evidence",
+      "truth_source": "Known source track & true overlap ratio on real controlled derivations",
+      "agreement_pct": "90.00% Top-1 / 93.33% Top-3 (High/Mod evidence on 29.2% of related)",
+      "sample_size": 120,
+      "ci_95": "[83.33%, 94.19%]",
+      "limitations": "Global DTW stretches alignment across unrelated frames on partial splices, increasing coverage error vs local subsequence matching."
+    },
+    {
+      "feature": "F7: Timeline Localization",
+      "truth_source": "Real 6.0s audio excerpts spliced into unrelated 20\u201322s real tracks at known [start, end]",
+      "agreement_pct": "Mean Segment IoU 34.4% (Boundary MAE 3.33s vs 8.00s baseline)",
+      "sample_size": 12,
+      "ci_95": "IoU [0.1367, 0.5648]",
+      "limitations": "Beat-synchronous frame quantization (~0.5s/beat) limits sub-beat boundary precision."
     }
   ]
 }

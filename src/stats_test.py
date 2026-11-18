@@ -231,44 +231,36 @@ def compute_severity_label(p_value: Optional[float]) -> str:
 def build_pairwise_null_distribution(
     chroma_dict: Dict[str, np.ndarray],
     similarity_func,
-    max_pairs: int = NULL_DIST_SAMPLE_PAIRS,
+    max_pairs: Optional[int] = None,
     seed: int = 42
 ) -> List[float]:
     """
     Construct empirical null distribution scores from a pool of reference tracks.
 
-    Avoids self-comparisons and duplicate-pair inflation by considering only (i < j).
-    Uses deterministic pair sampling when total unique pairs exceed max_pairs.
-
-    Parameters
-    ----------
-    chroma_dict : Dict[str, np.ndarray]
-        Mapping of track_id -> beat-synchronized chroma matrix.
-    similarity_func : callable
-        Function accepting (chroma_a, chroma_b) and returning float similarity.
-    max_pairs : int, optional
-        Maximum pairs to evaluate, default 2000.
-    seed : int, optional
-        Random seed for deterministic pair selection.
-
-    Returns
-    -------
-    List[float]
-        Computed null distribution similarity scores.
+    Avoids self-comparisons and duplicate-pair inflation by considering only (i < j)
+    over canonically sorted track IDs. Uses deterministic uniform random pair sampling
+    spread across the entire eligible population when total unique pairs exceed max_pairs.
     """
-    track_ids = list(chroma_dict.keys())
+    import os
+    effective_max_pairs = (
+        int(max_pairs)
+        if max_pairs is not None
+        else int(os.getenv("MUSIC_NULL_SAMPLE_PAIRS", str(NULL_DIST_SAMPLE_PAIRS)))
+    )
+
+    track_ids = sorted(chroma_dict.keys())
     n = len(track_ids)
-    if n < 2:
+    if n < 2 or effective_max_pairs <= 0:
         return []
 
     # Generate all unique (i, j) where i < j
     pairs = [(i, j) for i in range(n) for j in range(i + 1, n)]
 
-    # Deterministic sampling if pairs exceed cap
-    if len(pairs) > max_pairs:
+    # Deterministic sampling spread uniformly across the eligible population
+    if len(pairs) > effective_max_pairs:
         rng = np.random.default_rng(seed)
-        sampled_indices = rng.choice(len(pairs), size=max_pairs, replace=False)
-        pairs = [pairs[idx] for idx in sampled_indices]
+        sampled_indices = rng.choice(len(pairs), size=effective_max_pairs, replace=False)
+        pairs = [pairs[int(idx)] for idx in sampled_indices]
 
     null_scores: List[float] = []
     for i, j in pairs:
@@ -359,6 +351,7 @@ def evaluate_statistical_gateway(
         )
 
     p_val, k_val, N_val = null_distribution_test_detailed(query_score, valid_scores, min_pairs=min_null_pairs)
+    smoothed_p_val = round(float((k_val + 1) / (N_val + 1)), 6) if (k_val is not None and N_val > 0) else None
     confidence = compute_confidence_label(sample_count)
     severity = compute_severity_label(p_val)
 
@@ -371,6 +364,7 @@ def evaluate_statistical_gateway(
 
     return StatisticalGatewayResult(
         p_value=p_val,
+        smoothed_p_value=smoothed_p_val,
         null_sample_count=sample_count,
         exceedance_count=k_val,
         null_sample_size=N_val,
@@ -445,36 +439,78 @@ def load_null_distribution(
         return json.load(f)
 
 
+def compute_null_cache_key(
+    reference_ids: Sequence[str],
+    max_pairs: int,
+    seed: int = 42,
+    feature_version: Optional[str] = None,
+    algorithm_version: Optional[str] = None,
+    sample_rate: Optional[int] = None,
+    index_max_seconds: Optional[float] = None,
+) -> Dict[str, Any]:
+    """
+    Build a deterministic invalidation key for the null distribution cache
+    keyed on reference IDs, feature version, sampling config, algorithm version,
+    and preprocessing settings.
+    """
+    import hashlib
+    import json as _json
+    from src.config import FEATURE_VERSION, ALGORITHM_VERSION, SAMPLE_RATE, INDEX_MAX_SECONDS
+
+    sorted_ids = sorted(str(x) for x in reference_ids)
+    ids_hash = hashlib.sha256("\n".join(sorted_ids).encode("utf-8")).hexdigest()
+    spec = {
+        "reference_ids_sha256": ids_hash,
+        "reference_count": len(sorted_ids),
+        "feature_version": feature_version or FEATURE_VERSION,
+        "algorithm_version": algorithm_version or ALGORITHM_VERSION,
+        "sampling_config": {"max_pairs": int(max_pairs), "seed": int(seed)},
+        "preprocessing_settings": {
+            "sample_rate": int(sample_rate if sample_rate is not None else SAMPLE_RATE),
+            "index_max_seconds": float(index_max_seconds if index_max_seconds is not None else INDEX_MAX_SECONDS),
+        },
+    }
+    spec_hash = hashlib.sha256(_json.dumps(spec, sort_keys=True).encode("utf-8")).hexdigest()
+    spec["cache_key_sha256"] = spec_hash
+    return spec
+
+
 def get_or_build_cached_null_distribution(
     chroma_dict: Dict[str, np.ndarray],
     similarity_func,
     cache_file: Optional[Path] = None,
-    max_pairs: int = NULL_DIST_SAMPLE_PAIRS,
+    max_pairs: Optional[int] = None,
     candidate_metadata: Optional[Dict[str, Dict[str, Any]]] = None,
     force_rebuild: bool = False,
     allow_legacy: bool = False,
     strict: bool = False,
+    seed: int = 42,
+    feature_version: Optional[str] = None,
+    algorithm_version: Optional[str] = None,
 ) -> Tuple[List[float], Dict[str, List[float]]]:
     """
     Load precomputed pairwise null distribution from disk cache, or compute and cache it.
 
-    In fresh-production mode:
-    - Strictly isolates and rejects legacy 261-record null distribution cache (6105 pairs).
-    - If strict=True, raises LegacyArtifactError on legacy cache.
-    - If strict=False, computes null distribution freshly from provided candidates.
-
-    In legacy mode (MUSIC_SIMILARITY_MODE="legacy" or allow_legacy=True):
-    - Loads historical cached null distribution.
+    Cache invalidation keys strictly on:
+    - reference IDs (SHA-256 of sorted IDs)
+    - feature version
+    - sampling config (max_pairs, seed)
+    - algorithm version
+    - preprocessing settings (sample_rate, index_max_seconds)
     """
     import json
     import os
     import time
     import hashlib
 
+    effective_max_pairs = (
+        int(max_pairs)
+        if max_pairs is not None
+        else int(os.getenv("MUSIC_NULL_SAMPLE_PAIRS", str(NULL_DIST_SAMPLE_PAIRS)))
+    )
     target_file = Path(cache_file) if cache_file is not None else NULL_DIST_CACHE_FILE
 
     # Determine baseline tracks: filter strictly to non-fixture human tracks if origin metadata exists
-    has_origin = False
     eval_chroma = {}
     for cid, c in chroma_dict.items():
         if is_fixture_identifier(cid):
@@ -490,6 +526,13 @@ def get_or_build_cached_null_distribution(
             eval_chroma[cid] = c
 
     eval_ids = sorted(list(eval_chroma.keys()))
+    expected_cache_meta = compute_null_cache_key(
+        reference_ids=eval_ids,
+        max_pairs=effective_max_pairs,
+        seed=seed,
+        feature_version=feature_version,
+        algorithm_version=algorithm_version,
+    )
 
     is_legacy_dist = False
     if target_file.resolve() == NULL_DIST_CACHE_FILE.resolve():
@@ -516,18 +559,24 @@ def get_or_build_cached_null_distribution(
         try:
             with open(target_file, "r", encoding="utf-8") as f:
                 data = json.load(f)
-            cached_ids = data.get("source_track_ids", [])
             cached_scores = data.get("null_scores", [])
-            # Return cached null distribution if it has cached scores and covers the requested tracks
             if len(cached_scores) > 0:
-                if (not eval_ids) or set(eval_ids).issubset(set(cached_ids)) or set(cached_ids) == set(eval_ids):
-                    return cached_scores, data.get("genre_null_scores", {})
+                cached_key = data.get("cache_key", {})
+                if cached_key:
+                    # Strict v2 invalidation: must match reference IDs, feature/algorithm versions, sampling & preprocessing
+                    if cached_key.get("cache_key_sha256") == expected_cache_meta["cache_key_sha256"]:
+                        return cached_scores, data.get("genre_null_scores", {})
+                elif allow_legacy or not eval_ids:
+                    # Legacy v1 cache compatibility only when explicitly authorized or no eval_ids given
+                    cached_ids = data.get("source_track_ids", [])
+                    if (not eval_ids) or set(eval_ids).issubset(set(cached_ids)) or set(cached_ids) == set(eval_ids):
+                        return cached_scores, data.get("genre_null_scores", {})
         except Exception:
             pass  # Fall through to rebuild on parse/read error
 
     # Compute pairwise global null distribution
     global_null = build_pairwise_null_distribution(
-        eval_chroma, similarity_func, max_pairs=max_pairs
+        eval_chroma, similarity_func, max_pairs=effective_max_pairs, seed=seed
     )
 
     # Compute genre-specific null distributions if metadata provided (also using human baseline)
@@ -536,12 +585,12 @@ def get_or_build_cached_null_distribution(
         genre_groups: Dict[str, Dict[str, np.ndarray]] = {}
         for cid, meta in candidate_metadata.items():
             g = meta.get("genre")
-            if g and cid in eval_chroma:
+            if g and str(g).strip().lower() not in ("", "unknown", "none") and cid in eval_chroma:
                 genre_groups.setdefault(g, {})[cid] = eval_chroma[cid]
         for g, g_chroma in genre_groups.items():
             if len(g_chroma) >= 2:
                 g_scores = build_pairwise_null_distribution(
-                    g_chroma, similarity_func, max_pairs=min(max_pairs, 500)
+                    g_chroma, similarity_func, max_pairs=min(effective_max_pairs, 500), seed=seed
                 )
                 if g_scores:
                     genre_null[g] = g_scores
@@ -553,8 +602,9 @@ def get_or_build_cached_null_distribution(
         target_file.parent.mkdir(parents=True, exist_ok=True)
         tmp_target = target_file.with_suffix(".tmp")
         payload = {
-            "version": "1.0",
+            "version": "2.0",
             "created_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+            "cache_key": expected_cache_meta,
             "source_track_ids": eval_ids,
             "sample_pairs_count": len(global_null),
             "null_scores": [round(float(s), 5) for s in global_null],

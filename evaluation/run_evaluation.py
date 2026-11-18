@@ -439,13 +439,19 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run Offline Evaluation Harness")
     parser.add_argument("--seed", type=int, default=42, help="Random seed for reproducible evaluation")
     parser.add_argument("--force-rebuild", action="store_true", help="Force rebuild held-out dataset and manifest")
+    parser.add_argument("--synthetic", action="store_true", help="Force legacy synthetic evaluation instead of real v2 held-out audio")
     parser.add_argument("--output-json", type=Path, default=DEFAULT_REPORT_JSON, help="Output JSON path")
     parser.add_argument("--output-md", type=Path, default=DEFAULT_REPORT_MD, help="Output Markdown table path")
     args = parser.parse_args()
 
-    run_full_offline_evaluation(
-        seed=args.seed,
-        force_rebuild=args.force_rebuild,
-        output_json=args.output_json,
-        output_md=args.output_md,
-    )
+    from src.v2_cleaning_audit import V2_HELD_OUT_FILE
+    if (not args.synthetic) and V2_HELD_OUT_FILE.is_file():
+        from evaluation.real_eval import run_real_held_out_evaluation
+        run_real_held_out_evaluation(seed=args.seed)
+    else:
+        run_full_offline_evaluation(
+            seed=args.seed,
+            force_rebuild=args.force_rebuild,
+            output_json=args.output_json,
+            output_md=args.output_md,
+        )

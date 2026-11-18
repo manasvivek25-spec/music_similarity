@@ -40,6 +40,7 @@ from src.config import (
     DEFAULT_REMOTE_SPLIT,
     FEATURES_DIR,
     REMOTE_INDEX_FILE,
+    V2_INDEX_FILE,
     SAMPLE_RATE,
     SIMILARITY_FLOOR,
     LegacyArtifactError,
@@ -602,7 +603,12 @@ def load_remote_index(
     In legacy mode (MUSIC_SIMILARITY_MODE="legacy" or allow_legacy=True):
     - Loads historical 261-record index for benchmark evaluation.
     """
-    path = Path(index_file) if index_file is not None else REMOTE_INDEX_FILE
+    if index_file is not None:
+        path = Path(index_file)
+    elif not allow_legacy and is_fresh_production_mode_active() and V2_INDEX_FILE.is_file():
+        path = V2_INDEX_FILE
+    else:
+        path = REMOTE_INDEX_FILE
     if not path.is_file():
         return {
             "version": "1.0",

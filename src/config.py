@@ -23,8 +23,19 @@ TEMP_UPLOADS_DIR = Path(os.getenv("MUSIC_TEMP_DIR", str(REPO_ROOT / "temp_upload
 
 # Audio Analysis Parameters
 SAMPLE_RATE = int(os.getenv("MUSIC_SAMPLE_RATE", "22050"))
+INDEX_MAX_SECONDS = float(os.getenv("MUSIC_INDEX_MAX_SECONDS", "10.0"))
 MIN_UPLOAD_DURATION_SEC = float(os.getenv("MUSIC_MIN_UPLOAD_DURATION_SEC", "0.0"))  # 0.0 = unlimited
 MAX_UPLOAD_SIZE_BYTES = int(os.getenv("MUSIC_MAX_UPLOAD_SIZE_BYTES", str(100 * 1024 * 1024)))  # 100 MB
+FEATURE_VERSION = os.getenv("MUSIC_FEATURE_VERSION", "v2.0-chroma_cqt_beatsync-lp7500-rms010")
+ALGORITHM_VERSION = os.getenv("MUSIC_ALGORITHM_VERSION", "f1_12shift_fastdtw_v1")
+
+# Versioned v2 Fresh-Production Artifact Paths (legacy 261-record files remain frozen & untouched)
+V2_DATA_DIR = DATA_DIR / "v2"
+V2_INDEX_FILE = Path(os.getenv("MUSIC_V2_INDEX_FILE", str(V2_DATA_DIR / "v2_index.json")))
+V2_NULL_CACHE_FILE = Path(os.getenv("MUSIC_V2_NULL_CACHE_FILE", str(V2_DATA_DIR / "v2_null_distribution.json")))
+V2_INDEX_STATE_FILE = Path(os.getenv("MUSIC_V2_INDEX_STATE_FILE", str(V2_DATA_DIR / "index_state.json")))
+V2_MODEL_FILE = Path(os.getenv("MUSIC_V2_MODEL_FILE", str(MODELS_DIR / "origin_classifier_v2_fresh.joblib")))
+V2_MODEL_METRICS_FILE = Path(os.getenv("MUSIC_V2_MODEL_METRICS_FILE", str(MODELS_DIR / "origin_classifier_v2_metrics.json")))
 
 # System Operating Mode & Legacy Isolation Boundaries
 class LegacyArtifactError(RuntimeError):
@@ -97,6 +108,9 @@ def get_runtime_config() -> Dict[str, Any]:
     """
     return {
         "sample_rate": SAMPLE_RATE,
+        "index_max_seconds": INDEX_MAX_SECONDS,
+        "feature_version": FEATURE_VERSION,
+        "algorithm_version": ALGORITHM_VERSION,
         "min_upload_duration_sec": MIN_UPLOAD_DURATION_SEC,
         "max_upload_size_bytes": MAX_UPLOAD_SIZE_BYTES,
         "cosine_prefilter_threshold": COSINE_PREFILTER_THRESHOLD,

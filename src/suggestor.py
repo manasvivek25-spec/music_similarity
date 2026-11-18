@@ -106,7 +106,12 @@ def identify_flagged_segments(
             segment_similarity=round(seg_sim, 4),
         ))
 
-    return segments[:5]  # Cap at top 5 most salient segments
+    # Prioritize top 3 regions by severity (highest segment_similarity, then longest duration)
+    segments.sort(
+        key=lambda s: (s.segment_similarity, max(0.0, s.end_time_a - s.start_time_a)),
+        reverse=True,
+    )
+    return segments[:3]
 
 
 def generate_deterministic_studio_suggestions(
@@ -115,12 +120,26 @@ def generate_deterministic_studio_suggestions(
     best_shift: int,
     flagged_segments: List[FlaggedSegment],
     query_key: Optional[str] = None,
-    query_tempo: Optional[float] = None
+    query_tempo: Optional[float] = None,
+    p_value: Optional[float] = None,
 ) -> List[str]:
     """
-    Generate evidence-grounded studio recommendations strictly from empirical metrics.
+    Generate deterministic, evidence-grounded recommendations strictly from empirical metrics.
+    Returns no speculative remediation advice when evidence is below floor or statistically unavailable.
     """
+    if similarity < 0.45:
+        return [
+            f"Alignment with '{candidate_title}' is below the 0.45 similarity floor (S={similarity:.2f}). "
+            "No structural modification recommendations are issued."
+        ]
+
     suggestions: List[str] = []
+
+    if p_value is None:
+        suggestions.append(
+            f"Empirical p-value is unavailable for '{candidate_title}' (S={similarity:.2f}); "
+            "localized pitch-space observations below are descriptive only and do not constitute statistical anomaly evidence."
+        )
 
     # 1. Pitch shift advice
     if best_shift != 0:
@@ -204,6 +223,7 @@ def build_evidence_timeline(
             flagged_segments=flagged,
             query_key=item.get("query_key"),
             query_tempo=item.get("query_tempo"),
+            p_value=item.get("p_value"),
         )
 
         timeline_items.append(EvidenceTimelineItem(
