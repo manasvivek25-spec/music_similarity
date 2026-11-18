@@ -1,0 +1,52 @@
+{
+  "timestamp": "2026-11-18T14:57:08Z",
+  "openapi_paths_count": 33,
+  "endpoint_smoke": {
+    "/health": 200,
+    "/api/health": 200,
+    "/api/config": 200,
+    "/api/mert/status": 200,
+    "/api/index/status": 200,
+    "/api/evaluation/results": 200,
+    "/api/evaluation/audit": 200,
+    "/api/model/specs": 200,
+    "/api/figures/f1_similarity_distributions.png": 200,
+    "/api/audio/reference/v2_human_fma_full_00000_0014": 200,
+    "/": 200
+  },
+  "edge_cases": {
+    "non_audio_status": 400,
+    "empty_file_status": 400,
+    "corrupt_wav_status": 400,
+    "short_clip_status": 200
+  },
+  "e2e_rehearsal": {
+    "self_repeat_sim_1": 0.989,
+    "self_repeat_sim_2": 0.989,
+    "self_case": "Case B",
+    "held_out_truth_matched": true,
+    "spliced_truth_matched": true,
+    "unrelated_truth_matched": false
+  },
+  "concurrency_24_mixed": {
+    "total": 24,
+    "all_200": true
+  },
+  "consistency_sweep_50": {
+    "n_queries": 50,
+    "contradictions_found": 0,
+    "case_distribution": {
+      "Case B": 47,
+      "Case C": 3
+    },
+    "verdict_distribution": {
+      "advisory": 28,
+      "warning": 19,
+      "critical": 3
+    }
+  },
+  "temp_uploads_leaked": 0,
+  "index_state_verified": "COMPLETED",
+  "elapsed_sec": 161.58,
+  "status": "PASSED"
+}
