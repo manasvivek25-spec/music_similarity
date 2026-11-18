@@ -1,0 +1,24 @@
+{
+  "status": "PASSED",
+  "health_text": "API Online \u00b7 386 Ref Tracks (Complete)",
+  "indexed_count": "386",
+  "bad_upload_validation": "Validation Error: Unsupported file format 'not_audio.txt'. Accepted formats: WAV, MP3, FLAC, OGG, M4A.",
+  "real_upload_verdict": "VERDICT: ADVISORY",
+  "real_upload_case": "Case B \u00b7 Undetermined Genre",
+  "truth_panel_badge": "Ground Truth Matched",
+  "f1_score": "0.600",
+  "f4_prediction": "AI",
+  "eval_leakage_badge": "Leakage Audit: PASSED (0 Overlaps)",
+  "eval_master_rows": 21,
+  "eval_truth_rows": 7,
+  "figures_loaded": 4,
+  "console_errors": 0,
+  "page_errors": 0,
+  "failed_requests": 0,
+  "screenshots": [
+    "reports/ui_checks/dashboard_home.png",
+    "reports/ui_checks/analysis_truth_panel.png",
+    "reports/ui_checks/evaluation_tab.png",
+    "reports/ui_checks/eda_audit_view.png"
+  ]
+}
