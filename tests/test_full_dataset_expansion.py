@@ -110,7 +110,7 @@ def test_mert_full_production_coverage_and_parity():
 
 def test_generator_held_out_validation_results():
     """Verify Leave-One-Generator-Out evaluation in Origin Classifier across independent AI families."""
-    model = load_origin_classifier()
+    model = load_origin_classifier(allow_legacy=True)
     assert model is not None, "Trained origin classifier must be loadable"
 
     with open(REMOTE_INDEX_FILE, "r", encoding="utf-8") as f:

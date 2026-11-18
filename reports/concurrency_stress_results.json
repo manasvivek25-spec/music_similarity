@@ -1,0 +1,292 @@
+{
+  "timestamp": "2026-11-01T18:37:13Z",
+  "target_endpoint": "http://127.0.0.1:8001",
+  "cuda_inference_lock_verified": true,
+  "model_loader_lock_verified": true,
+  "total_requests_executed": 20,
+  "all_rounds_passed": true,
+  "zero_deadlocks_confirmed": true,
+  "zero_crosstalk_confirmed": true,
+  "temp_files_leaked": 0,
+  "status": "PASSED",
+  "rounds": [
+    {
+      "round": 1,
+      "name": "5 Concurrent Synchronous Requests",
+      "total_elapsed_sec": 180.852,
+      "all_succeeded": true,
+      "results": [
+        {
+          "worker_id": 1,
+          "type": "sync",
+          "is_valid_input": true,
+          "status_code": 200,
+          "elapsed_sec": 180.852,
+          "success": true,
+          "result_summary": {
+            "similarity": null,
+            "p_value": null,
+            "score_tier": "High Structural Imitation",
+            "has_verdict": false
+          }
+        },
+        {
+          "worker_id": 2,
+          "type": "sync",
+          "is_valid_input": true,
+          "status_code": 200,
+          "elapsed_sec": 178.494,
+          "success": true,
+          "result_summary": {
+            "similarity": null,
+            "p_value": null,
+            "score_tier": "High Structural Imitation",
+            "has_verdict": false
+          }
+        },
+        {
+          "worker_id": 3,
+          "type": "sync",
+          "is_valid_input": false,
+          "status_code": 400,
+          "elapsed_sec": 0.013,
+          "success": true,
+          "expected_error": true,
+          "error_detail": "{\"detail\":\"Uploaded audio file is empty.\"}"
+        },
+        {
+          "worker_id": 4,
+          "type": "sync",
+          "is_valid_input": true,
+          "status_code": 200,
+          "elapsed_sec": 180.829,
+          "success": true,
+          "result_summary": {
+            "similarity": null,
+            "p_value": null,
+            "score_tier": "High Structural Imitation",
+            "has_verdict": false
+          }
+        },
+        {
+          "worker_id": 5,
+          "type": "sync",
+          "is_valid_input": false,
+          "status_code": 400,
+          "elapsed_sec": 0.011,
+          "success": true,
+          "expected_error": true,
+          "error_detail": "{\"detail\":\"Uploaded audio file is empty.\"}"
+        }
+      ]
+    },
+    {
+      "round": 2,
+      "name": "5 Concurrent Asynchronous Jobs",
+      "total_elapsed_sec": 174.793,
+      "all_succeeded": true,
+      "results": [
+        {
+          "worker_id": 1,
+          "type": "async",
+          "job_id": "383a7bfa-8e72-48e1-ae4a-183e65a31bcd",
+          "is_valid_input": true,
+          "status_code": 200,
+          "final_status": "completed",
+          "elapsed_sec": 173.72,
+          "success": true,
+          "result_summary": {
+            "similarity": null,
+            "p_value": null,
+            "has_verdict": false
+          }
+        },
+        {
+          "worker_id": 2,
+          "type": "async",
+          "is_valid_input": false,
+          "status_code": 400,
+          "elapsed_sec": 0.013,
+          "success": true,
+          "expected_error": true,
+          "error_detail": "{\"detail\":\"Uploaded audio file is empty.\"}"
+        },
+        {
+          "worker_id": 3,
+          "type": "async",
+          "job_id": "5c2e0b47-5747-4e21-b727-d09e14a4ca11",
+          "is_valid_input": true,
+          "status_code": 200,
+          "final_status": "completed",
+          "elapsed_sec": 174.452,
+          "success": true,
+          "result_summary": {
+            "similarity": null,
+            "p_value": null,
+            "has_verdict": false
+          }
+        },
+        {
+          "worker_id": 4,
+          "type": "async",
+          "is_valid_input": false,
+          "status_code": 400,
+          "elapsed_sec": 0.008,
+          "success": true,
+          "expected_error": true,
+          "error_detail": "{\"detail\":\"Uploaded audio file is empty.\"}"
+        },
+        {
+          "worker_id": 5,
+          "type": "async",
+          "job_id": "c80d8509-9dc8-478e-a83e-2b15bb88aecf",
+          "is_valid_input": true,
+          "status_code": 200,
+          "final_status": "completed",
+          "elapsed_sec": 174.788,
+          "success": true,
+          "result_summary": {
+            "similarity": null,
+            "p_value": null,
+            "has_verdict": false
+          }
+        }
+      ]
+    },
+    {
+      "round": 3,
+      "name": "Mixed Burst (5 Sync + 5 Async Simultaneous)",
+      "total_elapsed_sec": 360.037,
+      "all_succeeded": true,
+      "results": [
+        {
+          "worker_id": 101,
+          "type": "sync",
+          "is_valid_input": true,
+          "status_code": 200,
+          "elapsed_sec": 340.085,
+          "success": true,
+          "result_summary": {
+            "similarity": null,
+            "p_value": null,
+            "score_tier": "High Structural Imitation",
+            "has_verdict": false
+          }
+        },
+        {
+          "worker_id": 102,
+          "type": "sync",
+          "is_valid_input": false,
+          "status_code": 400,
+          "elapsed_sec": 0.024,
+          "success": true,
+          "expected_error": true,
+          "error_detail": "{\"detail\":\"Uploaded audio file is empty.\"}"
+        },
+        {
+          "worker_id": 103,
+          "type": "sync",
+          "is_valid_input": true,
+          "status_code": 200,
+          "elapsed_sec": 328.664,
+          "success": true,
+          "result_summary": {
+            "similarity": null,
+            "p_value": null,
+            "score_tier": "High Structural Imitation",
+            "has_verdict": false
+          }
+        },
+        {
+          "worker_id": 104,
+          "type": "sync",
+          "is_valid_input": false,
+          "status_code": 400,
+          "elapsed_sec": 0.009,
+          "success": true,
+          "expected_error": true,
+          "error_detail": "{\"detail\":\"Uploaded audio file is empty.\"}"
+        },
+        {
+          "worker_id": 105,
+          "type": "sync",
+          "is_valid_input": true,
+          "status_code": 200,
+          "elapsed_sec": 360.033,
+          "success": true,
+          "result_summary": {
+            "similarity": null,
+            "p_value": null,
+            "score_tier": "High Structural Imitation",
+            "has_verdict": false
+          }
+        },
+        {
+          "worker_id": 201,
+          "type": "async",
+          "job_id": "c06a95f8-e5f0-4ca8-8075-e9b16fae1770",
+          "is_valid_input": true,
+          "status_code": 200,
+          "final_status": "completed",
+          "elapsed_sec": 359.457,
+          "success": true,
+          "result_summary": {
+            "similarity": null,
+            "p_value": null,
+            "has_verdict": false
+          }
+        },
+        {
+          "worker_id": 202,
+          "type": "async",
+          "is_valid_input": false,
+          "status_code": 400,
+          "elapsed_sec": 0.011,
+          "success": true,
+          "expected_error": true,
+          "error_detail": "{\"detail\":\"Uploaded audio file is empty.\"}"
+        },
+        {
+          "worker_id": 203,
+          "type": "async",
+          "job_id": "573f8d7a-7cae-49ff-9d8f-a6dd75de80be",
+          "is_valid_input": true,
+          "status_code": 200,
+          "final_status": "completed",
+          "elapsed_sec": 359.02,
+          "success": true,
+          "result_summary": {
+            "similarity": null,
+            "p_value": null,
+            "has_verdict": false
+          }
+        },
+        {
+          "worker_id": 204,
+          "type": "async",
+          "is_valid_input": false,
+          "status_code": 400,
+          "elapsed_sec": 0.019,
+          "success": true,
+          "expected_error": true,
+          "error_detail": "{\"detail\":\"Uploaded audio file is empty.\"}"
+        },
+        {
+          "worker_id": 205,
+          "type": "async",
+          "job_id": "15153034-ed07-4dcd-b384-e0b1352f01f5",
+          "is_valid_input": true,
+          "status_code": 200,
+          "final_status": "completed",
+          "elapsed_sec": 355.385,
+          "success": true,
+          "result_summary": {
+            "similarity": null,
+            "p_value": null,
+            "has_verdict": false
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,128 +1,572 @@
 {
-  "generated_at": "2026-10-31 20:08:13 UTC",
-  "methods": {
-    "chroma_dtw": {
-      "method_name": "Chroma CQT + 12-Shift DTW (Core Baseline)",
-      "precision_at_1": 1.0,
-      "precision_at_3": 1.0,
-      "recall_at_1": 0.2,
-      "recall_at_3": 0.6,
-      "mrr": 1.0,
-      "mean_latency_ms": 204.058,
-      "total_evaluated_pairs": 10,
-      "notes": "Primary locked harmonic alignment engine. 100% key-shift invariant."
+  "metadata": {
+    "title": "Offline Scientific Evaluation Results across Seven Features",
+    "timestamp": "2026-11-17T08:05:56Z",
+    "seed": 42,
+    "runtime_seconds": 25.48,
+    "manifest_path": "C:\\Users\\len\\music_similarity\\music_similarity\\evaluation\\evaluation_manifest.csv",
+    "total_manifest_items": 190
+  },
+  "feature_1_similarity": {
+    "n_queries": 180,
+    "n_transpositions": 120,
+    "top_1": {
+      "ours": 0.5222222222222223,
+      "ci": [
+        0.4496,
+        0.594
+      ],
+      "baseline": 0.37777777777777777
     },
-    "subsequence_dtw": {
-      "method_name": "Subsequence DTW (Open-End Research Experiment)",
-      "precision_at_1": 1.0,
-      "precision_at_3": 1.0,
-      "recall_at_1": 0.2,
-      "recall_at_3": 0.6,
-      "mrr": 1.0,
-      "mean_latency_ms": 303.715,
-      "total_evaluated_pairs": 10,
-      "notes": "Evaluates localized subsequence matches without global endpoint restrictions."
+    "top_3": {
+      "ours": 0.7888888888888889,
+      "ci": [
+        0.7236,
+        0.8422
+      ],
+      "baseline": 0.4888888888888889
     },
-    "mert": {
-      "method_name": "MERT-v1-95M Learned Embedding (Neural Baseline)",
-      "precision_at_1": 1.0,
-      "precision_at_3": 1.0,
-      "recall_at_1": 0.2,
-      "recall_at_3": 0.6,
-      "mrr": 1.0,
-      "mean_latency_ms": 0.054,
-      "total_evaluated_pairs": 10,
-      "notes": "Fastest pairwise vector retrieval (< 0.05ms); captures broad acoustic timbre."
+    "map": {
+      "ours": 0.6721,
+      "ci": [
+        0.604,
+        0.7447
+      ],
+      "baseline": 0.5009303350970018
+    },
+    "mr1": {
+      "ours": 0.6721,
+      "ci": [
+        0.604,
+        0.7447
+      ],
+      "baseline": 0.5009303350970018
+    },
+    "shift_recovery": {
+      "ours": 0.14166666666666666,
+      "ci": [
+        0.0904,
+        0.2152
+      ],
+      "baseline": 0.0
+    },
+    "mcnemar_top1": {
+      "statistic": 13.0208,
+      "p_value": 0.000308,
+      "b_ours_only_correct": 37,
+      "c_base_only_correct": 11,
+      "significant_05": true
+    },
+    "paired_bootstrap_map": {
+      "mean_delta": 0.1711,
+      "ci": [
+        0.1153,
+        0.2289
+      ],
+      "p_value": 0.0,
+      "significant_05": true
     }
   },
-  "robustness_experiments": [
-    {
-      "perturbation_type": "Identical Copy",
-      "parameter_value": "Identical Copy",
-      "chroma_dtw_similarity": 1.0,
-      "mert_similarity": 1.0,
-      "subsequence_dtw_similarity": 1.0,
-      "chroma_best_shift": 0
+  "feature_2_significance": {
+    "n_null_pairs": 45,
+    "n_related_pairs": 180,
+    "fpr_alpha_10": {
+      "ours": 0.08888888888888889,
+      "ci": [
+        0.0351,
+        0.2073
+      ],
+      "baseline_fixed": 0.9777777777777777
     },
-    {
-      "perturbation_type": "Pitch Shift (+2 semi)",
-      "parameter_value": "Pitch Shift (+2 semi)",
-      "chroma_dtw_similarity": 0.9866,
-      "mert_similarity": 0.6061,
-      "subsequence_dtw_similarity": 0.9866,
-      "chroma_best_shift": 10
+    "fpr_alpha_05": {
+      "ours": 0.044444444444444446,
+      "ci": [
+        0.0123,
+        0.1483
+      ],
+      "baseline_fixed": 0.9777777777777777
     },
-    {
-      "perturbation_type": "Pitch Shift (+6 semi)",
-      "parameter_value": "Pitch Shift (+6 semi)",
-      "chroma_dtw_similarity": 0.9832,
-      "mert_similarity": 0.6228,
-      "subsequence_dtw_similarity": 0.9832,
-      "chroma_best_shift": 6
+    "fpr_alpha_01": {
+      "ours": 0.0,
+      "ci": [
+        0.0,
+        0.0787
+      ],
+      "baseline_fixed": 0.9777777777777777
     },
-    {
-      "perturbation_type": "Tempo Alter (0.9x)",
-      "parameter_value": "Tempo Alter (0.9x)",
-      "chroma_dtw_similarity": 0.9871,
-      "mert_similarity": 0.589,
-      "subsequence_dtw_similarity": 0.9871,
-      "chroma_best_shift": 0
+    "power_alpha_05": {
+      "ours": 0.16666666666666666,
+      "ci": [
+        0.1193,
+        0.228
+      ],
+      "baseline_fixed": 0.7277777777777777
     },
-    {
-      "perturbation_type": "Tempo Alter (1.2x)",
-      "parameter_value": "Tempo Alter (1.2x)",
-      "chroma_dtw_similarity": 0.9955,
-      "mert_similarity": 0.608,
-      "subsequence_dtw_similarity": 0.9964,
-      "chroma_best_shift": 0
+    "ks_uniformity": {
+      "ks_statistic": 0.0222,
+      "p_value": 1.0
     },
-    {
-      "perturbation_type": "Additive Noise (20dB)",
-      "parameter_value": "Additive Noise (20dB)",
-      "chroma_dtw_similarity": 0.9299,
-      "mert_similarity": 0.6326,
-      "subsequence_dtw_similarity": 0.9329,
-      "chroma_best_shift": 0
+    "qq_r2": 1.0
+  },
+  "feature_3_creative_novelty": {
+    "n_held_out_humans": 5,
+    "mean_duplicate_rank": {
+      "ours": 1.0,
+      "baseline_random": 2.5
     },
-    {
-      "perturbation_type": "Unrelated Harmony (F# Major)",
-      "parameter_value": "Unrelated Harmony (F# Major)",
-      "chroma_dtw_similarity": 0.9881,
-      "mert_similarity": 0.516,
-      "subsequence_dtw_similarity": 0.9881,
-      "chroma_best_shift": 6
+    "ks_uniformity": {
+      "ks_statistic": 1.0,
+      "p_value": 0.0
+    },
+    "novelty_percentiles_mean": 1.0
+  },
+  "feature_4_origin": {
+    "n_samples": 64,
+    "n_human": 32,
+    "n_ai": 32,
+    "confusion_matrix": [
+      [
+        6,
+        26
+      ],
+      [
+        26,
+        6
+      ]
+    ],
+    "balanced_accuracy": {
+      "ours": 0.1875,
+      "ci": [
+        0.1106,
+        0.2997
+      ],
+      "baseline_majority": 0.5
+    },
+    "roc_auc": {
+      "ours": 0.1689,
+      "ci": [
+        0.0733,
+        0.2485
+      ],
+      "baseline_lr": 1.0,
+      "baseline_rf": 1.0
+    },
+    "pr_auc": {
+      "ours": 0.3371,
+      "ci": [
+        0.1124,
+        0.7337
+      ]
+    },
+    "eer": {
+      "ours": 0.8125
+    },
+    "tpr_at_1pct_fpr": {
+      "ours": 0.0
+    },
+    "tpr_at_5pct_fpr": {
+      "ours": 0.0
+    },
+    "specificity_human": {
+      "ours": 0.1875,
+      "ci": [
+        0.0889,
+        0.3531
+      ],
+      "baseline_majority": 1.0
+    },
+    "per_generator_recall": {
+      "Diffusion-Transformer": {
+        "recall": 0.1538,
+        "n": 13
+      },
+      "Lyria-Architecture": {
+        "recall": 0.1429,
+        "n": 7
+      },
+      "MusicGen-Autoregressive": {
+        "recall": 0.25,
+        "n": 12
+      }
+    },
+    "avg_generator_recall": 0.1822,
+    "ece": 0.6919,
+    "brier_score": {
+      "ours": 0.6357,
+      "baseline_lr": 0.0003
+    },
+    "mcnemar_vs_lr": {
+      "statistic": 50.0192,
+      "p_value": 0.0,
+      "b_ours_only_correct": 0,
+      "c_base_only_correct": 52,
+      "significant_05": true
     }
-  ],
-  "ablation_experiments": [
+  },
+  "feature_5_musical_context": {
+    "n_evaluated": 190,
+    "mirex_key_score": {
+      "ours": 0.7584,
+      "ci": [
+        0.6984,
+        0.8153
+      ],
+      "baseline_majority": 0.1158
+    },
+    "tempo_acc1": {
+      "ours": 0.9947,
+      "ci": [
+        0.9708,
+        0.9991
+      ],
+      "baseline_mean_bpm": 0.2
+    },
+    "tempo_acc2": {
+      "ours": 1.0,
+      "ci": [
+        0.9802,
+        1.0
+      ],
+      "baseline_mean_bpm": 0.4
+    },
+    "bpm_mae": {
+      "ours": 2.19,
+      "ci": [
+        1.6616,
+        3.1458
+      ],
+      "baseline_mean_bpm": 18.56
+    },
+    "paired_bootstrap_mae": {
+      "mean_delta": -16.3653,
+      "ci": [
+        -18.3236,
+        -14.5349
+      ],
+      "p_value": 0.0,
+      "significant_05": true
+    }
+  },
+  "feature_6_mimic": {
+    "n_evaluated": 180,
+    "source_in_top1": {
+      "ours": 0.5222,
+      "ci": [
+        0.4496,
+        0.594
+      ],
+      "baseline_random": 0.1
+    },
+    "source_in_top3": {
+      "ours": 0.7889,
+      "ci": [
+        0.7236,
+        0.8422
+      ],
+      "baseline_random": 0.3
+    },
+    "coverage_error": {
+      "ours": 0.7432,
+      "ci": [
+        0.7075,
+        0.7789
+      ],
+      "baseline_naive_100pct": 0.05
+    }
+  },
+  "feature_7_timeline": {
+    "n_spliced_queries": 10,
+    "segment_iou": {
+      "ours": 0.668,
+      "ci": [
+        0.5577,
+        0.7668
+      ],
+      "baseline_whole_track": 0.3333
+    },
+    "timestamp_error_sec": {
+      "ours": 0.66,
+      "ci": [
+        0.4665,
+        0.8845
+      ],
+      "baseline_whole_track": 4.0
+    },
+    "paired_bootstrap_iou": {
+      "mean_delta": 0.3347,
+      "ci": [
+        0.2244,
+        0.4335
+      ],
+      "p_value": 0.0,
+      "significant_05": true
+    },
+    "paired_bootstrap_time_error": {
+      "mean_delta": -3.336,
+      "ci": [
+        -3.5335,
+        -3.1155
+      ],
+      "p_value": 0.0,
+      "significant_05": true
+    }
+  },
+  "master_table": [
     {
-      "ablation_name": "Pitch-Shift Search Ablation",
-      "condition_a": "12 Circular Pitch Shifts (Stage 2)",
-      "condition_b": "Shift 0 Only (Ablated)",
-      "metric_name": "Similarity under +2 Semi Transposition",
-      "value_a": 0.9866,
-      "value_b": 0.547,
-      "delta_percent": -44.55,
-      "conclusion": "Without 12 circular pitch shifts, similarity degrades severely under key transpositions, confirming key invariance is strictly dependent on the 12-shift search."
+      "Feature": "Feature 1: Similarity Engine",
+      "Metric": "Top-1 Retrieval Accuracy",
+      "Ours (95% CI)": "52.22% [44.96%, 59.40%]",
+      "Baseline": "37.78% (Mean-Chroma Cosine)",
+      "n": "180",
+      "Truth source": "Held-Out Controlled Variations"
     },
     {
-      "ablation_name": "Beat-Synchronization Latency Ablation",
-      "condition_a": "Beat-Synchronized Chroma",
-      "condition_b": "Raw Frame-Level Chroma (Ablated)",
-      "metric_name": "Pairwise Alignment Latency (ms)",
-      "value_a": 0.023,
-      "value_b": 17.578,
-      "delta_percent": -99.87,
-      "conclusion": "Beat synchronization reduces frame resolution along the temporal axis, achieving a 764.2x speedup while stabilizing metric tempo variance."
+      "Feature": "Feature 1: Similarity Engine",
+      "Metric": "Top-3 Retrieval Accuracy",
+      "Ours (95% CI)": "78.89% [72.36%, 84.22%]",
+      "Baseline": "48.89% (Mean-Chroma Cosine)",
+      "n": "180",
+      "Truth source": "Held-Out Controlled Variations"
     },
     {
-      "ablation_name": "Stage 1 Cosine Prefilter Pruning Ablation",
-      "condition_a": "Two-Stage Pipeline (Prefilter 0.30 -> DTW)",
-      "condition_b": "Exhaustive DTW on All Candidates (Ablated)",
-      "metric_name": "Prefilter Cosine Score on Unrelated Harmony",
-      "value_a": 0.0307,
-      "value_b": 0.3,
-      "delta_percent": -89.78,
-      "conclusion": "Stage 1 coarse prefilter safely eliminates musically unviable pairs prior to expensive Stage 2 DTW alignments."
+      "Feature": "Feature 1: Similarity Engine",
+      "Metric": "Mean Average Precision (MAP)",
+      "Ours (95% CI)": "0.6721 [0.6040, 0.7447]",
+      "Baseline": "0.5009 (Mean-Chroma Cosine)",
+      "n": "180",
+      "Truth source": "Held-Out Controlled Variations"
+    },
+    {
+      "Feature": "Feature 1: Similarity Engine",
+      "Metric": "Mean Reciprocal Rank (MR1)",
+      "Ours (95% CI)": "0.6721 [0.6040, 0.7447]",
+      "Baseline": "0.5009 (Mean-Chroma Cosine)",
+      "n": "180",
+      "Truth source": "Held-Out Controlled Variations"
+    },
+    {
+      "Feature": "Feature 1: Similarity Engine",
+      "Metric": "Shift Recovery Rate (k in \u00b11..6)",
+      "Ours (95% CI)": "14.17% [9.04%, 21.52%]",
+      "Baseline": "0.00% (DTW Shift 0 Only)",
+      "n": "120",
+      "Truth source": "Known Transposition k in \u00b11..6"
+    },
+    {
+      "Feature": "Feature 2: Statistical Gateway",
+      "Metric": "Observed FPR (alpha = 0.10)",
+      "Ours (95% CI)": "8.89% [3.51%, 20.73%]",
+      "Baseline": "97.78% (Fixed S >= 0.65)",
+      "n": "45",
+      "Truth source": "Unrelated Held-Out Null Pairs"
+    },
+    {
+      "Feature": "Feature 2: Statistical Gateway",
+      "Metric": "Observed FPR (alpha = 0.05)",
+      "Ours (95% CI)": "4.44% [1.23%, 14.83%]",
+      "Baseline": "97.78% (Fixed S >= 0.65)",
+      "n": "45",
+      "Truth source": "Unrelated Held-Out Null Pairs"
+    },
+    {
+      "Feature": "Feature 2: Statistical Gateway",
+      "Metric": "Observed FPR (alpha = 0.01)",
+      "Ours (95% CI)": "0.00% [0.00%, 7.87%]",
+      "Baseline": "97.78% (Fixed S >= 0.65)",
+      "n": "45",
+      "Truth source": "Unrelated Held-Out Null Pairs"
+    },
+    {
+      "Feature": "Feature 2: Statistical Gateway",
+      "Metric": "Statistical Power (alpha = 0.05)",
+      "Ours (95% CI)": "16.67% [11.93%, 22.80%]",
+      "Baseline": "72.78% (Fixed S >= 0.65)",
+      "n": "180",
+      "Truth source": "Controlled Related Pairs"
+    },
+    {
+      "Feature": "Feature 2: Statistical Gateway",
+      "Metric": "p-value QQ Uniformity (R^2)",
+      "Ours (95% CI)": "1.0000",
+      "Baseline": "N/A (Fixed Threshold)",
+      "n": "45",
+      "Truth source": "Theoretical Uniform Quantiles"
+    },
+    {
+      "Feature": "Feature 2: Statistical Gateway",
+      "Metric": "Kolmogorov-Smirnov Uniformity p-val",
+      "Ours (95% CI)": "p = 1.0000 (stat=0.0222)",
+      "Baseline": "p < 0.0001 (Non-uniform)",
+      "n": "45",
+      "Truth source": "Null Pair Empirical p-values"
+    },
+    {
+      "Feature": "Feature 3: Creative Novelty",
+      "Metric": "Duplicate Rank on Held-Out Humans",
+      "Ours (95% CI)": "1.00",
+      "Baseline": "2.50 (Random Chance)",
+      "n": "5",
+      "Truth source": "Independent Held-Out Humans"
+    },
+    {
+      "Feature": "Feature 3: Creative Novelty",
+      "Metric": "KS Uniformity on Held-Out Humans",
+      "Ours (95% CI)": "p = 0.0000 (stat=1.0000)",
+      "Baseline": "p < 0.0001 (Degenerate Clustering)",
+      "n": "5",
+      "Truth source": "Independent Held-Out Humans"
+    },
+    {
+      "Feature": "Feature 4: Origin Classifier",
+      "Metric": "Balanced Accuracy",
+      "Ours (95% CI)": "18.75% [11.06%, 29.97%]",
+      "Baseline": "50.00% (Majority)",
+      "n": "64",
+      "Truth source": "Ground-Truth Origin Labels"
+    },
+    {
+      "Feature": "Feature 4: Origin Classifier",
+      "Metric": "ROC AUC",
+      "Ours (95% CI)": "0.1689 [0.0733, 0.2485]",
+      "Baseline": "1.0000 (LR) / 1.0000 (RF)",
+      "n": "64",
+      "Truth source": "Ground-Truth Origin Labels"
+    },
+    {
+      "Feature": "Feature 4: Origin Classifier",
+      "Metric": "PR AUC",
+      "Ours (95% CI)": "0.3371 [0.1124, 0.7337]",
+      "Baseline": "0.5000 (Random Guess)",
+      "n": "64",
+      "Truth source": "Ground-Truth Origin Labels"
+    },
+    {
+      "Feature": "Feature 4: Origin Classifier",
+      "Metric": "Equal Error Rate (EER)",
+      "Ours (95% CI)": "81.25%",
+      "Baseline": "50.00% (Majority Baseline)",
+      "n": "64",
+      "Truth source": "Ground-Truth Origin Labels"
+    },
+    {
+      "Feature": "Feature 4: Origin Classifier",
+      "Metric": "TPR at 1% FPR",
+      "Ours (95% CI)": "0.00%",
+      "Baseline": "1.00% (Diagonal)",
+      "n": "64",
+      "Truth source": "Ground-Truth Origin Labels"
+    },
+    {
+      "Feature": "Feature 4: Origin Classifier",
+      "Metric": "TPR at 5% FPR",
+      "Ours (95% CI)": "0.00%",
+      "Baseline": "5.00% (Diagonal)",
+      "n": "64",
+      "Truth source": "Ground-Truth Origin Labels"
+    },
+    {
+      "Feature": "Feature 4: Origin Classifier",
+      "Metric": "Per-Generator Recall (Average)",
+      "Ours (95% CI)": "18.22%",
+      "Baseline": "50.00% (Majority)",
+      "n": "32",
+      "Truth source": "Generator Architecture Sidecars"
+    },
+    {
+      "Feature": "Feature 4: Origin Classifier",
+      "Metric": "Specificity on Independent Human Set",
+      "Ours (95% CI)": "18.75% [8.89%, 35.31%]",
+      "Baseline": "100.00% (Majority)",
+      "n": "32",
+      "Truth source": "Held-Out Independent Humans"
+    },
+    {
+      "Feature": "Feature 4: Origin Classifier",
+      "Metric": "Expected Calibration Error (ECE)",
+      "Ours (95% CI)": "0.6919",
+      "Baseline": "0.2500 (Uncalibrated)",
+      "n": "64",
+      "Truth source": "Ground-Truth Origin Labels"
+    },
+    {
+      "Feature": "Feature 4: Origin Classifier",
+      "Metric": "Brier Score",
+      "Ours (95% CI)": "0.6357",
+      "Baseline": "0.0003 (Logistic Regression)",
+      "n": "64",
+      "Truth source": "Ground-Truth Origin Labels"
+    },
+    {
+      "Feature": "Feature 5: Musical Context",
+      "Metric": "MIREX Key Score",
+      "Ours (95% CI)": "0.7584 [0.6984, 0.8153]",
+      "Baseline": "0.1158 (Majority C Major)",
+      "n": "190",
+      "Truth source": "Sidecar Musical Key Truth"
+    },
+    {
+      "Feature": "Feature 5: Musical Context",
+      "Metric": "Tempo Acc1 (Tolerance 8%)",
+      "Ours (95% CI)": "99.47% [97.08%, 99.91%]",
+      "Baseline": "20.00% (Mean 120 BPM)",
+      "n": "190",
+      "Truth source": "Sidecar BPM Truth"
+    },
+    {
+      "Feature": "Feature 5: Musical Context",
+      "Metric": "Tempo Acc2 (Harmonics Multiples)",
+      "Ours (95% CI)": "100.00% [98.02%, 100.00%]",
+      "Baseline": "40.00% (Mean 120 BPM)",
+      "n": "190",
+      "Truth source": "Sidecar BPM Truth"
+    },
+    {
+      "Feature": "Feature 5: Musical Context",
+      "Metric": "BPM Mean Absolute Error (MAE)",
+      "Ours (95% CI)": "2.19 BPM [1.66, 3.15]",
+      "Baseline": "18.56 BPM (Mean 120 BPM)",
+      "n": "190",
+      "Truth source": "Sidecar BPM Truth"
+    },
+    {
+      "Feature": "Feature 6: Candidate Identification",
+      "Metric": "Source in Top-1 Candidates",
+      "Ours (95% CI)": "52.22% [44.96%, 59.40%]",
+      "Baseline": "10.00% (Random Ranker)",
+      "n": "180",
+      "Truth source": "Candidate Provenance Track ID"
+    },
+    {
+      "Feature": "Feature 6: Candidate Identification",
+      "Metric": "Source in Top-3 Candidates",
+      "Ours (95% CI)": "78.89% [72.36%, 84.22%]",
+      "Baseline": "30.00% (Random Ranker)",
+      "n": "180",
+      "Truth source": "Candidate Provenance Track ID"
+    },
+    {
+      "Feature": "Feature 6: Candidate Identification",
+      "Metric": "Alignment Coverage Error",
+      "Ours (95% CI)": "0.7432 [0.7075, 0.7789]",
+      "Baseline": "0.0500 (Naive 100% Guess)",
+      "n": "180",
+      "Truth source": "True Overlap Ratio"
+    },
+    {
+      "Feature": "Feature 7: Timeline Localization",
+      "Metric": "Segment Intersection over Union (IoU)",
+      "Ours (95% CI)": "0.6680 [0.5577, 0.7668]",
+      "Baseline": "0.3333 (Whole-Track Guess)",
+      "n": "10",
+      "Truth source": "Spliced Query Interval Truth"
+    },
+    {
+      "Feature": "Feature 7: Timeline Localization",
+      "Metric": "Timestamp Boundary Error",
+      "Ours (95% CI)": "0.66s [0.47s, 0.88s]",
+      "Baseline": "4.00s (Whole-Track Guess)",
+      "n": "10",
+      "Truth source": "Spliced Query Interval Truth"
     }
   ]
 }

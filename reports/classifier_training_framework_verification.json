@@ -1,0 +1,178 @@
+{
+  "timestamp": "2026-11-01T17:30:37Z",
+  "objective": "Generic Group-Aware Origin Classifier Training Framework Verification",
+  "isolation_guard_verification": {
+    "legacy_corpus_blocked_in_production": true,
+    "rejection_message": "Legacy 261-record corpus is retired from production origin classifier optimization. Production training requires a fresh, unconfounded dataset portfolio.",
+    "historical_mode_allowed": true
+  },
+  "synthetic_dataset_metadata": {
+    "n_samples": 300,
+    "n_features": 56,
+    "n_groups": 10,
+    "human_groups": [
+      "fma_artist_01",
+      "fma_artist_02",
+      "jamendo_artist_03",
+      "jamendo_artist_04",
+      "sym_orch_05"
+    ],
+    "ai_groups": [
+      "musicgen_med",
+      "musicgen_large",
+      "lyria_pro",
+      "acestep_base",
+      "acestep_pro"
+    ]
+  },
+  "group_disjoint_splits": {
+    "n_train_samples": 180,
+    "n_val_samples": 60,
+    "n_test_samples": 60,
+    "train_groups": [
+      "acestep_base",
+      "fma_artist_01",
+      "jamendo_artist_03",
+      "jamendo_artist_04",
+      "lyria_pro",
+      "musicgen_med"
+    ],
+    "val_groups": [
+      "acestep_pro",
+      "sym_orch_05"
+    ],
+    "test_groups": [
+      "fma_artist_02",
+      "musicgen_large"
+    ]
+  },
+  "leakage_verification": {
+    "train_val_overlap": 0,
+    "train_test_overlap": 0,
+    "val_test_overlap": 0,
+    "zero_leakage_verified": true
+  },
+  "scaler_isolation": {
+    "train_mean_norm": 4.611296162693179e-07,
+    "val_mean_norm": 4.321130752563477,
+    "test_mean_norm": 3.704777479171753,
+    "scaler_strictly_fit_on_train": true
+  },
+  "candidate_models_evaluation": {
+    "LogisticRegression": {
+      "calibrated_threshold": 0.1,
+      "validation": {
+        "balanced_accuracy": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "confusion_matrix": [
+          [
+            30,
+            0
+          ],
+          [
+            0,
+            30
+          ]
+        ]
+      },
+      "test_unseen_groups": {
+        "balanced_accuracy": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "confusion_matrix": [
+          [
+            30,
+            0
+          ],
+          [
+            0,
+            30
+          ]
+        ]
+      }
+    },
+    "LinearSVC": {
+      "calibrated_threshold": -1.0325,
+      "validation": {
+        "balanced_accuracy": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "confusion_matrix": [
+          [
+            30,
+            0
+          ],
+          [
+            0,
+            30
+          ]
+        ]
+      },
+      "test_unseen_groups": {
+        "balanced_accuracy": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "confusion_matrix": [
+          [
+            30,
+            0
+          ],
+          [
+            0,
+            30
+          ]
+        ]
+      }
+    },
+    "RandomForest": {
+      "calibrated_threshold": 0.35,
+      "validation": {
+        "balanced_accuracy": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "confusion_matrix": [
+          [
+            30,
+            0
+          ],
+          [
+            0,
+            30
+          ]
+        ]
+      },
+      "test_unseen_groups": {
+        "balanced_accuracy": 0.9833,
+        "precision": 0.9677,
+        "recall": 1.0,
+        "f1": 0.9836,
+        "confusion_matrix": [
+          [
+            29,
+            1
+          ],
+          [
+            0,
+            30
+          ]
+        ]
+      }
+    }
+  },
+  "frozen_corpus_integrity": {
+    "all_hashes_match": true,
+    "hashes": {
+      "features/remote_index.json": "c4990a42a64ff024d9f43fb7a44d1191cdc713a857661b368a98e39a613f85f4",
+      "features/null_distribution.json": "d80616e58b729f3b1d08aaf604f8b5a2ffe5fb41f4a44ca6050a8c672602948a",
+      "features/mert_manifest.json": "e3c6da56bca5d764cd9581f10978162d442ce6d4ff446bbf5655d4a649319b0e",
+      "features/dataset_manifest.json": "b36bf0a2f9f0a01c2dcad4eaec43a4efa9c13c5246db9c88ecbe2e2c6c270a6c"
+    }
+  },
+  "overall_status": "PASSED"
+}

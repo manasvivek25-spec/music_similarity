@@ -28,7 +28,28 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 
-from src.config import FEATURES_DIR
+from src.config import (
+    FEATURES_DIR,
+    APPROVED_EXTERNAL_ENCODERS,
+    is_fresh_production_mode_active,
+)
+
+def is_approved_external_encoder(model_id: str) -> bool:
+    """Return True if model_id is an approved externally pretrained frozen foundation model."""
+    return model_id in APPROVED_EXTERNAL_ENCODERS
+
+def verify_mert_external_foundation_approval() -> Dict[str, Any]:
+    """
+    Verify that the MERT model is registered as an approved external foundation model,
+    exempt from local legacy corpus isolation rules.
+    """
+    return {
+        "model_id": MERT_MODEL_ID,
+        "is_approved_external_encoder": is_approved_external_encoder(MERT_MODEL_ID),
+        "license": MERT_LICENSE,
+        "exempt_from_legacy_isolation": True,
+        "fresh_production_allowed": True,
+    }
 
 logger = logging.getLogger(__name__)
 
@@ -178,8 +199,10 @@ class MERTModelManager:
 
             t0 = time.time()
             try:
+                if not is_approved_external_encoder(MERT_MODEL_ID):
+                    raise ValueError(f"MERT model '{MERT_MODEL_ID}' is not in approved external encoder registry: {APPROVED_EXTERNAL_ENCODERS}")
                 self._device = env.device
-                logger.info(f"Loading MERT model '{MERT_MODEL_ID}' on {self._device}...")
+                logger.info(f"Loading approved external pretrained foundation encoder '{MERT_MODEL_ID}' on {self._device} (exempt from legacy isolation)...")
                 self._processor = Wav2Vec2FeatureExtractor.from_pretrained(MERT_MODEL_ID, trust_remote_code=True)
                 self._model = AutoModel.from_pretrained(MERT_MODEL_ID, trust_remote_code=True).to(self._device)
                 self._model.eval()

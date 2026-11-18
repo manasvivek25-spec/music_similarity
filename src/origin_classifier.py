@@ -18,7 +18,17 @@ from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 
-from src.config import MODELS_DIR, SAMPLE_RATE
+import os
+import hashlib
+import logging
+from src.config import (
+    MODELS_DIR, SAMPLE_RATE,
+    LegacyArtifactError, LEGACY_ARTIFACT_HASHES,
+    is_fresh_production_mode_active, is_legacy_mode_active, get_system_mode
+)
+
+logger = logging.getLogger(__name__)
+TEST_FIXTURE_MODEL_FILE = "test_fixture_origin_classifier.joblib"
 from src.schemas import OriginClassifierResult
 from src.utils import ensure_dir, list_audio_files
 
@@ -256,33 +266,147 @@ def evaluate_group_aware_generalization(
     return results
 
 
+def is_test_fixture_model(model_or_path: Any) -> bool:
+    """Return True if model object or path is an approved test-only fixture."""
+    if isinstance(model_or_path, (str, Path)):
+        p = Path(model_or_path)
+        if "test_fixture" in p.name.lower() or "fixture" in p.name.lower():
+            return True
+    if hasattr(model_or_path, "is_test_fixture") and getattr(model_or_path, "is_test_fixture"):
+        return True
+    if hasattr(model_or_path, "test_fixture_metadata"):
+        return True
+    return False
+
+
+def create_test_fixture_origin_classifier(
+    output_path: Optional[Union[str, Path]] = None
+) -> Path:
+    """
+    Synthesize and serialize a lightweight test-only origin classifier fixture.
+    Clearly stamped with is_test_fixture=True and synthetic provenance metadata.
+    Does NOT use any tracks or features from the retired 261-record corpus.
+    """
+    out_p = Path(output_path) if output_path else MODELS_DIR / TEST_FIXTURE_MODEL_FILE
+    out_p.parent.mkdir(parents=True, exist_ok=True)
+
+    from sklearn.linear_model import LogisticRegression
+    np.random.seed(42)
+    X_synthetic = np.random.randn(20, 56).astype(np.float32)
+    X_synthetic[:10] -= 1.0  # Class 0: Human
+    X_synthetic[10:] += 1.0  # Class 1: AI
+    y_synthetic = np.array([0]*10 + [1]*10, dtype=int)
+
+    pipe = Pipeline([
+        ("scaler", StandardScaler()),
+        ("clf", LogisticRegression(random_state=42, max_iter=200))
+    ])
+    pipe.fit(X_synthetic, y_synthetic)
+
+    pipe.is_test_fixture = True
+    pipe.test_fixture_metadata = {
+        "is_test_fixture": True,
+        "provenance": "synthetic_fixtures",
+        "description": "Synthesized 56-dim acoustic fixture for browser E2E and regression testing",
+        "created_at": "2026-11-01T20:00:00Z"
+    }
+
+    joblib.dump(pipe, str(out_p))
+    logger.info(f"Created test fixture origin classifier at {out_p}")
+    return out_p
+
+
 def get_default_model_path() -> Path:
     """Return the resolved path to the trained origin classifier artifact."""
     return MODELS_DIR / MODEL_FILE_NAME
 
 
 def load_origin_classifier(
-    model_path: Optional[Union[str, Path]] = None
+    model_path: Optional[Union[str, Path]] = None,
+    allow_legacy: bool = False,
+    strict: bool = False,
 ) -> Optional[Any]:
     """
     Safely load the fitted classifier artifact from disk.
 
-    Returns None if model file does not exist or fails to deserialize.
+    In fresh-production mode (default):
+    - Strictly rejects legacy 261-record corpus checkpoints (models/origin_classifier.joblib).
+    - If strict=True, raises LegacyArtifactError on legacy models.
+    - If strict=False, logs warning and returns None (unconfigured).
+    - Allows test fixtures (stamped with is_test_fixture or path matching test fixture).
+    - Allows newly trained models with fresh production provenance.
+
+    In legacy mode (MUSIC_SIMILARITY_MODE="legacy" or allow_legacy=True):
+    - Loads historical checkpoint for benchmark evaluation.
     """
-    path = Path(model_path) if model_path is not None else get_default_model_path()
+    if model_path is not None:
+        path = Path(model_path)
+    else:
+        env_fixture = os.getenv("MUSIC_ORIGIN_TEST_FIXTURE_PATH")
+        env_model = os.getenv("MUSIC_ORIGIN_MODEL_PATH")
+        if env_fixture and Path(env_fixture).is_file():
+            path = Path(env_fixture)
+        elif env_model and Path(env_model).is_file():
+            path = Path(env_model)
+        else:
+            path = get_default_model_path()
+
     if not path.is_file():
         return None
 
+    # Check if target is an approved test fixture
+    if is_test_fixture_model(path):
+        try:
+            model = joblib.load(str(path))
+            return model
+        except Exception as exc:
+            logger.warning(f"Failed to load test fixture model from {path}: {exc}")
+            return None
+
+    # Check for legacy 261-record checkpoint
+    is_legacy_artifact = False
+    try:
+        content_hash = hashlib.sha256(path.read_bytes()).hexdigest()
+        if content_hash == LEGACY_ARTIFACT_HASHES.get("origin_classifier"):
+            is_legacy_artifact = True
+    except Exception:
+        pass
+
+    if path.resolve() == get_default_model_path().resolve():
+        is_legacy_artifact = True
+
+    if is_legacy_artifact:
+        # Check if legacy loading is explicitly authorized
+        if not allow_legacy and is_fresh_production_mode_active():
+            msg = (
+                f"Historical origin classifier checkpoint ({path.name}) from retired 261-record corpus "
+                f"cannot be loaded in fresh-production mode (mode='{get_system_mode()}'). "
+                "Explicit mode='legacy' or allow_legacy=True is strictly required."
+            )
+            if strict:
+                raise LegacyArtifactError(msg)
+            logger.warning(f"REJECTED LEGACY ARTIFACT: {msg}")
+            return None
+
     try:
         model = joblib.load(str(path))
+        if hasattr(model, "provenance_mode") and getattr(model, "provenance_mode") == "legacy":
+            if not allow_legacy and is_fresh_production_mode_active():
+                if strict:
+                    raise LegacyArtifactError("Model object carries legacy 261 provenance in fresh-production mode.")
+                return None
         return model
-    except Exception:
+    except LegacyArtifactError:
+        raise
+    except Exception as exc:
+        logger.warning(f"Failed to deserialize origin classifier from {path}: {exc}")
         return None
 
 
 def predict_origin(
     audio_path: Union[str, Path],
-    model_path: Optional[Union[str, Path]] = None
+    model_path: Optional[Union[str, Path]] = None,
+    allow_legacy: bool = False,
 ) -> OriginClassifierResult:
     """
     Predict track origin (Human vs. AI) using the independent classifier.
@@ -296,13 +420,15 @@ def predict_origin(
         Path to target audio file.
     model_path : Optional[Union[str, Path]]
         Optional explicit model path override.
+    allow_legacy : bool
+        If True, permits loading historical legacy 261-record checkpoint.
 
     Returns
     -------
     OriginClassifierResult
         Prediction details or explicit unconfigured notice.
     """
-    model = load_origin_classifier(model_path)
+    model = load_origin_classifier(model_path, allow_legacy=allow_legacy, strict=False)
     if model is None:
         return OriginClassifierResult(
             predicted_origin="Unconfigured",
@@ -311,6 +437,8 @@ def predict_origin(
             model_status="Unconfigured / Missing Labeled Data",
             model_version=None,
         )
+
+    is_fixture = is_test_fixture_model(model) or (model_path and is_test_fixture_model(model_path))
 
     try:
         features = extract_origin_features_from_audio(audio_path)
@@ -324,7 +452,6 @@ def predict_origin(
 
         if hasattr(model, "predict_proba"):
             probs = model.predict_proba(features_2d)[0]
-            # Assume class 1 is AI if classes are [0, 1]
             classes = list(model.classes_)
             if 1 in classes:
                 ai_idx = classes.index(1)
@@ -336,12 +463,22 @@ def predict_origin(
             prob_ai = float(probs[ai_idx])
             confidence = float(max(probs))
 
+        if is_fixture:
+            status_label = "Test Fixture Active"
+            version_label = "test-fixture-1.0.0"
+        elif is_fresh_production_mode_active():
+            status_label = "Trained & Active"
+            version_label = MODEL_VERSION
+        else:
+            status_label = "Historical Checkpoint Active (Legacy Mode)"
+            version_label = f"legacy-{MODEL_VERSION}"
+
         return OriginClassifierResult(
             predicted_origin=label,
             confidence=round(confidence, 4) if confidence is not None else None,
             probability_ai=round(prob_ai, 4) if prob_ai is not None else None,
-            model_status="Trained & Active",
-            model_version=MODEL_VERSION,
+            model_status=status_label,
+            model_version=version_label,
         )
     except Exception:
         return OriginClassifierResult(
@@ -606,6 +743,252 @@ def compare_and_train_origin_classifiers(
         "total_samples": len(y_list),
         "model_path": str(target_path),
         "model_version": MODEL_VERSION,
+    }
+
+
+def validate_production_dataset_isolation(
+    dataset_path,
+    allow_legacy: bool = False
+) -> bool:
+    """
+    Ensure the production classifier training pipeline never accidentally trains
+    on or leaks from the retired 261-record corpus.
+    """
+    p = Path(dataset_path).resolve()
+    if not allow_legacy:
+        if "remote_index.json" in p.name or "261" in str(p):
+            raise ValueError(
+                "Legacy 261-record corpus is retired from production origin classifier optimization. "
+                "Production training requires a fresh, unconfounded dataset portfolio."
+            )
+    return True
+
+
+def build_group_disjoint_partitions(
+    groups: np.ndarray,
+    y: Optional[np.ndarray] = None,
+    test_size: float = 0.2,
+    val_size: float = 0.2,
+    random_state: int = 42
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """
+    Partition sample indices into Train, Validation, and Test subsets such that
+    NO group (e.g. generator family, artist ID, recording session) appears in
+    more than one partition. Guarantees zero group leakage. If labels `y` are
+    provided, partitions are stratified across classes.
+
+    Returns
+    -------
+    train_idx : np.ndarray
+    val_idx : np.ndarray
+    test_idx : np.ndarray
+    """
+    unique_groups = np.unique(groups)
+    if len(unique_groups) < 3:
+        raise ValueError(
+            f"At least 3 distinct groups required for train/val/test disjoint partitioning, found {len(unique_groups)}"
+        )
+
+    rng = np.random.RandomState(random_state)
+
+    if y is not None:
+        group_labels = {g: int(np.round(np.mean(y[groups == g]))) for g in unique_groups}
+        c0_groups = rng.permutation([g for g, lbl in group_labels.items() if lbl == 0])
+        c1_groups = rng.permutation([g for g, lbl in group_labels.items() if lbl == 1])
+
+        def split_class_groups(cg):
+            n = len(cg)
+            if n <= 1:
+                return set(cg), set(), set()
+            nt = max(1, int(round(test_size * n))) if n >= 3 else 0
+            nv = max(1, int(round(val_size * n))) if n >= 3 else (1 if n == 2 else 0)
+            ntr = n - nt - nv
+            if ntr < 1:
+                ntr = 1
+                if nv > 0:
+                    nv -= 1
+            return set(cg[nt + nv:]), set(cg[nt:nt + nv]), set(cg[:nt])
+
+        tr0, va0, te0 = split_class_groups(c0_groups)
+        tr1, va1, te1 = split_class_groups(c1_groups)
+
+        train_groups = tr0 | tr1
+        val_groups = va0 | va1
+        test_groups = te0 | te1
+
+        if len(val_groups) == 0:
+            val_groups = {list(train_groups)[0]}
+            train_groups = train_groups - val_groups
+        if len(test_groups) == 0:
+            test_groups = {list(train_groups)[0]}
+            train_groups = train_groups - test_groups
+    else:
+        shuffled_groups = rng.permutation(unique_groups)
+        n_groups = len(shuffled_groups)
+        n_test = max(1, int(round(test_size * n_groups)))
+        n_val = max(1, int(round(val_size * n_groups)))
+        n_train = n_groups - n_test - n_val
+        if n_train < 1:
+            n_train = 1
+            if n_val > 1:
+                n_val -= 1
+            elif n_test > 1:
+                n_test -= 1
+
+        test_groups = set(shuffled_groups[:n_test])
+        val_groups = set(shuffled_groups[n_test : n_test + n_val])
+        train_groups = set(shuffled_groups[n_test + n_val :])
+
+    # Assert zero overlap
+    assert len(train_groups & val_groups) == 0, "Train-Val group leakage detected!"
+    assert len(train_groups & test_groups) == 0, "Train-Test group leakage detected!"
+    assert len(val_groups & test_groups) == 0, "Val-Test group leakage detected!"
+
+    train_idx = np.where(np.isin(groups, list(train_groups)))[0]
+    val_idx = np.where(np.isin(groups, list(val_groups)))[0]
+    test_idx = np.where(np.isin(groups, list(test_groups)))[0]
+
+    return train_idx, val_idx, test_idx
+
+
+def train_and_evaluate_origin_framework(
+    X: np.ndarray,
+    y: np.ndarray,
+    groups: np.ndarray,
+    random_state: int = 42,
+) -> Dict[str, Any]:
+    """
+    Generic group-aware training framework with leakage prevention:
+    1. Group-disjoint Train / Val / Test splitting.
+    2. Training-only StandardScaler fitting.
+    3. Multi-model comparative evaluation across LogisticRegression, LinearSVC, and RandomForest.
+    4. Threshold calibration on Validation set only.
+    5. Evaluation of calibrated threshold on held-out Test set.
+    """
+    from sklearn.linear_model import LogisticRegression
+    from sklearn.svm import LinearSVC
+    from sklearn.metrics import balanced_accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
+
+    train_idx, val_idx, test_idx = build_group_disjoint_partitions(groups, y=y, random_state=random_state)
+
+    # Assert zero group leakage
+    train_g = set(groups[train_idx])
+    val_g = set(groups[val_idx])
+    test_g = set(groups[test_idx])
+    leakage_check = {
+        "train_val_overlap": len(train_g & val_g),
+        "train_test_overlap": len(train_g & test_g),
+        "val_test_overlap": len(val_g & test_g),
+        "zero_leakage_verified": (
+            (len(train_g & val_g) == 0)
+            and (len(train_g & test_g) == 0)
+            and (len(val_g & test_g) == 0)
+        ),
+    }
+
+    X_train, y_train = X[train_idx], y[train_idx]
+    X_val, y_val = X[val_idx], y[val_idx]
+    X_test, y_test = X[test_idx], y[test_idx]
+
+    # Preprocessing: Fit scaler STRICTLY on training fold
+    scaler = StandardScaler()
+    X_train_scaled = scaler.fit_transform(X_train)
+    X_val_scaled = scaler.transform(X_val)
+    X_test_scaled = scaler.transform(X_test)
+
+    # Scaler isolation check: train mean is ~0, val mean is NOT forced to 0
+    scaler_isolation = {
+        "train_mean_norm": float(np.linalg.norm(np.mean(X_train_scaled, axis=0))),
+        "val_mean_norm": float(np.linalg.norm(np.mean(X_val_scaled, axis=0))),
+        "test_mean_norm": float(np.linalg.norm(np.mean(X_test_scaled, axis=0))),
+        "scaler_strictly_fit_on_train": bool(np.allclose(np.mean(X_train_scaled, axis=0), 0, atol=1e-5)),
+    }
+
+    candidate_clfs = {
+        "LogisticRegression": LogisticRegression(max_iter=1000, random_state=random_state),
+        "LinearSVC": LinearSVC(random_state=random_state, dual=False),
+        "RandomForest": RandomForestClassifier(n_estimators=100, random_state=random_state),
+    }
+
+    models_evaluation: Dict[str, Any] = {}
+    for name, clf in candidate_clfs.items():
+        clf.fit(X_train_scaled, y_train)
+
+        # Obtain continuous scores on val and test
+        if hasattr(clf, "predict_proba"):
+            scores_val = clf.predict_proba(X_val_scaled)[:, 1]
+            scores_test = clf.predict_proba(X_test_scaled)[:, 1]
+            threshold_candidates = np.linspace(0.1, 0.9, 17)
+        elif hasattr(clf, "decision_function"):
+            scores_val = clf.decision_function(X_val_scaled)
+            scores_test = clf.decision_function(X_test_scaled)
+            threshold_candidates = np.linspace(
+                float(np.percentile(scores_val, 10)),
+                float(np.percentile(scores_val, 90)),
+                17,
+            )
+        else:
+            scores_val = clf.predict(X_val_scaled)
+            scores_test = clf.predict(X_test_scaled)
+            threshold_candidates = np.array([0.5])
+
+        # Calibrate threshold on VALIDATION fold only
+        best_t = 0.5 if hasattr(clf, "predict_proba") else 0.0
+        best_val_bal_acc = -1.0
+        for t in threshold_candidates:
+            pred_val_t = (scores_val >= t).astype(int)
+            b_acc = float(balanced_accuracy_score(y_val, pred_val_t))
+            if b_acc > best_val_bal_acc:
+                best_val_bal_acc = b_acc
+                best_t = float(t)
+
+        # Apply calibrated threshold to held-out TEST set
+        pred_val_opt = (scores_val >= best_t).astype(int)
+        pred_test_opt = (scores_test >= best_t).astype(int)
+
+        # Compute metrics
+        val_bal_acc = float(balanced_accuracy_score(y_val, pred_val_opt))
+        val_rec = float(recall_score(y_val, pred_val_opt, zero_division=0))
+        val_prec = float(precision_score(y_val, pred_val_opt, zero_division=0))
+        val_f1 = float(f1_score(y_val, pred_val_opt, zero_division=0))
+        val_cm = confusion_matrix(y_val, pred_val_opt, labels=[0, 1]).tolist()
+
+        test_bal_acc = float(balanced_accuracy_score(y_test, pred_test_opt))
+        test_rec = float(recall_score(y_test, pred_test_opt, zero_division=0))
+        test_prec = float(precision_score(y_test, pred_test_opt, zero_division=0))
+        test_f1 = float(f1_score(y_test, pred_test_opt, zero_division=0))
+        test_cm = confusion_matrix(y_test, pred_test_opt, labels=[0, 1]).tolist()
+
+        models_evaluation[name] = {
+            "calibrated_threshold": round(best_t, 4),
+            "validation": {
+                "balanced_accuracy": round(val_bal_acc, 4),
+                "precision": round(val_prec, 4),
+                "recall": round(val_rec, 4),
+                "f1": round(val_f1, 4),
+                "confusion_matrix": val_cm,
+            },
+            "test_unseen_groups": {
+                "balanced_accuracy": round(test_bal_acc, 4),
+                "precision": round(test_prec, 4),
+                "recall": round(test_rec, 4),
+                "f1": round(test_f1, 4),
+                "confusion_matrix": test_cm,
+            },
+        }
+
+    return {
+        "partitions": {
+            "n_train_samples": len(train_idx),
+            "n_val_samples": len(val_idx),
+            "n_test_samples": len(test_idx),
+            "train_groups": sorted(list(train_g)),
+            "val_groups": sorted(list(val_g)),
+            "test_groups": sorted(list(test_g)),
+        },
+        "leakage_check": leakage_check,
+        "scaler_isolation": scaler_isolation,
+        "models_evaluation": models_evaluation,
     }
 
 

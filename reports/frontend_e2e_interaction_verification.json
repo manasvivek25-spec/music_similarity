@@ -1,0 +1,177 @@
+{
+  "timestamp": "2026-11-01T19:05:17Z",
+  "target_url": "http://127.0.0.1:8001/",
+  "browser": "Google Chrome Headless (CDP)",
+  "test_1_zero_byte": {
+    "status": "PASSED",
+    "file": "C:\\Users\\len\\music_similarity\\music_similarity\\temp_uploads\\zero_byte_test.wav",
+    "error_state_detected": {
+      "feedback": "Analysis Error: Uploaded audio file is empty.",
+      "btnText": "Execute Pipeline Analysis"
+    },
+    "expected_error_logged": true
+  },
+  "test_2_full_pipeline_e2e": {
+    "status": "PASSED",
+    "file": "C:\\Users\\len\\music_similarity\\music_similarity\\temp_uploads\\short_clip_7s.wav",
+    "progress_stages_recorded": 20,
+    "progress_history_sample": [
+      {
+        "stageName": "Stage 2/13: Audio feature extraction",
+        "percent": "14.0%",
+        "sec": 1.5
+      },
+      {
+        "stageName": "Stage 5/13: DTW evaluation of surviving candidates",
+        "percent": "50.4%",
+        "sec": 6.0
+      },
+      {
+        "stageName": "Stage 5/13: DTW evaluation of surviving candidates",
+        "percent": "51.1%",
+        "sec": 7.5
+      },
+      {
+        "stageName": "Stage 5/13: DTW evaluation of surviving candidates",
+        "percent": "51.9%",
+        "sec": 9.0
+      },
+      {
+        "stageName": "Stage 5/13: DTW evaluation of surviving candidates",
+        "percent": "52.5%",
+        "sec": 10.5
+      },
+      {
+        "stageName": "Stage 5/13: DTW evaluation of surviving candidates",
+        "percent": "53.2%",
+        "sec": 12.0
+      },
+      {
+        "stageName": "Stage 5/13: DTW evaluation of surviving candidates",
+        "percent": "53.8%",
+        "sec": 13.5
+      },
+      {
+        "stageName": "Stage 5/13: DTW evaluation of surviving candidates",
+        "percent": "54.3%",
+        "sec": 15.0
+      },
+      {
+        "stageName": "Stage 5/13: DTW evaluation of surviving candidates",
+        "percent": "54.8%",
+        "sec": 16.5
+      },
+      {
+        "stageName": "Stage 5/13: DTW evaluation of surviving candidates",
+        "percent": "55.3%",
+        "sec": 18.0
+      },
+      {
+        "stageName": "Stage 5/13: DTW evaluation of surviving candidates",
+        "percent": "55.8%",
+        "sec": 19.5
+      },
+      {
+        "stageName": "Stage 5/13: DTW evaluation of surviving candidates",
+        "percent": "56.2%",
+        "sec": 21.0
+      },
+      {
+        "stageName": "Stage 5/13: DTW evaluation of surviving candidates",
+        "percent": "56.8%",
+        "sec": 22.5
+      },
+      {
+        "stageName": "Stage 5/13: DTW evaluation of surviving candidates",
+        "percent": "57.5%",
+        "sec": 24.0
+      },
+      {
+        "stageName": "Stage 5/13: DTW evaluation of surviving candidates",
+        "percent": "58.1%",
+        "sec": 25.5
+      },
+      {
+        "stageName": "Stage 5/13: DTW evaluation of surviving candidates",
+        "percent": "58.6%",
+        "sec": 27.0
+      },
+      {
+        "stageName": "Stage 5/13: DTW evaluation of surviving candidates",
+        "percent": "59.2%",
+        "sec": 28.5
+      },
+      {
+        "stageName": "Stage 5/13: DTW evaluation of surviving candidates",
+        "percent": "59.7%",
+        "sec": 30.0
+      },
+      {
+        "stageName": "Stage 8/13: Creative scoring",
+        "percent": "75.0%",
+        "sec": 31.5
+      },
+      {
+        "stageName": "Stage 13/13: Pipeline Complete",
+        "percent": "100.0%",
+        "sec": 46.5
+      }
+    ],
+    "cards_verification": {
+      "card1_similarity_engine": {
+        "score": "0.790",
+        "tier": "Moderate Similarity"
+      },
+      "card2_statistical_gateway": {
+        "pval": "p = 0.0000 (k=0, N=6105)",
+        "severity": "Critical Anomaly"
+      },
+      "card3_creative_novelty": {
+        "broad_percent": "0.04",
+        "novelty_tier": "High Structural Imitation",
+        "norm_score": "Norm: 0.0004"
+      },
+      "card4_origin_classifier": {
+        "predicted_origin": "AI",
+        "prob_ai": "AI Prob: 100.0%",
+        "confidence_label": "Confidence: 100.0%",
+        "status_tag": "Active",
+        "version": "v1.0.0"
+      },
+      "card5_musical_context": {
+        "estimated_key": "A Major",
+        "estimated_tempo": "Unavailable (Drone/Non-percussive)",
+        "duration": "7.5s"
+      },
+      "card6_mimic_identification": {
+        "candidate_count_badge": "3 Evaluated Survivors",
+        "table_rows": 3
+      },
+      "card7_suggestor_evidence": {
+        "timeline_preview": "Target: haim_ai_musicgen_musicgen_small_00034 (Overall S = 79.0%, Shift: +2)\nCritical Anomaly\nHIGH-O"
+      }
+    }
+  },
+  "browser_health": {
+    "total_console_logs": 2,
+    "test1_expected_error_count": 1,
+    "test2_unexpected_error_count": 0,
+    "test2_runtime_exception_count": 0,
+    "test2_console_errors": [],
+    "test2_runtime_exceptions": []
+  },
+  "overall_status": "PASSED",
+  "classifier_provenance_audit": {
+    "model_artifact_path": "C:\\Users\\len\\music_similarity\\music_similarity\\models\\test_fixture_origin_classifier.joblib",
+    "model_identity": "Pipeline([('scaler', StandardScaler()), ('clf', LogisticRegression(random_state=42))])",
+    "model_provenance": "synthetic_fixtures",
+    "is_test_fixture": true,
+    "is_historical_261_checkpoint": false,
+    "historical_261_checkpoint_path": "C:\\Users\\len\\music_similarity\\music_similarity\\models\\origin_classifier.joblib",
+    "historical_261_checkpoint_sha256": "c52583b591132bf72416506699ce0b0307ae2d85ee2c75e110b454d74150c357",
+    "historical_checkpoint_status": "Strictly Isolated & Blocked in Fresh-Production Mode (zero silent fallback)",
+    "inference_type": "genuine_model_inference_on_approved_test_fixture",
+    "controlled_unavailable_state_verified": true,
+    "verification_passed": true
+  }
+}

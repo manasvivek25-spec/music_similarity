@@ -1,0 +1,69 @@
+{
+  "timestamp": "2026-11-01T17:24:03Z",
+  "objective": "Dataset-Independent Index and Null Distribution Pipelines Verification",
+  "reference_index_pipeline_verification": {
+    "isolated_index_created": {
+      "output_path": "C:\\Users\\len\\music_similarity\\music_similarity\\temp_uploads\\isolated_pipeline_test\\isolated_test_index.json",
+      "total_records_indexed": 5,
+      "expected_records": 5,
+      "is_independent_of_261_corpus": true,
+      "tracks_indexed": [
+        "synth_human_01",
+        "synth_human_02",
+        "synth_human_03",
+        "synth_ai_gen01",
+        "synth_ai_gen02"
+      ]
+    },
+    "index_update_and_deduplication": {
+      "updated_record_title": "Updated Title",
+      "new_record_present": true,
+      "total_after_update": 6,
+      "duplicate_id_overwritten_safely": true
+    }
+  },
+  "null_distribution_pipeline_verification": {
+    "pairwise_null_calculation": {
+      "total_human_tracks": 6,
+      "total_pairs_evaluated": 15,
+      "expected_pairs": 15,
+      "min_score": 0.4306,
+      "max_score": 0.452,
+      "mean_score": 0.4406,
+      "all_scores_in_0_1": true,
+      "all_scores_finite": true
+    },
+    "cached_null_distribution": {
+      "cache_file": "C:\\Users\\len\\music_similarity\\music_similarity\\temp_uploads\\isolated_pipeline_test\\isolated_test_null.json",
+      "global_null_count": 15,
+      "genre_null_keys": [
+        "Jazz",
+        "Classical"
+      ],
+      "saved_schema_keys": [
+        "version",
+        "created_at",
+        "source_track_ids",
+        "sample_pairs_count",
+        "null_scores",
+        "genre_null_scores",
+        "pairwise_dependency_note"
+      ],
+      "provenance_preserved": false
+    },
+    "insufficient_samples_handling": {
+      "single_track_pairs_produced": 0,
+      "properly_handled": true
+    }
+  },
+  "production_corpus_protection": {
+    "all_hashes_match_expected": true,
+    "manifest_hashes": {
+      "features/remote_index.json": "c4990a42a64ff024d9f43fb7a44d1191cdc713a857661b368a98e39a613f85f4",
+      "features/null_distribution.json": "d80616e58b729f3b1d08aaf604f8b5a2ffe5fb41f4a44ca6050a8c672602948a",
+      "features/mert_manifest.json": "e3c6da56bca5d764cd9581f10978162d442ce6d4ff446bbf5655d4a649319b0e",
+      "features/dataset_manifest.json": "b36bf0a2f9f0a01c2dcad4eaec43a4efa9c13c5246db9c88ecbe2e2c6c270a6c"
+    }
+  },
+  "overall_status": "PASSED"
+}
