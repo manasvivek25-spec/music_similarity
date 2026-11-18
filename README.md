@@ -1,374 +1,104 @@
-# Statistical Analysis of Similarity in Human- and AI-Generated Music
+# Statistical Analysis of Melodic Similarity and Creative Originality in Human- and AI-Generated Music
 
-**Course:** Introduction to Data Science (IDSE)  
-**Platform Version:** 1.0.0  
+**Platform Version:** 2.0.0 (`fresh_production` default)  
 **License:** MIT
 
-An end-to-end data science research platform and diagnostic suite designed to evaluate harmonic and melodic similarity between musical compositions, determine whether observed structural convergence is statistically anomalous relative to genre populations, measure creative novelty, independently classify track origin (Human vs. AI), detect candidate mimicry, and generate evidence-grounded studio suggestions.
+An end-to-end research platform and interactive diagnostic suite that measures harmonic/melodic similarity against a balanced, bias-controlled real-audio reference collection, evaluates statistical unusualness against an empirical human null distribution, computes population-relative creative novelty, independently estimates Human-vs-AI origin (strictly decoupled from similarity), extracts musical context, evaluates structural mimic evidence, localizes matching timeline segments with synchronized playback, and presents run-derived offline evaluation and dataset audits.
 
-> **Research & Diagnostic Disclaimer:**  
+> **Research & Scope Disclaimer:**  
 > System parameters focus exclusively on harmonic and melodic pitch space. Rhythmic-only mimicry, timbral similarity, production style, and lyrical content fall outside active analytical boundaries. Results indicate statistical similarity — not legal plagiarism, copyright infringement, or AI training-data memorization.
 
 ---
 
-## 1. System Architecture & Methodology
+## Quickstart
 
-The pipeline evaluates musical works through a deterministic, multistage scientific process:
-
-```
-[Query Audio] (min 60s)
-      │
-      ▼
-1. Feature Extraction (12-bin Chroma CQT & Beat-Synchronous Matrix via librosa)
-      │
-      ▼
-2. Feature 5: Metadata Validation & Musical Context (BPM & Krumhansl-Schmuckler Key)
-      │
-      ▼
-3. Stage 1: Coarse Cosine Prefilter (Mean chroma cosine cutoff ≥ 0.30)
-      │
-      ▼
-4. Stage 2: Global 12-Shift Key-Invariant DTW Sweep (Similarity floor ≥ 0.45, ±1 shift boundary check)
-      │
-      ▼
-5. Stage 3: Genre Influence Map (Percentage distribution & Cross-genre detection)
-      │
-      ▼
-6. Feature 2: Statistical Gateway (Empirical p-value vs null distribution, max 15 survivors)
-      │
-      ▼
-7. Feature 3: Creative Novelty Score (Broad & narrow z-score: (1 - CDF(z)) * 100)
-      │
-      ▼
-8. Case Routing (Case A: Cross-Genre | Case B: Same-Genre | Case C: No Match)
-      │
-      ▼
-9. Feature 4: Independent Acoustic Origin Classifier (Decoupled 56-feature Random Forest)
-      │
-      ▼
-10. Feature 6: Mimic Identification (P-value ranking & same-artist warning suppression)
-      │
-      ▼
-11. Feature 7: Suggestor Box & Evidence Timeline (DTW path reuse & localized timestamps)
-      │
-      ▼
-12. Final Three-Indicator Verdict (Critical | Warning | Advisory | Clear | Incomplete)
-```
-
-### Case Routing Logic
-* **Case A — Cross-Genre:** A qualifying match survives Feature 2 in a known genre different from the query track's declared native genre. Evaluates broad and narrow novelty scores across up to two target genres.
-* **Case B — Same-Genre:** A qualifying match survives Feature 2 in the same native genre as the query track. Evaluates native broad score and narrow score (when $\ge 5$ survivors exist).
-* **Case C — No Match:** All candidates fall below the $0.45$ similarity floor or fail the statistical gateway ($p > 0.10$). Mimic warnings are not generated; a broad creative score is calculated if reference population permits.
-
-### Final Verdict Formulation
-The final research verdict evaluates three independent indicators:
-1. **Similarity Index:** $\ge 0.85$
-2. **Empirical P-Value:** $\le 0.01$
-3. **Normalized Creative Score:** $\le 0.24$
-
-* **3 Indicators Triggered:** `Critical — All indicators confirm structural imitation`
-* **3 Indicators Triggered:** `Critical — All indicators confirm structural imitation`
-* **2 Indicators Triggered:** `Warning — Multiple indicators suggest structural similarity`
-* **1 Indicator Triggered:** `Advisory — Single indicator, likely genre convention`
-* **0 Indicators Triggered:** `Clear — No significant similarity detected`
-* **Unavailable P-Value (N < 5):** `Incomplete — Insufficient Null Population` (does not evaluate as a false/cleared verdict; provisional similarity and creative indicators are displayed with prominent explanation).
-
-### Empirical P-Value Specification & Minimum-Null-Pair Guard (Authoritative Decision 1)
-* **Authoritative Empirical Formula:**
-  $$\text{p-value} = \frac{k}{N} = \frac{\sum \mathbb{I}(S_{\text{null}} \ge S_{\text{query}})}{N_{\text{valid\_null}}}$$
-  The platform retains the unsmoothed empirical formula without pseudo-count $+1$ smoothing.
-* **Minimum-Null-Pair Guard (`MIN_NULL_PAIRS = 5`):**
-  In `src/stats_test.py`, when the number of valid finite null scores is $N < 5$, the statistical gateway returns an explicit unavailable result rather than calculating a p-value:
-  - `p_value = None`
-  - `confidence = "insufficient"`
-  - Actual valid null sample count and required minimum (5).
-  - Clear explanation that the empirical null population is insufficient.
-* **Operational Sample-Size Confidence Tiers:**
-  - **High:** $N_{\text{null}} \ge 1000$ valid pairs.
-  - **Moderate:** $300 \le N_{\text{null}} < 1000$ valid pairs.
-  - **Low:** $5 \le N_{\text{null}} < 300$ valid pairs.
-  - **Insufficient:** $N_{\text{null}} < 5$ valid pairs ($p$-value unavailable).
-  *Note:* These operational sample-size labels are practical heuristic engineering tiers indicating sample volume, not formal mathematical guarantees of statistical confidence or population independence.
-
-### Feature 6: Alignment Coverage & Candidate Ranking (Authoritative Decision 5)
-* **Metric Definition:**
-  $$\text{alignment\_coverage} = \frac{\text{matched\_query\_frames}}{\text{total\_query\_frames}}$$
-  Reuses Feature 1's retained DTW warping path and local step costs without rerunning DTW.
-* **Local Match Criteria & Path Inflation Prevention:**
-  - `matched_query_frames` counts unique query frames covered by qualifying strong-local-similarity regions ($\text{cost} \le \text{mean\_cost} \times 0.70$).
-  - Repeated path steps where a single query frame maps to multiple reference frames are counted exactly once to prevent coverage inflation.
-  - Missing alignment data returns an explicit unavailable state (`None`).
-* **Interpretation Tiers:**
-  - **$0\%\text{--}20\%$:** Isolated passage
-  - **$>20\%\text{--}50\%$:** Partial structural match
-  - **$>50\%\text{--}100\%$:** Broad structural overlap
-  *Note:* Coverage is an analytical localization metric, not proof of intentional copying.
-* **Candidate Ranking:**
-  Candidates are ranked by ascending valid empirical $p$-value, using descending DTW similarity as the tie-breaker. Candidates with unavailable $p$-values are ordered after valid $p$-values. Case-insensitive same-artist suppression (`Consistent Artist Style`) remains strictly active.
-
-### Distinct Catalog & Analysis Count Fields (Authoritative Decision 4)
-The API and frontend expose five distinct catalog quantities without double-counting:
-1. `total_indexed_tracks`: Exact count of distinct indexed audio tracks in the catalog.
-2. `human_tracks`: Tracks with human provenance origin.
-3. `ai_tracks`: Tracks with AI generative origin.
-4. `tracks_with_estimated_genre`: Tracks whose genre was inferred by a genuine classifier model.
-5. `null_pairs_global`: Valid pairs in the global null distribution (or `null` if uncomputed).
-
-In individual analysis responses, six distinct quantities are distinguished:
-- **Indexed Corpus Size:** Total candidate pool in catalog.
-- **Candidates Considered:** Tracks undergoing initial evaluation.
-- **Candidates Retained by Prefilter:** Tracks passing Stage 1 mean-chroma cosine filtering ($\ge 0.30$).
-- **Candidates Evaluated by DTW:** Shortlisted tracks aligned via 12-shift circular DTW.
-- **Feature 2 Survivors:** Tracks exceeding similarity floor ($\ge 0.45$) and passing statistical gateway.
-- **Valid Null-Distribution Pairs:** Pairs used to evaluate empirical statistical significance.
-
-### Normalized Distance & Similarity Relationship
-* **Exact Transformation:**
-  $$\text{Similarity} = \frac{1}{1 + D_{\text{norm}}} \iff D_{\text{norm}} = \frac{1}{\text{Similarity}} - 1$$
-  where $D_{\text{norm}} = \frac{\min \text{DTW accumulated cost}}{\max(\text{warping path length}, 1)}$.
-* **Example:** For an observed similarity of $0.547$, the corresponding normalized distance is $D_{\text{norm}} \approx 0.828$.
-
-### Creative Score Units & Novelty Tiers
-* **Creative Score Percentage (`creative_score_percent`):** Range $[0.0, 100.0]\%$, computed as $(1 - \Phi(z)) \times 100$. Novelty tiers evaluate this percentage ($< 25\%$ High Structural Imitation, $25\text{--}50\%$ Algorithmic Saturation Risk, $50\text{--}75\%$ Standard Compositional Variance, $\ge 75\%$ High Creative Novelty).
-* **Creative Score Normalized (`creative_score_normalized`):** Range $[0.0, 1.0]$, representing $\frac{\text{creative\_score\_percent}}{100}$. Evaluated against the verdict cutoff ($\le 0.24$). Precision is consistently displayed in the dashboard (2 decimals for percentage, 4 decimals for normalized).
-
----
-
-## 2. Repository Structure
-
-```text
-music_similarity/
-├── data/                          # Raw audio repositories (git-ignored audio files)
-│   ├── human_songs/               # Ground-truth human audio corpus (.gitkeep)
-│   ├── ai_generated/              # AI-generated audio corpus (.gitkeep)
-│   ├── reference_pool/            # Null distribution reference pool (.gitkeep)
-│   └── metadata_template.csv      # Template for audio catalog metadata
-├── features/                      # Cached numpy feature matrices (.npy)
-│   └── .gitkeep
-├── models/                        # Serialized scikit-learn models (.joblib)
-│   └── .gitkeep
-├── notebooks/                     # Exploratory research notebooks
-│   └── .gitkeep
-├── results/                       # Exported figures and statistics
-│   └── .gitkeep
-├── src/                           # Central Python pipeline package
-│   ├── __init__.py                # Package version definition
-│   ├── config.py                  # Central configuration and thresholds
-│   ├── schemas.py                 # Pydantic data schemas for typed validation
-│   ├── extract.py                 # Chroma CQT extraction & caching
-│   ├── similarity.py              # 12-shift DTW alignment & cosine prefilter
-│   ├── stats_test.py              # Null distribution construction & empirical p-values
-│   ├── genre.py                   # Stage 3 Genre Influence Map & metadata loader
-│   ├── creative_score.py          # Broad & narrow creative z-score computation
-│   ├── origin_classifier.py       # Independent Human/AI origin classification
-│   ├── feature5.py                # Metadata validation, key correlation & tempo tracking
-│   ├── mimic.py                   # Mimic ranking & same-artist suppression
-│   ├── suggestor.py               # Localized segment timeline & studio suggestions
-│   ├── pipeline.py                # Central pipeline coordinator & verdict engine
-│   ├── utils.py                   # Audio file discovery & duration helpers
-│   └── api.py                     # FastAPI REST API backend & static server
-├── frontend/                      # Web dashboard
-│   ├── index.html                 # Research dashboard UI
-│   ├── styles.css                 # Glassmorphism & WebGL shader styles
-│   └── app.js                     # Frontend API client & interactive visualizations
-├── tests/                         # Pytest test suite
-│   ├── test_similarity.py         # Unit tests for DTW, shift invariance, and tiers
-│   ├── test_stats.py              # Unit tests for p-values, creative scores, and verdict
-│   └── test_api.py                # REST API endpoint integration tests
-├── .env.example                   # Environment variable template
-├── .gitignore                     # Git exclusion rules
-├── metadata_schema.csv            # Field documentation for metadata CSVs
-├── pytest.ini                     # Pytest configuration
-├── requirements.txt               # Pinned Python dependencies
-└── README.md                      # Project documentation
-```
-
----
-
-## 3. Installation & Setup
-
-### Requirements
-* **Python 3.11** (64-bit recommended)
-* A modern browser with WebGL support
-
-### Setup Steps
-
-1. **Activate the Virtual Environment:**
-
-   *Windows PowerShell:*
-   ```powershell
-   venv\Scripts\Activate.ps1
-   ```
-
-   *Windows Command Prompt (cmd.exe):*
-   ```cmd
-   venv\Scripts\activate.bat
-   ```
-
-   *(Optional) If creating a new virtual environment:*
-   ```powershell
-   python -m venv venv
-   venv\Scripts\Activate.ps1
-   ```
-
-2. **Install Dependencies:**
-   ```powershell
-   python -m pip install -r requirements.txt
-   ```
-
-3. **Configure Environment Variables (Optional):**
-   ```powershell
-   Copy-Item .env.example .env
-   ```
-
----
-
-## 4. Running the Application
-
-Start the unified FastAPI server:
+See **[RUN.md](RUN.md)** for the full one-command runbook and **[FINAL_REPORT.md](FINAL_REPORT.md)** for the complete technical delivery report.
 
 ```powershell
-python -m uvicorn src.api:app --reload
-```
+# 1. Start the FastAPI backend & interactive frontend
+.\venv\Scripts\uvicorn src.api:app --host 127.0.0.1 --port 8001
 
-The application will start on `http://127.0.0.1:8000`:
-* **Interactive Web Dashboard:** `http://localhost:8000/`
-* **Interactive API Documentation (Swagger UI):** `http://localhost:8000/docs`
-* **Health Diagnostic Probe:** `http://localhost:8000/health`
-* **Runtime Capabilities:** `http://localhost:8000/api/config`
+# 2. Open the dashboard in your browser
+#    http://127.0.0.1:8001/         (Analysis Dashboard + Evaluation & Dataset Audit Tab)
+#    http://127.0.0.1:8001/docs     (OpenAPI Interactive Docs)
+
+# 3. Run the automated test suite (156 unit & integration tests)
+.\venv\Scripts\pytest -q
+
+# 4. Re-run the real held-out offline evaluation suite (Features 1-7 + PNG figures)
+.\venv\Scripts\python -u -m evaluation.run_evaluation
+```
 
 ---
 
-## 5. Dataset & Metadata Ingestion
+## 1. Seven-Feature Pipeline Architecture
 
-### Folder Conventions
-Place uncommitted audio files (`.wav`, `.mp3`, `.flac`, `.ogg`) into their respective directories:
-* `data/human_songs/`: Songs by human artists.
-* `data/ai_generated/`: Generative tracks from Suno, Udio, MusicGen, etc.
-* `data/reference_pool/`: Unrelated songs for null distribution generation.
+Core dependency chain: **F1 (Similarity) → F2 (Statistical Unusualness) → F3 (Creative Novelty) → F6 (Structural Mimic Evidence) → F7 (Timeline Localization & Deterministic Suggestions)**.  
+**F4 (Human vs. AI Origin)** is **strictly independent** — AI origin is never inferred from similarity.
 
-### Metadata CSV Schema
-Create or update `data/metadata.csv` using the format defined in [`metadata_schema.csv`](file:///c:/Users/len/music_similarity/music_similarity/metadata_schema.csv):
-
-| Field | Type | Description |
+| Feature | Role | Key Methods & Safeguards |
 | :--- | :--- | :--- |
-| `track_id` | string | Unique track identifier (e.g. `human_001`) |
-| `file_path` | string | Path relative to repository root (`data/human_songs/song1.wav`) |
-| `title` | string | Composition title |
-| `artist` | string | Artist / composer (used for Feature 6 same-artist check) |
-| `genre` | string | Musical genre label |
-| `source_type` | string | `acoustic`, `electronic`, `generative`, `field_recording` |
-| `origin_label`| string | `Human` or `AI` |
-| `key` | string | Known musical key (e.g. `C Minor`) |
-| `tempo` | float | Known tempo in BPM |
+| **F1: Similarity Engine** | Key-invariant harmonic/melodic alignment | 22,050 Hz mono, beat-synchronized 12-bin Chroma CQT, Stage-1 mean-chroma cosine prefilter (≥ 0.30), 12-shift FastDTW + ±1 shift boundary verification, $S = 1 / (1 + d_{\text{norm}})$, floor 0.45. |
+| **F2: Statistical Gateway** | Tests whether similarity is statistically unusual | Unsmoothed empirical $p = k/N$ (`MIN_NULL_PAIRS = 5`), operational confidence tiers ($N \ge 1000$ / $300$ / $5$), cutoffs $0.10$ / $0.01$, cap 15, genre fallback below 30 pairs, Benjamini-Hochberg FDR reported separately, research-only smoothed $(k+1)/(N+1)$. |
+| **F3: Creative Novelty** | Population-relative pitch-space distinctiveness | $(1 - \Phi(z)) \times 100$ computed against full eligible human reference population (not survivors alone); Case A cross-genre scores; explicitly framed as a statistical proxy, not an aesthetic judgment. |
+| **F4: Origin Classifier** | Independent Human vs. AI origin estimate | Combined 824-dim representation (56 acoustic + 768 MERT-v1-95M) + tuned `LogisticRegression(C=0.01)`, threshold 0.50 locked on validation. Scoped strictly to represented generators (`MusicSet`, `SunoCaps`, `Udio`). |
+| **F5: Musical Context** | Key, tempo & acoustic descriptors | Krumhansl-Schmuckler 24-profile key, librosa tempo/beat tracking, HPSS harmonic/percussive ratios, spectral rolloff, rhythm regularity. Explicitly badged `Estimated (Unverified)` when not backed by curated metadata. |
+| **F6: Mimic Evidence** | Coherent structural overlap & candidate ranking | Reuses F1's DTW path (zero recomputation) to compute `alignment_coverage`, `significant_region_count`, `region_continuity`, `sequential_consistency`, `local_similarity_concentration`, and `mimic_evidence_level` (`High` / `Moderate` / `Low` / `Not applicable`). Same-artist matches suppressed (`Consistent Artist Style`); suppressed in Case C/U. See [`docs/F6_mimic_evidence.md`](docs/F6_mimic_evidence.md). |
+| **F7: Timeline & Suggestor** | Timestamped matching segments & studio actions | Top-3 regions ranked by severity with click-to-play audio for both uploaded query and matched reference track (`/api/audio/reference/{track_id}`) plus deterministic studio recommendations. |
+
+### Authoritative Case Routing & Three-Indicator Verdict
+- **Case A (Cross-Genre):** Qualifying match survives F2 in a verified genre distinct from the query's native genre.
+- **Case B (Same-Genre / Undetermined Genre):** Qualifying match survives F2 in the same or undetermined genre.
+- **Case C (No Statistically Unusual Match):** Valid null ($N \ge 5$) with no candidate passing F2 (`verdict = clear`, F6 mimic evidence = `Not applicable`).
+- **Case U (Unresolved / Insufficient Null):** $N < 5$ or missing empirical $p$-value (`verdict = incomplete`).
+
+Three-indicator verdict gate (`Similarity ≥ 0.85`, `Empirical p ≤ 0.01`, `Normalized Creative Score ≤ 0.24`): `Critical` (3/3), `Warning` (2/3), `Advisory` (1/3), `Clear` (0/3), or `Incomplete` (missing null evidence).
 
 ---
 
-## 6. Training the Origin Classifier
+## 2. v2.0 Balanced Real-Audio Corpus & Bias Controls
 
-When labeled audio files are placed into `data/human_songs/` and `data/ai_generated/`, train the model:
+All v2 artifacts live under `data/v2/` and `models/origin_classifier_v2_fresh.joblib`, leaving the 4 frozen legacy 261-record files (`features/remote_index.json`, `features/null_distribution.json`, `features/mert_manifest.json`, `features/dataset_manifest.json`) untouched byte-for-byte (verified via SHA-256).
 
-```powershell
-python -c "from src.origin_classifier import train_origin_classifier; print(train_origin_classifier('data/human_songs', 'data/ai_generated'))"
-```
-
-The fitted model is saved to `models/origin_classifier.joblib`. If audio files are absent, the platform reports `Unconfigured / Missing Labeled Data` without crashing.
-
----
-
-## 7. Automated Testing & Verification
-
-Run the test suite across all modules:
-
-```powershell
-python -m pytest -v
-```
-
-### Covered Test Cases
-* **Chroma Alignment:** Identical matrices ($\approx 1.0$), transposed keys (4 semitones $\approx 1.0$), random noise decay ($< 0.65$), partial corruption monotonicity.
-* **Prefilter & Boundary:** Coarse cosine filtering at $0.30$, zero-vector handling, non-finite input guards.
-* **Statistical Gateway:** Empirical p-value calculation, genre fallback below 30 samples, confidence tiers ($N \ge 1000, 300-999, < 300$).
-* **Creative Novelty:** Broad and narrow scores, zero-variance standard deviation handling, score tiers.
-* **Mimic & Verdict:** P-value ranking, same-artist warning suppression (`Consistent Artist Style`), 3-indicator verdict matrix.
-* **API Endpoints:** 60-second upload duration validation ($422$), candidate count checks ($400$), `/health`, `/api/config`, `/api/analyze`, `/api/mimic`.
-* **Remote Dataset Streaming:** Dynamic schema validation, in-memory incremental decoding, compact JSON indexing, cache hits verification, two-stage prefiltering and DTW alignment.
+- **Verified Real Audio Sources:** `benjamin-paine/free-music-archive-small` (CC Human, genuine FMA genre metadata) + `SleepyJesse/ai_music_large` (Human `free-music-archive-full` + 3 distinct AI generators: `MusicSet`, `SunoCaps`, `Udio` CC0).
+- **Clean Verified Pool:** **2,112 tracks** (1,186 Human / 926 AI; 26 skipped for short/silent audio, 0 decode failures, 7 near-duplicates removed at MERT cosine > 0.98 or chroma > 0.9999; 0.0% missing MERT embeddings).
+- **Identical Confound-Controlled Normalization:** 22,050 Hz mono, exact center `10.0s` window (`INDEX_MAX_SECONDS = 10.0`), 4th-order zero-phase `7,500 Hz` Butterworth low-pass filter, `RMS = 0.10`.
+- **Metadata Confound Probes (5-fold StratifiedGroupKFold):**
+  - Pre-normalization metadata (`orig_dur`, `orig_sr`, `orig_ch`, `orig_bytes`, `raw_silence`): **LR AUC = 0.9912 / RF AUC = 1.0000**
+  - Post-normalization fixed physical features: **LR AUC = 0.4802 / RF AUC = 0.5050**
+  - Post-normalization + silence ratio: **LR AUC = 0.4785 / RF AUC = 0.5004** (pure chance)
+- **Six Strictly Disjoint Group-Aware Splits (`PASSED_ZERO_LEAKAGE` — 0 track/group/hash overlap across all 15 split pairs):**
+  - `reference_index`: 386 (193 H / 193 AI, 270 groups)
+  - `null_population`: 200 Human (104 groups → `N = 2,000` global pairs, `mean = 0.49672`, `std = 0.05219`, plus 6 genuine FMA genres with ≥ 30 pairs)
+  - `f4_train` / `f4_val` / `f4_test`: 702 / 232 / 232 (50/50 balanced)
+  - `held_out`: 300 (150 H / 150 AI, 211 groups)
 
 ---
 
-## 8. Remote Dataset Streaming & Stable Incremental Indexing
+## 3. Real Held-Out Evaluation Summary
 
-### Active Research Dataset (Authoritative Decision 2)
-The platform integrates the Hugging Face audio corpus:
-* **Active Dataset:** [`SleepyJesse/ai_music_large`](https://huggingface.co/datasets/SleepyJesse/ai_music_large) (split: `train`)
-* **Prior Research Citation:** The **SONICS** dataset is cited in the literature as prior research motivation for evaluating human-vs-AI acoustic divergence, but `SleepyJesse/ai_music_large` is the active dataset used for the implemented empirical pipeline.
-* **Corpus Schema & Provenance:**
-  - `audio`: Embedded audio record (in-memory bytes / array).
-  - `ai_generated`: Boolean/numeric flag indicating generative AI origin.
-  - `source`: Provenance tracking field.
-  - *Genre & Artist:* The inspected records contain no authentic metadata for genre or artist. The platform does not assume `"ambient"` or any hardcoded genre as a ground truth default.
+Every metric below is computed directly from `evaluation/run_evaluation.py` and saved in [`reports/evaluation_results.json`](reports/evaluation_results.json) and [`reports/evaluation_table.md`](reports/evaluation_table.md):
 
-### Acoustic Genre Estimation
-When raw audio is indexed, an acoustic genre estimation module (`src/genre_classifier.py` and `src/genre.py`) provides GTZAN-compatible 10-class genre estimation:
-- **Feature Extraction:** 20 MFCC coefficients extracted from audio waveforms with temporal mean and standard deviation aggregation (40-dimensional feature vector).
-- **Artifact Format:** Serialized scikit-learn classifier (`models/genre_classifier.joblib`).
-- **Unconfigured State:** If no trained model artifact exists, genre analysis gracefully falls back to an explicit, honest unconfigured state (`estimated_genre: null`, `genre_source: "unknown"`).
-- **Record Schema:**
-  - `genre`: Verified metadata only, or `null`.
-  - `estimated_genre`: Predicted genre label, or `null`.
-  - `genre_confidence`: Valid model probability score, or `null`.
-  - `genre_source`: `"metadata"`, `"estimated"`, or `"unknown"`.
+| Feature | Key Metric (Real Held-Out Audio) | Ours (95% CI) | Baseline | n |
+| :--- | :--- | :--- | :--- | :---: |
+| **F1: Similarity** | Top-1 / Top-3 Retrieval | **90.00%** [83.33%, 94.19%] / **93.33%** | 52.50% (Cosine) / 57.50% (DTW-0) | 120 |
+| **F1: Similarity** | Semitone Shift Recovery (±1..6) | **100.00%** [92.59%, 100.00%] | 0.00% (DTW-0) | 48 |
+| **F1: Similarity** | Related vs. Unrelated ROC-AUC | **0.9892** (PR-AUC 0.9840) | 0.5000 (Random) | 480 |
+| **F2: Significance** | Observed FPR at α=0.10 / 0.05 / 0.01 | **10.00%** / **4.50%** / **1.50%** | 0.00% (Fixed S≥0.65) | 200 |
+| **F2: Significance** | Power (α=0.05) / Null Q-Q R² | **94.17%** / **R² = 0.9792** | 83.33% (Fixed S≥0.65) | 120 |
+| **F3: Novelty** | Monotonicity (Spearman ρ) | **ρ = -0.9759** (Guards OK) | 0.0 (Unordered) | 200 |
+| **F4: Origin** | Held-Out Balanced Acc / ROC-AUC | **71.00%** / **0.7756** (ECE 0.0357) | 50.00% Maj / 0.5140 Confound | 300 |
+| **F4: Origin** | Independent Human Specificity | **72.00%** [64.33%, 78.57%] | 50.00% (Chance) | 150 |
+| **F5: Context** | Key & Tempo Extraction | **Estimated, unverified** (100% cov.) | No curated ground truth | 300 |
+| **F6: Mimic** | Source in Top-1 / Top-3 | **90.00%** / **93.33%** | 2.78% / 8.33% (Random) | 120 |
+| **F7: Timeline** | Spliced Segment IoU / Boundary MAE | **0.3439** / **3.33s** | 0.2727 / 8.00s (Whole-Track) | 12 |
 
-### Stable Content-Derived Identifiers (Authoritative Decision 3)
-Sequential IDs (e.g. `remote_000000`) have been replaced with content-derived identifiers:
-$$\text{track\_id} = \text{track\_}\langle 12\text{ hex characters}\rangle$$
-- **Derivation:** Derived from the first 4096 bytes of audio via `hashlib.sha256(audio_bytes[:4096]).hexdigest()[:12]`, or from a deterministic contiguous waveform slice when only decoded arrays are present.
-- **Provenance Retention:** Stable source IDs from the remote corpus (such as `id` or `source`) are retained as separate provenance metadata (`source_id`).
-- **Collision Handling:** The 12-character hex string is a truncated prefix hash. A collision check compares candidate hashes against existing catalog entries; if an identical prefix collides with an unrelated track, the prefix length is dynamically extended.
-- **Atomic Persistence:** Remote index updates write to a unique temporary file (`.tmp`) and use atomic filesystem replacement (`os.replace`) to prevent file corruption in case of unexpected termination.
-- **Safe Incremental Indexing:** Re-indexing identical tracks reuses existing entries without duplication or overwriting unrelated records.
+---
 
-### Methodological & Research Limitations
-1. **Empirical Null Distribution Overlap:**
-   Pairwise similarity scores in the empirical null distribution are derived from combinations within the available reference pool. When sample sizes are small ($N < 300$), pairwise comparisons share underlying tracks and are not fully independent observations.
-2. **Operational Confidence Labels:**
-   Operational confidence labels (`High`, `Moderate`, `Low`, `Insufficient`) represent heuristic engineering sample-volume tiers. They do not constitute formal asymptotic mathematical guarantees of population representation or statistical independence.
-3. **Decoupled Acoustic Origin Classifier (Feature 4):**
-   The 56-feature Random Forest architecture is fully implemented, but remains in an unconfigured state awaiting suitable labeled training datasets. No synthetic or fabricated labels are generated.
+## 4. Honest Scope & Known Limitations
 
-### CLI Indexing Commands
-
-* **Small Development Sample (Default 10 records):**
-  ```powershell
-  python -m src.remote_dataset
-  # or explicitly:
-  python -m src.remote_dataset --sample 10
-  ```
-
-* **Inspect Remote Schema Only:**
-  ```powershell
-  python -m src.remote_dataset --inspect-schema
-  ```
-
-* **Inspect Metadata Without Reading Audio:**
-  ```powershell
-  python -m src.remote_dataset --inspect-metadata --sample 5
-  ```
-
-* **Full-Corpus Pass (Requires explicit `--full` flag):**
-  ```powershell
-  python -m src.remote_dataset --full
-  ```
-
-* **Force Cache Re-indexing:**
-  ```powershell
-  python -m src.remote_dataset --sample 10 --force
-  ```
-
-* **JSON Output for Scripting/Pipelines:**
-  ```powershell
-  python -m src.remote_dataset --sample 5 --json
-  ```
-
-### Running Tests Without Network Access
-All test suites in `tests/` run 100% offline using synthesized audio waveforms and mocked record streams. Normal test execution does not depend on network access or downloading the real Hugging Face corpus.
-
+1. **Pitch-Space Boundary:** F1/F2/F3/F6/F7 operate strictly on 12-bin beat-synchronized chroma (harmonic/melodic pitch space). Rhythmic-only similarity, vocals/lyrics, and production timbre are out of scope.
+2. **F4 Generator Generalization (LOGO):** Leave-One-Generator-Out testing shows partial transfer to unseen `SunoCaps` (76.7% recall) and `Udio` (45.1% recall), but near-zero recall on unseen `MusicSet` (2.9%) when `MusicSet` is excluded from training. F4 is therefore scoped strictly to represented generators.
+3. **F5 Unverified Estimates:** Neither FMA-small nor `SleepyJesse/ai_music_large` provides human-verified BPM/key labels; F5 outputs are explicitly badged `Estimated (Unverified)` rather than claiming fabricated accuracy.
+4. **Global DTW vs. Partial Splices & Beat-Tracker Octave Sensitivity:** Global DTW aligns full sequences, causing coverage inflation on partial splices and occasional half-/double-tempo beat-tracking variance on sparse ambient tracks.
+5. **Pairwise Null Non-Independence:** Null pairs share underlying human tracks; empirical `p = 0.0` reflects finite resolution (`< 1/2000`), and research-only smoothed `(k+1)/(N+1)` is reported alongside unsmoothed `k/N`.

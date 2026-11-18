@@ -62,6 +62,9 @@ urllib3==2.7.0
 uvicorn==0.52.4
 watchfiles==1.2.0
 websockets==17.1
-datasets>=3.0.0
-pyarrow>=15.0.0
+datasets==5.1.0
+pyarrow==26.0.0
+huggingface-hub==2.3.0
+torch==2.7.1+cu118
+transformers==5.22.1
 
