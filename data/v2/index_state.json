@@ -1,0 +1,27 @@
+{
+  "status": "COMPLETED",
+  "is_complete": true,
+  "dataset_version": "v2",
+  "feature_version": "v2.0-chroma_cqt_beatsync-lp7500-rms010",
+  "algorithm_version": "f1_12shift_fastdtw_v1",
+  "index_max_seconds": 10.0,
+  "sample_rate": 22050,
+  "lowpass_hz": 7500.0,
+  "total_expected": 2145,
+  "discovered": 2145,
+  "indexed": 2119,
+  "reused": 0,
+  "failed": 0,
+  "skipped": 26,
+  "duplicates": 0,
+  "progress_pct": 100.0,
+  "started_at": "2026-11-18T14:01:01Z",
+  "updated_at": "2026-11-18T14:12:30Z",
+  "elapsed_sec": 688.4,
+  "mert_stats": {
+    "reused": 0,
+    "extracted": 2119,
+    "failed": 0,
+    "device": "cuda"
+  }
+}

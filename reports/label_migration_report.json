@@ -1,0 +1,25 @@
+{
+  "timestamp": "2026-11-18T14:14:57Z",
+  "legacy_261_readonly_audit": {
+    "existing": 261,
+    "corrected_candidates": 0,
+    "unknown": 44,
+    "manual_review": 0,
+    "frozen_untouched": true
+  },
+  "v2_label_verification": {
+    "existing_verified": 2119,
+    "human": 1192,
+    "ai": 927,
+    "unknown_excluded": 0,
+    "corrected": 0,
+    "manual_review": 0,
+    "provenance_breakdown": {
+      "verified_sleepyjesse_fma_full": 136,
+      "verified_sleepyjesse_musicset": 767,
+      "verified_fma_small_cc": 1056,
+      "verified_sleepyjesse_sunocaps": 48,
+      "verified_sleepyjesse_udio_cc0": 112
+    }
+  }
+}

@@ -1,0 +1,105 @@
+{
+  "updated_at": "2026-11-18T13:58:41Z",
+  "shards": [
+    {
+      "repo": "SleepyJesse/ai_music_large",
+      "file": "data/train-00000-of-00147.parquet",
+      "role": "human_fma_full",
+      "expected_mb": 645,
+      "local_path": "C:\\Users\\len\\.cache\\huggingface\\hub\\datasets--SleepyJesse--ai_music_large\\snapshots\\9a25146ddbbd88adafa578bfed9b412b2e24c8fa\\data\\train-00000-of-00147.parquet",
+      "size_mb": 645.01,
+      "elapsed_sec": 0.67,
+      "status": "ok"
+    },
+    {
+      "repo": "SleepyJesse/ai_music_large",
+      "file": "data/train-00076-of-00147.parquet",
+      "role": "ai_musicset",
+      "expected_mb": 60,
+      "local_path": "C:\\Users\\len\\.cache\\huggingface\\hub\\datasets--SleepyJesse--ai_music_large\\snapshots\\9a25146ddbbd88adafa578bfed9b412b2e24c8fa\\data\\train-00076-of-00147.parquet",
+      "size_mb": 59.77,
+      "elapsed_sec": 0.81,
+      "status": "ok"
+    },
+    {
+      "repo": "SleepyJesse/ai_music_large",
+      "file": "data/train-00078-of-00147.parquet",
+      "role": "ai_musicset",
+      "expected_mb": 60,
+      "local_path": "C:\\Users\\len\\.cache\\huggingface\\hub\\datasets--SleepyJesse--ai_music_large\\snapshots\\9a25146ddbbd88adafa578bfed9b412b2e24c8fa\\data\\train-00078-of-00147.parquet",
+      "size_mb": 60.4,
+      "elapsed_sec": 146.69,
+      "status": "ok"
+    },
+    {
+      "repo": "SleepyJesse/ai_music_large",
+      "file": "data/train-00077-of-00147.parquet",
+      "role": "ai_musicset",
+      "expected_mb": 60,
+      "local_path": "C:\\Users\\len\\.cache\\huggingface\\hub\\datasets--SleepyJesse--ai_music_large\\snapshots\\9a25146ddbbd88adafa578bfed9b412b2e24c8fa\\data\\train-00077-of-00147.parquet",
+      "size_mb": 60.12,
+      "elapsed_sec": 162.47,
+      "status": "ok"
+    },
+    {
+      "repo": "benjamin-paine/free-music-archive-small",
+      "file": "data/train-00001-of-00015.parquet",
+      "role": "human_fma_small",
+      "expected_mb": 472,
+      "local_path": "C:\\Users\\len\\.cache\\huggingface\\hub\\datasets--benjamin-paine--free-music-archive-small\\snapshots\\d291bdb4c842bd5f007c60f9d3d6ba73199cd1c0\\data\\train-00001-of-00015.parquet",
+      "size_mb": 472.3,
+      "elapsed_sec": 305.14,
+      "status": "ok"
+    },
+    {
+      "repo": "benjamin-paine/free-music-archive-small",
+      "file": "data/train-00000-of-00015.parquet",
+      "role": "human_fma_small",
+      "expected_mb": 458,
+      "local_path": "C:\\Users\\len\\.cache\\huggingface\\hub\\datasets--benjamin-paine--free-music-archive-small\\snapshots\\d291bdb4c842bd5f007c60f9d3d6ba73199cd1c0\\data\\train-00000-of-00015.parquet",
+      "size_mb": 457.96,
+      "elapsed_sec": 308.02,
+      "status": "ok"
+    },
+    {
+      "repo": "SleepyJesse/ai_music_large",
+      "file": "data/train-00079-of-00147.parquet",
+      "role": "ai_musicset",
+      "expected_mb": 58,
+      "local_path": "C:\\Users\\len\\.cache\\huggingface\\hub\\datasets--SleepyJesse--ai_music_large\\snapshots\\9a25146ddbbd88adafa578bfed9b412b2e24c8fa\\data\\train-00079-of-00147.parquet",
+      "size_mb": 58.27,
+      "elapsed_sec": 187.1,
+      "status": "ok"
+    },
+    {
+      "repo": "SleepyJesse/ai_music_large",
+      "file": "data/train-00080-of-00147.parquet",
+      "role": "ai_musicset",
+      "expected_mb": 60,
+      "local_path": "C:\\Users\\len\\.cache\\huggingface\\hub\\datasets--SleepyJesse--ai_music_large\\snapshots\\9a25146ddbbd88adafa578bfed9b412b2e24c8fa\\data\\train-00080-of-00147.parquet",
+      "size_mb": 59.92,
+      "elapsed_sec": 226.36,
+      "status": "ok"
+    },
+    {
+      "repo": "SleepyJesse/ai_music_large",
+      "file": "data/train-00075-of-00147.parquet",
+      "role": "ai_sunocaps",
+      "expected_mb": 157,
+      "local_path": "C:\\Users\\len\\.cache\\huggingface\\hub\\datasets--SleepyJesse--ai_music_large\\snapshots\\9a25146ddbbd88adafa578bfed9b412b2e24c8fa\\data\\train-00075-of-00147.parquet",
+      "size_mb": 156.96,
+      "elapsed_sec": 233.25,
+      "status": "ok"
+    },
+    {
+      "repo": "SleepyJesse/ai_music_large",
+      "file": "data/train-00111-of-00147.parquet",
+      "role": "ai_udio",
+      "expected_mb": 539,
+      "local_path": "C:\\Users\\len\\.cache\\huggingface\\hub\\datasets--SleepyJesse--ai_music_large\\snapshots\\9a25146ddbbd88adafa578bfed9b412b2e24c8fa\\data\\train-00111-of-00147.parquet",
+      "size_mb": 538.76,
+      "elapsed_sec": 259.98,
+      "status": "ok"
+    }
+  ]
+}

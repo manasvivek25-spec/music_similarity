@@ -1,0 +1,368 @@
+{
+  "timestamp": "2026-11-18T14:14:57Z",
+  "dataset_version": "v2",
+  "seed": 42,
+  "preprocessing": {
+    "sample_rate": 22050,
+    "index_max_seconds": 10.0,
+    "lowpass_hz": 7500.0,
+    "target_rms": 0.1,
+    "feature_version": "v2.0-chroma_cqt_beatsync-lp7500-rms010",
+    "algorithm_version": "f1_12shift_fastdtw_v1"
+  },
+  "ingestion_counts": {
+    "raw_indexed_unique_exact": 2119,
+    "exact_duplicates_removed": 0,
+    "near_duplicates_removed": 7,
+    "unknown_origin_excluded": 0,
+    "skipped_count": 26,
+    "failed_count": 0,
+    "clean_verified_pool": 2112,
+    "failure_reasons": {},
+    "skip_reasons": {
+      "too_short:8.07s<9.5s": 1,
+      "too_short:9.06s<9.5s": 1,
+      "too_short:8.31s<9.5s": 1,
+      "too_short:8.65s<9.5s": 1,
+      "too_short:8.76s<9.5s": 1,
+      "too_short:8.54s<9.5s": 1,
+      "too_short:8.25s<9.5s": 1,
+      "too_short:9.09s<9.5s": 1,
+      "too_short:9.01s<9.5s": 1,
+      "too_short:8.22s<9.5s": 1,
+      "too_short:8.63s<9.5s": 1,
+      "too_short:8.59s<9.5s": 1,
+      "too_short:8.94s<9.5s": 1,
+      "too_short:8.72s<9.5s": 1,
+      "too_short:8.89s<9.5s": 1,
+      "too_short:8.61s<9.5s": 1,
+      "too_short:8.56s<9.5s": 1,
+      "too_short:8.36s<9.5s": 1,
+      "too_short:8.32s<9.5s": 1,
+      "too_short:8.64s<9.5s": 1,
+      "too_short:8.55s<9.5s": 1,
+      "too_short:8.46s<9.5s": 1,
+      "too_short:8.35s<9.5s": 1,
+      "too_short:8.75s<9.5s": 1,
+      "too_short:8.85s<9.5s": 1,
+      "too_short:8.03s<9.5s": 1
+    }
+  },
+  "class_distribution_clean": {
+    "human": 1186,
+    "ai": 926
+  },
+  "generator_distribution_clean": {
+    "MusicSet": 766,
+    "SunoCaps": 48,
+    "Udio": 112,
+    "human_fma_full": 134,
+    "human_fma_small": 1052
+  },
+  "genre_distribution_verified_only": {
+    "Unknown": 1060,
+    "Folk": 167,
+    "Hip-Hop": 162,
+    "Rock": 79,
+    "Pop": 66,
+    "International": 62,
+    "Experimental Pop": 56,
+    "Latin America": 47,
+    "Audio Collage": 38,
+    "Soundtrack": 29,
+    "Avant-Garde": 24,
+    "Reggae - Dub": 23,
+    "Noise": 23,
+    "Experimental": 22,
+    "Balkan": 20,
+    "Electronic": 19,
+    "Psych-Folk": 18,
+    "Chip Music": 13,
+    "Polka": 13,
+    "Europe": 12
+  },
+  "missing_value_rates": {
+    "genre_missing_rate": 0.5019,
+    "artist_missing_rate": 0.5019,
+    "tempo_missing_rate": 0.0005,
+    "mert_missing_rate": 0.0
+  },
+  "splits": {
+    "held_out": {
+      "total": 300,
+      "human": 150,
+      "ai": 150,
+      "unique_groups": 211,
+      "generators": {
+        "human_fma_full": 9,
+        "human_fma_small": 141,
+        "MusicSet": 124,
+        "SunoCaps": 8,
+        "Udio": 18
+      },
+      "top_genres": {
+        "Unknown": 159,
+        "Hip-Hop": 41,
+        "Rock": 20,
+        "Pop": 10,
+        "Avant-Garde": 10,
+        "Noise": 8,
+        "Experimental": 8,
+        "Balkan": 8,
+        "Latin America": 5,
+        "North African": 4,
+        "Experimental Pop": 3,
+        "African": 3
+      }
+    },
+    "reference_index": {
+      "total": 386,
+      "human": 193,
+      "ai": 193,
+      "unique_groups": 270,
+      "generators": {
+        "human_fma_full": 25,
+        "human_fma_small": 168,
+        "MusicSet": 160,
+        "SunoCaps": 10,
+        "Udio": 23
+      },
+      "top_genres": {
+        "Unknown": 218,
+        "Folk": 73,
+        "Hip-Hop": 23,
+        "International": 16,
+        "Pop": 9,
+        "Rock": 7,
+        "Psych-Folk": 7,
+        "Noise": 6,
+        "Chip Music": 5,
+        "Audio Collage": 4,
+        "Lo-Fi": 3,
+        "Experimental Pop": 2
+      }
+    },
+    "f4_test": {
+      "total": 232,
+      "human": 116,
+      "ai": 116,
+      "unique_groups": 155,
+      "generators": {
+        "human_fma_full": 10,
+        "human_fma_small": 106,
+        "MusicSet": 96,
+        "SunoCaps": 6,
+        "Udio": 14
+      },
+      "top_genres": {
+        "Unknown": 126,
+        "Audio Collage": 21,
+        "Polka": 13,
+        "Industrial": 10,
+        "Latin America": 10,
+        "Folk": 9,
+        "Hip-Hop": 7,
+        "Pop": 6,
+        "French": 5,
+        "Electronic": 5,
+        "Psych-Rock": 3,
+        "Free-Folk": 2
+      }
+    },
+    "f4_val": {
+      "total": 232,
+      "human": 116,
+      "ai": 116,
+      "unique_groups": 174,
+      "generators": {
+        "human_fma_full": 18,
+        "human_fma_small": 98,
+        "MusicSet": 96,
+        "SunoCaps": 6,
+        "Udio": 14
+      },
+      "top_genres": {
+        "Unknown": 134,
+        "International": 15,
+        "Rock": 14,
+        "Folk": 12,
+        "Experimental Pop": 9,
+        "Pop": 7,
+        "African": 6,
+        "Hip-Hop": 6,
+        "Reggae - Dub": 6,
+        "Noise-Rock": 5,
+        "Avant-Garde": 4,
+        "Death-Metal": 2
+      }
+    },
+    "f4_train": {
+      "total": 702,
+      "human": 351,
+      "ai": 351,
+      "unique_groups": 519,
+      "generators": {
+        "human_fma_full": 42,
+        "human_fma_small": 309,
+        "MusicSet": 290,
+        "SunoCaps": 18,
+        "Udio": 43
+      },
+      "top_genres": {
+        "Unknown": 393,
+        "Hip-Hop": 61,
+        "Folk": 50,
+        "Latin America": 31,
+        "Rock": 30,
+        "International": 19,
+        "Experimental Pop": 13,
+        "Pop": 13,
+        "Balkan": 8,
+        "Avant-Garde": 7,
+        "Audio Collage": 7,
+        "Electronic": 7
+      }
+    },
+    "null_population": {
+      "total": 200,
+      "human": 200,
+      "ai": 0,
+      "unique_groups": 104,
+      "generators": {
+        "human_fma_full": 30,
+        "human_fma_small": 170
+      },
+      "top_genres": {
+        "Unknown": 30,
+        "Soundtrack": 29,
+        "Experimental Pop": 26,
+        "Pop": 21,
+        "Folk": 19,
+        "International": 12,
+        "Hip-Hop": 9,
+        "Noise": 7,
+        "Rock": 6,
+        "Psych-Folk": 5,
+        "Audio Collage": 4,
+        "Electronic": 3
+      }
+    }
+  },
+  "confound_probes": {
+    "majority_baseline": {
+      "roc_auc": 0.5,
+      "balanced_accuracy": 0.5
+    },
+    "pre_normalization": {
+      "probe_name": "pre_normalization_metadata_confound",
+      "n_samples": 2112,
+      "lr_roc_auc": 0.9912,
+      "rf_roc_auc": 1.0,
+      "lr_balanced_accuracy": 0.9462,
+      "rf_balanced_accuracy": 0.9979
+    },
+    "post_normalization_with_silence_ratio": {
+      "probe_name": "post_normalization_all_nonmusical",
+      "n_samples": 2112,
+      "lr_roc_auc": 0.4785,
+      "rf_roc_auc": 0.5004,
+      "lr_balanced_accuracy": 0.5009,
+      "rf_balanced_accuracy": 0.4921
+    },
+    "post_normalization_fixed_physical": {
+      "probe_name": "post_normalization_container_and_loudness",
+      "n_samples": 2112,
+      "lr_roc_auc": 0.4802,
+      "rf_roc_auc": 0.505,
+      "lr_balanced_accuracy": 0.5008,
+      "rf_balanced_accuracy": 0.4978
+    },
+    "note": "Pre-normalization metadata strongly separates sources (different original durations/SRs/file sizes). Identical normalization (10.0s center window, 22,050 Hz mono, 7,500 Hz Butterworth low-pass, RMS 0.10) eliminates duration/SR/channel/bitrate confounds; any residual signal in post_normalization_with_silence_ratio is attributable to genuine acoustic dynamic-range / silence distribution differences and is explicitly documented."
+  },
+  "leakage_audit": {
+    "total_leakage_violations": 0,
+    "track_id_overlaps": {
+      "f4_test_vs_f4_train": 0,
+      "f4_test_vs_f4_val": 0,
+      "f4_test_vs_held_out": 0,
+      "f4_test_vs_null_population": 0,
+      "f4_test_vs_reference_index": 0,
+      "f4_train_vs_f4_val": 0,
+      "f4_train_vs_held_out": 0,
+      "f4_train_vs_null_population": 0,
+      "f4_train_vs_reference_index": 0,
+      "f4_val_vs_held_out": 0,
+      "f4_val_vs_null_population": 0,
+      "f4_val_vs_reference_index": 0,
+      "held_out_vs_null_population": 0,
+      "held_out_vs_reference_index": 0,
+      "null_population_vs_reference_index": 0
+    },
+    "group_id_overlaps": {
+      "f4_test_vs_f4_train": 0,
+      "f4_test_vs_f4_val": 0,
+      "f4_test_vs_held_out": 0,
+      "f4_test_vs_null_population": 0,
+      "f4_test_vs_reference_index": 0,
+      "f4_train_vs_f4_val": 0,
+      "f4_train_vs_held_out": 0,
+      "f4_train_vs_null_population": 0,
+      "f4_train_vs_reference_index": 0,
+      "f4_val_vs_held_out": 0,
+      "f4_val_vs_null_population": 0,
+      "f4_val_vs_reference_index": 0,
+      "held_out_vs_null_population": 0,
+      "held_out_vs_reference_index": 0,
+      "null_population_vs_reference_index": 0
+    },
+    "content_hash_overlaps": {
+      "f4_test_vs_f4_train": 0,
+      "f4_test_vs_f4_val": 0,
+      "f4_test_vs_held_out": 0,
+      "f4_test_vs_null_population": 0,
+      "f4_test_vs_reference_index": 0,
+      "f4_train_vs_f4_val": 0,
+      "f4_train_vs_held_out": 0,
+      "f4_train_vs_null_population": 0,
+      "f4_train_vs_reference_index": 0,
+      "f4_val_vs_held_out": 0,
+      "f4_val_vs_null_population": 0,
+      "f4_val_vs_reference_index": 0,
+      "held_out_vs_null_population": 0,
+      "held_out_vs_reference_index": 0,
+      "null_population_vs_reference_index": 0
+    },
+    "status": "PASSED_ZERO_LEAKAGE"
+  },
+  "label_migration": {
+    "timestamp": "2026-11-18T14:14:57Z",
+    "legacy_261_readonly_audit": {
+      "existing": 261,
+      "corrected_candidates": 0,
+      "unknown": 44,
+      "manual_review": 0,
+      "frozen_untouched": true
+    },
+    "v2_label_verification": {
+      "existing_verified": 2119,
+      "human": 1192,
+      "ai": 927,
+      "unknown_excluded": 0,
+      "corrected": 0,
+      "manual_review": 0,
+      "provenance_breakdown": {
+        "verified_sleepyjesse_fma_full": 136,
+        "verified_sleepyjesse_musicset": 767,
+        "verified_fma_small_cc": 1056,
+        "verified_sleepyjesse_sunocaps": 48,
+        "verified_sleepyjesse_udio_cc0": 112
+      }
+    }
+  },
+  "v2_artifact_sha256": {
+    "data\\v2\\v2_index.json": "6c87b2bc05df70ee2086ff61ee504a4ff8d3881e5f10c5dfdfaef0c31cd58443",
+    "data\\v2\\v2_null_population.json": "78c32cdcbe3db727c5a3390c99d1bdfa768721a2b525e5ec06aa213a115137b6",
+    "data\\v2\\v2_f4_splits.json": "01dd56b35f43a36e144802a2efe9085ca83aa489a014516398c3b561cb8b24ec",
+    "data\\v2\\v2_held_out.json": "12f67470de4cbd7f1325f04029d0eb57313daec26a0d923120755df39a700f85"
+  }
+}

@@ -58,6 +58,8 @@ evaluation/cache/
 backups/
 data/v2/audio/
 data/v2/features/
+data/v2/shards/
+data/v2/raw_indexed_catalog.json
 features/v2/
 !data/v2/
 !data/v2/manifest_summary.json

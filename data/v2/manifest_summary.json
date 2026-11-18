@@ -1,0 +1,172 @@
+{
+  "version": "2.0",
+  "created_at": "2026-11-18T14:14:57Z",
+  "splits": {
+    "held_out": {
+      "total": 300,
+      "human": 150,
+      "ai": 150,
+      "unique_groups": 211,
+      "generators": {
+        "human_fma_full": 9,
+        "human_fma_small": 141,
+        "MusicSet": 124,
+        "SunoCaps": 8,
+        "Udio": 18
+      },
+      "top_genres": {
+        "Unknown": 159,
+        "Hip-Hop": 41,
+        "Rock": 20,
+        "Pop": 10,
+        "Avant-Garde": 10,
+        "Noise": 8,
+        "Experimental": 8,
+        "Balkan": 8,
+        "Latin America": 5,
+        "North African": 4,
+        "Experimental Pop": 3,
+        "African": 3
+      }
+    },
+    "reference_index": {
+      "total": 386,
+      "human": 193,
+      "ai": 193,
+      "unique_groups": 270,
+      "generators": {
+        "human_fma_full": 25,
+        "human_fma_small": 168,
+        "MusicSet": 160,
+        "SunoCaps": 10,
+        "Udio": 23
+      },
+      "top_genres": {
+        "Unknown": 218,
+        "Folk": 73,
+        "Hip-Hop": 23,
+        "International": 16,
+        "Pop": 9,
+        "Rock": 7,
+        "Psych-Folk": 7,
+        "Noise": 6,
+        "Chip Music": 5,
+        "Audio Collage": 4,
+        "Lo-Fi": 3,
+        "Experimental Pop": 2
+      }
+    },
+    "f4_test": {
+      "total": 232,
+      "human": 116,
+      "ai": 116,
+      "unique_groups": 155,
+      "generators": {
+        "human_fma_full": 10,
+        "human_fma_small": 106,
+        "MusicSet": 96,
+        "SunoCaps": 6,
+        "Udio": 14
+      },
+      "top_genres": {
+        "Unknown": 126,
+        "Audio Collage": 21,
+        "Polka": 13,
+        "Industrial": 10,
+        "Latin America": 10,
+        "Folk": 9,
+        "Hip-Hop": 7,
+        "Pop": 6,
+        "French": 5,
+        "Electronic": 5,
+        "Psych-Rock": 3,
+        "Free-Folk": 2
+      }
+    },
+    "f4_val": {
+      "total": 232,
+      "human": 116,
+      "ai": 116,
+      "unique_groups": 174,
+      "generators": {
+        "human_fma_full": 18,
+        "human_fma_small": 98,
+        "MusicSet": 96,
+        "SunoCaps": 6,
+        "Udio": 14
+      },
+      "top_genres": {
+        "Unknown": 134,
+        "International": 15,
+        "Rock": 14,
+        "Folk": 12,
+        "Experimental Pop": 9,
+        "Pop": 7,
+        "African": 6,
+        "Hip-Hop": 6,
+        "Reggae - Dub": 6,
+        "Noise-Rock": 5,
+        "Avant-Garde": 4,
+        "Death-Metal": 2
+      }
+    },
+    "f4_train": {
+      "total": 702,
+      "human": 351,
+      "ai": 351,
+      "unique_groups": 519,
+      "generators": {
+        "human_fma_full": 42,
+        "human_fma_small": 309,
+        "MusicSet": 290,
+        "SunoCaps": 18,
+        "Udio": 43
+      },
+      "top_genres": {
+        "Unknown": 393,
+        "Hip-Hop": 61,
+        "Folk": 50,
+        "Latin America": 31,
+        "Rock": 30,
+        "International": 19,
+        "Experimental Pop": 13,
+        "Pop": 13,
+        "Balkan": 8,
+        "Avant-Garde": 7,
+        "Audio Collage": 7,
+        "Electronic": 7
+      }
+    },
+    "null_population": {
+      "total": 200,
+      "human": 200,
+      "ai": 0,
+      "unique_groups": 104,
+      "generators": {
+        "human_fma_full": 30,
+        "human_fma_small": 170
+      },
+      "top_genres": {
+        "Unknown": 30,
+        "Soundtrack": 29,
+        "Experimental Pop": 26,
+        "Pop": 21,
+        "Folk": 19,
+        "International": 12,
+        "Hip-Hop": 9,
+        "Noise": 7,
+        "Rock": 6,
+        "Psych-Folk": 5,
+        "Audio Collage": 4,
+        "Electronic": 3
+      }
+    }
+  },
+  "leakage_status": "PASSED_ZERO_LEAKAGE",
+  "artifact_sha256": {
+    "data\\v2\\v2_index.json": "6c87b2bc05df70ee2086ff61ee504a4ff8d3881e5f10c5dfdfaef0c31cd58443",
+    "data\\v2\\v2_null_population.json": "78c32cdcbe3db727c5a3390c99d1bdfa768721a2b525e5ec06aa213a115137b6",
+    "data\\v2\\v2_f4_splits.json": "01dd56b35f43a36e144802a2efe9085ca83aa489a014516398c3b561cb8b24ec",
+    "data\\v2\\v2_held_out.json": "12f67470de4cbd7f1325f04029d0eb57313daec26a0d923120755df39a700f85"
+  }
+}

@@ -1,0 +1,540 @@
+{
+  "timestamp": "2026-11-18T14:19:29Z",
+  "elapsed_sec": 187.02,
+  "seed": 42,
+  "fresh_production": true,
+  "model_version": "2.0.0-fresh_production",
+  "dataset_id": "v2_balanced_fma_sleepyjesse_real",
+  "model_path": "models\\origin_classifier_v2_fresh.joblib",
+  "selected_model": {
+    "feature_set": "combined_824",
+    "algorithm": "logistic_regression",
+    "calibration_method": "uncalibrated",
+    "decision_threshold": 0.5,
+    "hyperparameters": {
+      "clf__C": 0.01
+    },
+    "training_set_size": 702,
+    "validation_set_size": 232,
+    "represented_generators": [
+      "MusicSet",
+      "SunoCaps",
+      "Udio"
+    ]
+  },
+  "cv_and_val_comparison": {
+    "acoustic_56": {
+      "logistic_regression": {
+        "cv_mean_roc_auc": 0.5655,
+        "best_params": {
+          "clf__C": 1.0
+        },
+        "calibration_method": "uncalibrated",
+        "selected_val_threshold": 0.52,
+        "val_roc_auc": 0.6545,
+        "val_balanced_accuracy": 0.625,
+        "val_brier": 0.2358,
+        "val_ece": 0.0506
+      },
+      "linear_svm": {
+        "cv_mean_roc_auc": 0.5646,
+        "best_params": {
+          "clf__C": 0.1
+        },
+        "calibration_method": "uncalibrated",
+        "selected_val_threshold": 0.5,
+        "val_roc_auc": 0.6533,
+        "val_balanced_accuracy": 0.6207,
+        "val_brier": 0.2344,
+        "val_ece": 0.0526
+      },
+      "rbf_svm": {
+        "cv_mean_roc_auc": 0.6571,
+        "best_params": {
+          "clf__gamma": "auto",
+          "clf__C": 10.0
+        },
+        "calibration_method": "uncalibrated",
+        "selected_val_threshold": 0.3,
+        "val_roc_auc": 0.6298,
+        "val_balanced_accuracy": 0.5991,
+        "val_brier": 0.2417,
+        "val_ece": 0.0821
+      },
+      "random_forest": {
+        "cv_mean_roc_auc": 0.6426,
+        "best_params": {
+          "clf__n_estimators": 100,
+          "clf__min_samples_leaf": 2,
+          "clf__max_depth": 24
+        },
+        "calibration_method": "uncalibrated",
+        "selected_val_threshold": 0.43,
+        "val_roc_auc": 0.6962,
+        "val_balanced_accuracy": 0.6509,
+        "val_brier": 0.2221,
+        "val_ece": 0.0679
+      },
+      "hist_gradient_boosting": {
+        "cv_mean_roc_auc": 0.6269,
+        "best_params": {
+          "clf__max_iter": 200,
+          "clf__max_depth": "None",
+          "clf__learning_rate": 0.05
+        },
+        "calibration_method": "uncalibrated",
+        "selected_val_threshold": 0.37,
+        "val_roc_auc": 0.6993,
+        "val_balanced_accuracy": 0.6767,
+        "val_brier": 0.2388,
+        "val_ece": 0.1284
+      }
+    },
+    "mert_768": {
+      "logistic_regression": {
+        "cv_mean_roc_auc": 0.745,
+        "best_params": {
+          "clf__C": 0.01
+        },
+        "calibration_method": "uncalibrated",
+        "selected_val_threshold": 0.56,
+        "val_roc_auc": 0.714,
+        "val_balanced_accuracy": 0.6724,
+        "val_brier": 0.2197,
+        "val_ece": 0.0963
+      },
+      "linear_svm": {
+        "cv_mean_roc_auc": 0.7513,
+        "best_params": {
+          "clf__C": 0.005
+        },
+        "calibration_method": "uncalibrated",
+        "selected_val_threshold": 0.39,
+        "val_roc_auc": 0.6952,
+        "val_balanced_accuracy": 0.6552,
+        "val_brier": 0.2203,
+        "val_ece": 0.088
+      },
+      "rbf_svm": {
+        "cv_mean_roc_auc": 0.7467,
+        "best_params": {
+          "clf__gamma": "scale",
+          "clf__C": 1.0
+        },
+        "calibration_method": "uncalibrated",
+        "selected_val_threshold": 0.52,
+        "val_roc_auc": 0.6985,
+        "val_balanced_accuracy": 0.6595,
+        "val_brier": 0.2238,
+        "val_ece": 0.0983
+      },
+      "random_forest": {
+        "cv_mean_roc_auc": 0.7211,
+        "best_params": {
+          "clf__n_estimators": 200,
+          "clf__min_samples_leaf": 2,
+          "clf__max_depth": 24
+        },
+        "calibration_method": "uncalibrated",
+        "selected_val_threshold": 0.49,
+        "val_roc_auc": 0.6703,
+        "val_balanced_accuracy": 0.6422,
+        "val_brier": 0.2351,
+        "val_ece": 0.0531
+      },
+      "hist_gradient_boosting": {
+        "cv_mean_roc_auc": 0.6967,
+        "best_params": {
+          "clf__max_iter": 200,
+          "clf__max_depth": 8,
+          "clf__learning_rate": 0.2
+        },
+        "calibration_method": "uncalibrated",
+        "selected_val_threshold": 0.44,
+        "val_roc_auc": 0.6432,
+        "val_balanced_accuracy": 0.625,
+        "val_brier": 0.3309,
+        "val_ece": 0.3026
+      }
+    },
+    "combined_824": {
+      "logistic_regression": {
+        "cv_mean_roc_auc": 0.7491,
+        "best_params": {
+          "clf__C": 0.01
+        },
+        "calibration_method": "uncalibrated",
+        "selected_val_threshold": 0.5,
+        "val_roc_auc": 0.7235,
+        "val_balanced_accuracy": 0.681,
+        "val_brier": 0.2176,
+        "val_ece": 0.106
+      },
+      "linear_svm": {
+        "cv_mean_roc_auc": 0.7508,
+        "best_params": {
+          "clf__C": 0.005
+        },
+        "calibration_method": "uncalibrated",
+        "selected_val_threshold": 0.52,
+        "val_roc_auc": 0.7062,
+        "val_balanced_accuracy": 0.6724,
+        "val_brier": 0.2181,
+        "val_ece": 0.1082
+      },
+      "rbf_svm": {
+        "cv_mean_roc_auc": 0.7481,
+        "best_params": {
+          "clf__gamma": "scale",
+          "clf__C": 1.0
+        },
+        "calibration_method": "uncalibrated",
+        "selected_val_threshold": 0.55,
+        "val_roc_auc": 0.7099,
+        "val_balanced_accuracy": 0.6638,
+        "val_brier": 0.2205,
+        "val_ece": 0.0755
+      },
+      "random_forest": {
+        "cv_mean_roc_auc": 0.7268,
+        "best_params": {
+          "clf__n_estimators": 300,
+          "clf__min_samples_leaf": 4,
+          "clf__max_depth": 16
+        },
+        "calibration_method": "uncalibrated",
+        "selected_val_threshold": 0.52,
+        "val_roc_auc": 0.6579,
+        "val_balanced_accuracy": 0.6379,
+        "val_brier": 0.2369,
+        "val_ece": 0.0533
+      },
+      "hist_gradient_boosting": {
+        "cv_mean_roc_auc": 0.6944,
+        "best_params": {
+          "clf__max_iter": 200,
+          "clf__max_depth": 8,
+          "clf__learning_rate": 0.2
+        },
+        "calibration_method": "uncalibrated",
+        "selected_val_threshold": 0.21,
+        "val_roc_auc": 0.6551,
+        "val_balanced_accuracy": 0.6164,
+        "val_brier": 0.3143,
+        "val_ece": 0.276
+      }
+    }
+  },
+  "test_set_metrics": {
+    "n_samples": 232,
+    "n_human": 116,
+    "n_ai": 116,
+    "threshold": 0.5,
+    "confusion_matrix": [
+      [
+        75,
+        41
+      ],
+      [
+        37,
+        79
+      ]
+    ],
+    "precision": 0.6583,
+    "recall": 0.681,
+    "f1": {
+      "value": 0.6695,
+      "ci": [
+        0.5796,
+        0.7568
+      ]
+    },
+    "balanced_accuracy": {
+      "value": 0.6638,
+      "ci": [
+        0.5937,
+        0.734
+      ]
+    },
+    "roc_auc": {
+      "value": 0.7398,
+      "ci": [
+        0.6529,
+        0.814
+      ]
+    },
+    "pr_auc": {
+      "value": 0.7251,
+      "ci": [
+        0.6117,
+        0.8383
+      ]
+    },
+    "eer": 0.3448,
+    "tpr_at_1pct_fpr": 0.0603,
+    "tpr_at_5pct_fpr": 0.25,
+    "specificity_human": {
+      "value": 0.6466,
+      "ci": [
+        0.5561,
+        0.7276
+      ],
+      "n": 116
+    },
+    "per_generator_recall": {
+      "MusicSet": {
+        "recall": 0.7083,
+        "ci": [
+          0.6108,
+          0.7898
+        ],
+        "n": 96
+      },
+      "SunoCaps": {
+        "recall": 0.8333,
+        "ci": [
+          0.4365,
+          0.9699
+        ],
+        "n": 6
+      },
+      "Udio": {
+        "recall": 0.4286,
+        "ci": [
+          0.2138,
+          0.6741
+        ],
+        "n": 14
+      }
+    },
+    "avg_generator_recall": 0.6567,
+    "ece": 0.1052,
+    "brier_score": 0.2123
+  },
+  "held_out_metrics": {
+    "n_samples": 300,
+    "n_human": 150,
+    "n_ai": 150,
+    "threshold": 0.5,
+    "confusion_matrix": [
+      [
+        108,
+        42
+      ],
+      [
+        45,
+        105
+      ]
+    ],
+    "precision": 0.7143,
+    "recall": 0.7,
+    "f1": {
+      "value": 0.7071,
+      "ci": [
+        0.5962,
+        0.7986
+      ]
+    },
+    "balanced_accuracy": {
+      "value": 0.71,
+      "ci": [
+        0.6389,
+        0.79
+      ]
+    },
+    "roc_auc": {
+      "value": 0.7756,
+      "ci": [
+        0.6993,
+        0.858
+      ]
+    },
+    "pr_auc": {
+      "value": 0.762,
+      "ci": [
+        0.6109,
+        0.8896
+      ]
+    },
+    "eer": 0.2933,
+    "tpr_at_1pct_fpr": 0.0867,
+    "tpr_at_5pct_fpr": 0.26,
+    "specificity_human": {
+      "value": 0.72,
+      "ci": [
+        0.6433,
+        0.7857
+      ],
+      "n": 150
+    },
+    "per_generator_recall": {
+      "MusicSet": {
+        "recall": 0.6774,
+        "ci": [
+          0.5909,
+          0.7533
+        ],
+        "n": 124
+      },
+      "SunoCaps": {
+        "recall": 0.75,
+        "ci": [
+          0.4093,
+          0.9285
+        ],
+        "n": 8
+      },
+      "Udio": {
+        "recall": 0.8333,
+        "ci": [
+          0.6078,
+          0.9416
+        ],
+        "n": 18
+      }
+    },
+    "avg_generator_recall": 0.7536,
+    "ece": 0.0357,
+    "brier_score": 0.1945
+  },
+  "baselines": {
+    "lr": {
+      "test_roc_auc": 0.742,
+      "test_balanced_accuracy": 0.6595,
+      "held_out_roc_auc": 0.754,
+      "held_out_balanced_accuracy": 0.7033
+    },
+    "linearsvc": {
+      "test_roc_auc": 0.7296,
+      "test_balanced_accuracy": 0.6466,
+      "held_out_roc_auc": 0.734,
+      "held_out_balanced_accuracy": 0.6867
+    },
+    "rf": {
+      "test_roc_auc": 0.7216,
+      "test_balanced_accuracy": 0.6638,
+      "held_out_roc_auc": 0.7259,
+      "held_out_balanced_accuracy": 0.6933
+    },
+    "majority": {
+      "test_balanced_accuracy": 0.5,
+      "held_out_balanced_accuracy": 0.5
+    },
+    "metadata_confound_probe": {
+      "test_roc_auc": 0.4863,
+      "held_out_roc_auc": 0.514
+    }
+  },
+  "statistical_comparisons_held_out": {
+    "mcnemar_vs_majority": {
+      "statistic": 26.1497,
+      "p_value": 0.0,
+      "b_ours_only_correct": 105,
+      "c_base_only_correct": 42,
+      "significant_05": true
+    },
+    "mcnemar_vs_metadata_confound": {
+      "statistic": 23.8897,
+      "p_value": 1e-06,
+      "b_ours_only_correct": 97,
+      "c_base_only_correct": 39,
+      "significant_05": true
+    },
+    "paired_bootstrap_brier_vs_confound": {
+      "mean_delta": -0.0595,
+      "ci": [
+        -0.0839,
+        -0.0354
+      ],
+      "p_value": 0.0,
+      "significant_05": true
+    }
+  },
+  "leave_one_generator_out": {
+    "MusicSet": {
+      "unseen_generator": "MusicSet",
+      "n_unseen_tracks": 482,
+      "recall": 0.029,
+      "ci": [
+        0.0174,
+        0.0482
+      ],
+      "mean_prob_ai": 0.1042
+    },
+    "SunoCaps": {
+      "unseen_generator": "SunoCaps",
+      "n_unseen_tracks": 30,
+      "recall": 0.7667,
+      "ci": [
+        0.5907,
+        0.8821
+      ],
+      "mean_prob_ai": 0.6993
+    },
+    "Udio": {
+      "unseen_generator": "Udio",
+      "n_unseen_tracks": 71,
+      "recall": 0.4507,
+      "ci": [
+        0.3405,
+        0.566
+      ],
+      "mean_prob_ai": 0.4509
+    }
+  },
+  "robustness_stress_test": {
+    "n_subset": 40,
+    "clean_roc_auc": 0.785,
+    "clean_balanced_accuracy": 0.725,
+    "perturbations": {
+      "reencode_mp3_128k": {
+        "roc_auc": 0.7775,
+        "roc_auc_drop": -0.0075,
+        "balanced_accuracy": 0.725,
+        "balanced_accuracy_drop": 0.0
+      },
+      "reencode_mp3_64k": {
+        "roc_auc": 0.7625,
+        "roc_auc_drop": -0.0225,
+        "balanced_accuracy": 0.675,
+        "balanced_accuracy_drop": -0.05
+      },
+      "resample_16k_roundtrip": {
+        "roc_auc": 0.775,
+        "roc_auc_drop": -0.01,
+        "balanced_accuracy": 0.675,
+        "balanced_accuracy_drop": -0.05
+      },
+      "additive_noise_20db": {
+        "roc_auc": 0.7825,
+        "roc_auc_drop": -0.0025,
+        "balanced_accuracy": 0.775,
+        "balanced_accuracy_drop": 0.05
+      },
+      "additive_noise_15db": {
+        "roc_auc": 0.78,
+        "roc_auc_drop": -0.005,
+        "balanced_accuracy": 0.75,
+        "balanced_accuracy_drop": 0.025
+      },
+      "trim_center_6s": {
+        "roc_auc": 0.7375,
+        "roc_auc_drop": -0.0475,
+        "balanced_accuracy": 0.675,
+        "balanced_accuracy_drop": -0.05
+      },
+      "gain_minus_6db": {
+        "roc_auc": 0.7825,
+        "roc_auc_drop": -0.0025,
+        "balanced_accuracy": 0.725,
+        "balanced_accuracy_drop": 0.0
+      },
+      "gain_plus_3db": {
+        "roc_auc": 0.7825,
+        "roc_auc_drop": -0.0025,
+        "balanced_accuracy": 0.725,
+        "balanced_accuracy_drop": 0.0
+      }
+    }
+  }
+}
