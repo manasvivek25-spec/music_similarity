@@ -1,0 +1,36 @@
+{
+  "branch": "final-delivery",
+  "start_time_ist": "2026-11-18T19:01:24+05:30",
+  "deadline_ist": "2026-11-18T22:00:00+05:30",
+  "data_and_model_cutoff_ist": "2026-11-18T20:35:00+05:30",
+  "current_phase": "P0",
+  "completed_phases": [],
+  "completed_tasks": [
+    "P0: Checked clock, hardware, GPU/CUDA, packages, HF access, Chrome",
+    "P0: Created branch final-delivery from 459d874",
+    "P0: Verified baseline pytest (146 passed, 0 failed in 37.92s)",
+    "P0: Recorded legacy 261-record corpus SHA-256 baseline hashes in ENVIRONMENT.md"
+  ],
+  "running_background_jobs": [],
+  "last_green_commit": "459d874",
+  "time_budget_minutes": {
+    "P0": 8,
+    "P1": 17,
+    "P2": 13,
+    "P3": 27,
+    "P4": 10,
+    "P5": 20,
+    "P6": 20,
+    "P7": 20,
+    "P8": 20,
+    "P9": 13,
+    "P10": 10
+  },
+  "phase_timings_minutes": {},
+  "legacy_sha256_baseline": {
+    "features/remote_index.json": "c4990a42a64ff024d9f43fb7a44d1191cdc713a857661b368a98e39a613f85f4",
+    "features/null_distribution.json": "d80616e58b729f3b1d08aaf604f8b5a2ffe5fb41f4a44ca6050a8c672602948a",
+    "features/mert_manifest.json": "e3c6da56bca5d764cd9581f10978162d442ce6d4ff446bbf5655d4a649319b0e",
+    "features/dataset_manifest.json": "b36bf0a2f9f0a01c2dcad4eaec43a4efa9c13c5246db9c88ecbe2e2c6c270a6c"
+  }
+}

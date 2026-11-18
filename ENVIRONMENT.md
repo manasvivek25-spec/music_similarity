@@ -1,0 +1,26 @@
+# Execution Environment Audit (P0)
+
+- **Audit Timestamp:** 2026-11-18 19:04 IST
+- **Deadline:** 2026-11-18 22:00 IST (~176 minutes available)
+- **OS:** Windows 11 (PowerShell)
+- **CPU:** 13th Gen Intel(R) Core(TM) i5-13450HX (10 physical cores / 16 logical processors)
+- **RAM:** 23.71 GiB (25,463,480,320 bytes)
+- **GPU:** NVIDIA GeForce RTX 3050 6GB Laptop GPU (`torch.cuda.is_available() == True`, PyTorch `2.7.1+cu118`)
+- **Disk Free (C:):** ~100.0 GB (107,371,638,784 bytes)
+- **Python:** 3.11.9 (`venv/Scripts/python.exe`)
+- **Key Installed Libraries:**
+  - `fastapi==0.141.1`, `uvicorn==0.52.4`, `pydantic==2.13.5`
+  - `librosa==0.11.0`, `soundfile==0.14.0` (native MP3/FLAC/OGG/WAV decoding via libsndfile), `scipy==1.17.1`, `fastdtw==0.3.4`
+  - `scikit-learn==1.9.0` (includes `HistGradientBoostingClassifier`, `RandomizedSearchCV`, `CalibratedClassifierCV`)
+  - `torch==2.7.1+cu118`, `transformers==5.22.1`, `datasets==5.1.0`, `huggingface_hub==2.3.0`, `matplotlib==3.11.1`
+- **External Tools:**
+  - `ffmpeg`: Not on PATH — using native `soundfile` (supports MP3/FLAC/OGG/WAV) and `librosa` fallbacks (logged in DECISIONS.md).
+  - `Google Chrome`: Available at `C:\Program Files\Google\Chrome\Application\chrome.exe` (headless CDP verification ready).
+  - `HF Auth`: Anonymous access; `SleepyJesse/ai_music_large`, `awsaf49/sonics`, `benjamin-paine/free-music-archive-small`, `benjamin-paine/free-music-archive-medium`, and `marsyas/gtzan` are all public (`gated=False`).
+  - `MERT-v1-95M`: Already cached locally (377.6 MB in Hugging Face cache).
+- **Baseline Test Suite:** 146 passed, 0 failed (37.92s) on commit `459d874`.
+- **Frozen Legacy 261-Record Corpus SHA-256 Baselines:**
+  - `features/remote_index.json`: `c4990a42a64ff024d9f43fb7a44d1191cdc713a857661b368a98e39a613f85f4`
+  - `features/null_distribution.json`: `d80616e58b729f3b1d08aaf604f8b5a2ffe5fb41f4a44ca6050a8c672602948a`
+  - `features/mert_manifest.json`: `e3c6da56bca5d764cd9581f10978162d442ce6d4ff446bbf5655d4a649319b0e`
+  - `features/dataset_manifest.json`: `b36bf0a2f9f0a01c2dcad4eaec43a4efa9c13c5246db9c88ecbe2e2c6c270a6c`

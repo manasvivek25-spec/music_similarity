@@ -1,0 +1,8 @@
+# Engineering Decisions Log
+
+| Timestamp (IST) | Phase | Decision | Rationale | Alternative Rejected |
+| :--- | :---: | :--- | :--- | :--- |
+| 2026-11-18 19:04 | P0 | Use native `soundfile` (libsndfile with MP3/FLAC/OGG/WAV support) + `librosa` fallback instead of requiring `ffmpeg` on PATH. | `ffmpeg` is not installed in PATH on this Windows host, whereas `soundfile==0.14.0` already decodes MP3, FLAC, OGG, and WAV natively in C with zero subprocess overhead. | Installing external `ffmpeg` binaries or blocking on PATH changes. |
+| 2026-11-18 19:04 | P0 | Use `sklearn.ensemble.HistGradientBoostingClassifier` + `RandomizedSearchCV` for F4 gradient boosting and hyperparameter tuning (alongside LogisticRegression, LinearSVC/RBF SVM, RandomForest). | `scikit-learn==1.9.0` is already installed and explicitly approved in Section 7 (`LightGBM/XGBoost/sklearn HistGB` + `RandomizedSearchCV`), avoiding unnecessary dependency churn and compile risks on Windows. | Installing `lightgbm`, `xgboost`, and `optuna` from scratch during tight deadline. |
+| 2026-11-18 19:04 | P0 | Use headless Google Chrome CDP (`C:\Program Files\Google\Chrome\Application\chrome.exe`) for UI verification and screenshots. | Chrome is already installed and proven in this repo (`scratch/test_browser_e2e_interaction.py`). | Installing Playwright browser binaries (~300 MB download). |
+| 2026-11-18 19:04 | P0 | Write all new v2 dataset/index/null/cache artifacts under `data/v2/` and `features/v2/` (and new versioned filenames), leaving all 4 legacy 261-record files untouched byte-for-byte. | Required by Section 2 & 6.5 (frozen legacy corpus SHA-256 verification). | Overwriting `features/remote_index.json` or `features/null_distribution.json`. |

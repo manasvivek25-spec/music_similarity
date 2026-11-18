@@ -54,3 +54,13 @@ temp_uploads/
 evaluation/held_out_audio/
 evaluation/cache/
 
+# Backups and v2 binary caches (never commit raw audio or heavy caches)
+backups/
+data/v2/audio/
+data/v2/features/
+features/v2/
+!data/v2/
+!data/v2/manifest_summary.json
+!models/origin_classifier_v2_metrics.json
+
+
