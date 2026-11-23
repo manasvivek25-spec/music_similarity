@@ -870,7 +870,7 @@
 
 
 
-          ? `Full dataset scan completed across all ${totalIndexed} tracks in SleepyJesse/ai_music_large.`
+          ? `Full dataset scan completed across all ${totalIndexed} tracks in GTZAN (100 Human) + Multi-Gen AI (100 AI) + 4 Ref.`
 
 
 
@@ -890,7 +890,7 @@
 
 
 
-        corpusNote.innerText = `Split: train · Dataset: SleepyJesse/ai_music_large`;
+        corpusNote.innerText = `Split: train · Dataset: GTZAN (100 Human) + Multi-Gen AI (100 AI) + 4 Ref`;
 
 
 
@@ -1054,7 +1054,7 @@
 
 
 
-    const isInsufficient = v.verdict_code === "incomplete" || topPval === null;
+    const isInsufficient = (nullPairsCount < 5) || (v.verdict_code === "incomplete" && nullPairsCount < 5);
 
 
 
@@ -1359,17 +1359,19 @@
 
 
       } else {
-
-
-
         card1DistLabel.innerText = "Norm Dist: —";
-
-
-
       }
+    }
 
-
-
+    const segTimesEl = document.getElementById("card1SegmentTimes");
+    if (segTimesEl) {
+      const segSummary = data.matching_segment_summary || (topMimic && topMimic.matching_segment_summary);
+      if (segSummary) {
+        segTimesEl.innerText = segSummary;
+        segTimesEl.title = `Matched segment window: ${segSummary}`;
+      } else {
+        segTimesEl.innerText = "Full Alignment";
+      }
     }
 
 
@@ -1522,7 +1524,7 @@
 
 
 
-        sevLabelEl.innerText = `Insufficient null population (N=${nullPairsCount}, minimum 5 required)`;
+        sevLabelEl.innerText = nullPairsCount < 5 ? `Insufficient null population (N=${nullPairsCount}, minimum 5 required)` : "Statistical gateway uncalculated";
 
 
 
@@ -1666,158 +1668,71 @@
 
 
 
-    // Stage 3 Genre Influence Map
-
-
-
+    // Stage 3 Genre Influence Map: Predicted Acoustic Genre Probabilities
     const genreContainer = document.getElementById("genreDistributionContainer");
-
-
-
     const genreCrossBadge = document.getElementById("genreCrossBadge");
 
+    // Retrieve acoustic predicted genre distribution from API response
+    const rawProbs = (data.genre_map && data.genre_map.predicted_distribution && data.genre_map.predicted_distribution.length > 0)
+      ? data.genre_map.predicted_distribution
+      : ((data.query_track && data.query_track.top_genre_probabilities && data.query_track.top_genre_probabilities.length > 0)
+          ? data.query_track.top_genre_probabilities
+          : (data.genre_map && data.genre_map.distribution ? data.genre_map.distribution : []));
 
+    // Sort descending by percentage / probability (highest to lowest)
+    const sortedProbs = [...rawProbs].sort((a, b) => {
+      const pA = a.percentage !== undefined ? a.percentage : (a.probability !== undefined ? a.probability * 100 : 0);
+      const pB = b.percentage !== undefined ? b.percentage : (b.probability !== undefined ? b.probability * 100 : 0);
+      return pB - pA;
+    });
 
+    const topItem = sortedProbs.length > 0 ? sortedProbs[0] : null;
+    const topGenreName = data.genre_map?.top_predicted_genre || data.query_track?.estimated_genre || data.query_track?.genre || (topItem ? topItem.genre : null);
+    const topPct = topItem
+      ? (topItem.percentage !== undefined ? topItem.percentage : (topItem.probability !== undefined ? topItem.probability * 100 : null))
+      : (data.query_track?.genre_confidence ? data.query_track.genre_confidence * 100 : null);
 
-
-
+    const routingName = data.case_routing?.case_name || (data.genre_map?.is_cross_genre ? "Cross-Genre" : "Same-Genre");
+    const isCross = Boolean(data.genre_map?.is_cross_genre || (routingName && routingName.toLowerCase().includes("cross")));
+    const genreRouteText = isCross ? "Cross-Genre" : "Same-Genre";
 
     if (genreCrossBadge) {
-
-
-
-      genreCrossBadge.innerText = data.genre_map.is_cross_genre ? "Cross-Genre Detected" : "Native Genre Only";
-
-
-
-      genreCrossBadge.className = data.genre_map.is_cross_genre
-
-
-
-        ? "px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30"
-
-
-
-        : "px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-white/10 text-white border border-white/10";
-
-
-
-    }
-
-
-
-
-
-
-
-    if (genreContainer) {
-
-
-
-      if (data.genre_map.distribution && data.genre_map.distribution.length > 0) {
-
-
-
-        let gHtml = "";
-
-
-
-        if (data.candidates_evaluated !== undefined && data.candidates_evaluated < 30) {
-
-
-
-          gHtml += `
-
-
-
-            <div class="px-2.5 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-300 text-[10px] font-mono mb-2">
-
-
-
-              ⚠️ Small Sample Notice: Evaluated on ${data.candidates_evaluated} candidates. Insufficient evidence to infer population-level genre distribution.
-
-
-
-            </div>
-
-
-
-          `;
-
-
-
-        }
-
-
-
-        data.genre_map.distribution.forEach((item) => {
-
-
-
-          gHtml += `
-
-
-
-            <div class="space-y-1">
-
-
-
-              <div class="flex items-center justify-between text-xs font-mono">
-
-
-
-                <span class="text-white font-medium">${item.genre} (${item.count} tracks)</span>
-
-
-
-                <span class="text-[#d4ff00] font-bold">${item.percentage.toFixed(1)}%</span>
-
-
-
-              </div>
-
-
-
-              <div class="w-full bg-white/10 rounded-full h-2 overflow-hidden">
-
-
-
-                <div class="bg-[#d4ff00] h-full rounded-full transition-all duration-700" style="width: ${item.percentage}%"></div>
-
-
-
-              </div>
-
-
-
-            </div>
-
-
-
-          `;
-
-
-
-        });
-
-
-
-        genreContainer.innerHTML = gHtml;
-
-
-
+      if (topGenreName && topPct !== null) {
+        genreCrossBadge.innerText = `Top Genre: ${topGenreName} (${topPct.toFixed(1)}%) · ${genreRouteText}`;
+      } else if (topGenreName) {
+        genreCrossBadge.innerText = `Top Genre: ${topGenreName} · ${genreRouteText}`;
       } else {
-
-
-
-        genreContainer.innerHTML = `<div class="text-xs font-mono text-[#9ba1a6] text-center py-4">No genre metadata identified among survivors.</div>`;
-
-
-
+        genreCrossBadge.innerText = `${genreRouteText} Match`;
       }
 
+      genreCrossBadge.className = isCross
+        ? "px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30"
+        : "px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#d4ff00]/15 text-[#d4ff00] border border-[#d4ff00]/30";
+    }
 
-
+    if (genreContainer) {
+      if (sortedProbs.length > 0) {
+        let gHtml = "";
+        sortedProbs.forEach((item) => {
+          const rawVal = item.percentage !== undefined ? item.percentage : (item.probability !== undefined ? item.probability * 100 : 0);
+          const clampedVal = Math.max(0, Math.min(100, Number(rawVal)));
+          const gLabel = item.genre || "Unknown";
+          gHtml += `
+            <div class="space-y-1">
+              <div class="flex items-center justify-between text-xs font-mono">
+                <span class="text-white font-medium">${gLabel}</span>
+                <span class="text-[#d4ff00] font-bold">${clampedVal.toFixed(1)}%</span>
+              </div>
+              <div class="w-full bg-white/10 rounded-full h-2 overflow-hidden">
+                <div class="bg-[#d4ff00] h-full rounded-full transition-all duration-700" style="width: ${clampedVal.toFixed(1)}%"></div>
+              </div>
+            </div>
+          `;
+        });
+        genreContainer.innerHTML = gHtml;
+      } else {
+        genreContainer.innerHTML = `<div class="text-xs font-mono text-[#9ba1a6] text-center py-4">No acoustic genre probabilities available.</div>`;
+      }
     }
 
 
@@ -1930,23 +1845,11 @@
 
 
 
-      if (extraH && data.extra_features.hpss_harmonic_ratio !== undefined && data.extra_features.hpss_harmonic_ratio !== null) {
+      if (extraH && (data.extra_features.hpss_harmonic_ratio !== undefined || data.extra_features.harmonic_ratio !== undefined)) {
 
 
 
-        extraH.innerText = Number(data.extra_features.hpss_harmonic_ratio).toFixed(3);
-
-
-
-      }
-
-
-
-      if (extraP && data.extra_features.hpss_percussive_ratio !== undefined && data.extra_features.hpss_percussive_ratio !== null) {
-
-
-
-        extraP.innerText = Number(data.extra_features.hpss_percussive_ratio).toFixed(3);
+        extraH.innerText = Number(data.extra_features.hpss_harmonic_ratio !== undefined ? data.extra_features.hpss_harmonic_ratio : data.extra_features.harmonic_ratio).toFixed(3);
 
 
 
@@ -1954,11 +1857,24 @@
 
 
 
-      if (extraRoll && data.extra_features.spectral_rolloff_mean !== undefined && data.extra_features.spectral_rolloff_mean !== null) {
+      if (extraP && (data.extra_features.hpss_percussive_ratio !== undefined || data.extra_features.percussive_ratio !== undefined)) {
 
 
 
-        extraRoll.innerText = `${Math.round(data.extra_features.spectral_rolloff_mean)} Hz`;
+        extraP.innerText = Number(data.extra_features.hpss_percussive_ratio !== undefined ? data.extra_features.hpss_percussive_ratio : data.extra_features.percussive_ratio).toFixed(3);
+
+
+
+      }
+
+
+
+      if (extraRoll && (data.extra_features.spectral_rolloff_mean !== undefined || data.extra_features.spectral_rolloff_hz !== undefined)) {
+
+
+
+        const rollVal = data.extra_features.spectral_rolloff_mean !== undefined ? data.extra_features.spectral_rolloff_mean : data.extra_features.spectral_rolloff_hz;
+        extraRoll.innerText = `${Math.round(rollVal)} Hz`;
 
 
 
@@ -2351,13 +2267,8 @@
 
 
                 <div class="font-bold text-white">#${idx + 1} · ${cand.title || cand.candidate_id}</div>
-
-
-
                 <div class="text-[10px] text-[#9ba1a6]">Artist: ${cand.artist || "Unknown"} · Genre: ${cand.genre || "General"}${candDurStr}</div>
-
-
-
+                ${cand.matching_segment_summary ? `<div class="text-[10px] text-[#d4ff00] font-mono mt-0.5"><span class="text-[#9ba1a6]">Matched:</span> ${cand.matching_segment_summary}</div>` : ""}
                 ${disparityBadge}
 
 
@@ -3066,7 +2977,7 @@
 
 
 
-        feedback.innerText = "Initializing 13-stage pipeline against SleepyJesse/ai_music_large corpus...";
+        feedback.innerText = "Initializing 13-stage pipeline against GTZAN (100 Human) + Multi-Gen AI (100 AI) + 4 Ref corpus...";
 
 
 

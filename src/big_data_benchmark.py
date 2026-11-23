@@ -356,7 +356,7 @@ def run_big_data_experiments(
 
     report_md = f"""# Big-Data Processing & Scalability Profiling Report
 **Project:** Statistical Analysis of Similarity in Human- and AI-Generated Music  
-**Dataset:** `SleepyJesse/ai_music_large` (split: `train`, ~73.4 GB total raw size)  
+**Dataset:** `GTZAN (100 Human) + Multi-Gen AI (100 AI) + 4 Ref` (split: `train`, ~73.4 GB total raw size)  
 **Generated At:** {now_str}  
 
 ---

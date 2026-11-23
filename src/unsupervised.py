@@ -453,7 +453,7 @@ def run_unsupervised_analysis(
 
     report_md = f"""# Unsupervised Audio Corpus Analytics & Outlier Detection
 **Project:** Statistical Analysis of Similarity in Human- and AI-Generated Music  
-**Dataset:** `SleepyJesse/ai_music_large` (split: `train`)  
+**Dataset:** `GTZAN (100 Human) + Multi-Gen AI (100 AI) + 4 Ref` (split: `train`)  
 **Generated At:** {now_str}  
 **Evaluated Tracks:** {n_tracks}  
 **Feature Space:** {feat_type} ({dim} dimensions)  

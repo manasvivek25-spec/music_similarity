@@ -213,7 +213,8 @@ def test_unknown_genre_handling_without_ambient_fallback():
         idx = load_remote_index(index_path)
         track = list(idx["tracks"].values())[0]
         assert track.get("genre") is None or track.get("genre") == "Unknown"
-        assert track.get("genre_source") == "unknown"
+        assert track.get("genre_source") in ("unknown", "estimated")
+        assert track.get("genre_source") != "metadata"
     finally:
         shutil.rmtree(temp_dir, ignore_errors=True)
 

@@ -8,7 +8,7 @@ adjacent-shift boundary verification, and similarity tier categorization.
 """
 
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Sequence, Tuple
 import numpy as np
 from scipy.spatial.distance import euclidean
 from fastdtw import fastdtw
@@ -305,3 +305,79 @@ def dtw_similarity(chroma_a: np.ndarray, chroma_b: np.ndarray) -> float:
         Normalized similarity score in [0.0, 1.0].
     """
     return dtw_align_detailed(chroma_a, chroma_b).similarity
+
+
+def extract_matching_segment_window(
+    alignment_path: Optional[Sequence[Tuple[int, int]]],
+    local_costs: Optional[Sequence[float]],
+    times_query: Optional[np.ndarray] = None,
+    times_candidate: Optional[np.ndarray] = None,
+    query_duration: float = 30.0,
+    candidate_duration: float = 30.0,
+    window_steps: int = 10,
+) -> Dict[str, Any]:
+    """
+    Extract best-matching local segment window (start/end timestamps in seconds
+    for both query and matched candidate track) from the DTW alignment path.
+    """
+    default_res = {
+        "query_segment_start_sec": 0.0,
+        "query_segment_end_sec": round(float(query_duration), 2),
+        "candidate_segment_start_sec": 0.0,
+        "candidate_segment_end_sec": round(float(candidate_duration), 2),
+        "segment_similarity": 0.0,
+        "matching_segment_summary": f"0:00 - {int(query_duration//60)}:{int(query_duration%60):02d} (Query) <-> 0:00 - {int(candidate_duration//60)}:{int(candidate_duration%60):02d} (Candidate)",
+    }
+
+    if not alignment_path or local_costs is None or len(local_costs) == 0:
+        return default_res
+
+    path = list(alignment_path)
+    costs = np.asarray(local_costs, dtype=float)
+    n_steps = len(costs)
+
+    if n_steps == 0 or len(path) == 0:
+        return default_res
+
+    w = min(max(3, window_steps), n_steps)
+
+    if n_steps <= w:
+        best_start = 0
+        best_end = n_steps - 1
+    else:
+        kernel = np.ones(w)
+        conv = np.convolve(costs, kernel, mode="valid")
+        best_start = int(np.argmin(conv))
+        best_end = best_start + w - 1
+
+    fa_start, fb_start = path[best_start]
+    fa_end, fb_end = path[best_end]
+
+    def _idx_to_sec(idx: int, times_arr: Optional[np.ndarray], dur: float) -> float:
+        if times_arr is not None and len(times_arr) > idx and idx >= 0:
+            return float(times_arr[idx])
+        return float(idx * 0.5)
+
+    q_s = round(max(0.0, min(_idx_to_sec(fa_start, times_query, query_duration), query_duration)), 2)
+    q_e = round(max(q_s + 0.5, min(_idx_to_sec(fa_end, times_query, query_duration), query_duration)), 2)
+    c_s = round(max(0.0, min(_idx_to_sec(fb_start, times_candidate, candidate_duration), candidate_duration)), 2)
+    c_e = round(max(c_s + 0.5, min(_idx_to_sec(fb_end, times_candidate, candidate_duration), candidate_duration)), 2)
+
+    def _fmt(sec: float) -> str:
+        m = int(sec // 60)
+        s = int(sec % 60)
+        return f"{m}:{s:02d}"
+
+    win_costs = costs[best_start:best_end + 1]
+    mean_cost = float(np.mean(win_costs)) if len(win_costs) > 0 else 1.0
+    seg_sim = round(float(1.0 / (1.0 + max(0.0, mean_cost))), 4)
+    summary = f"{_fmt(q_s)} - {_fmt(q_e)} (Query) <-> {_fmt(c_s)} - {_fmt(c_e)} (Candidate)"
+
+    return {
+        "query_segment_start_sec": q_s,
+        "query_segment_end_sec": q_e,
+        "candidate_segment_start_sec": c_s,
+        "candidate_segment_end_sec": c_e,
+        "segment_similarity": seg_sim,
+        "matching_segment_summary": summary,
+    }

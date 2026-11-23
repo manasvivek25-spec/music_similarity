@@ -81,7 +81,7 @@ MIN_NULL_PAIRS = int(os.getenv("MUSIC_MIN_NULL_PAIRS", "5"))
 GENRE_MODEL_PATH = Path(os.getenv("MUSIC_GENRE_MODEL_PATH", str(MODELS_DIR / "genre_classifier.joblib")))
 
 # Remote Dataset Configuration
-DEFAULT_REMOTE_DATASET = os.getenv("MUSIC_REMOTE_DATASET", "SleepyJesse/ai_music_large")
+DEFAULT_REMOTE_DATASET = os.getenv("MUSIC_REMOTE_DATASET", "GTZAN (100 Human) + Multi-Gen AI (100 AI) + 4 Ref")
 DEFAULT_REMOTE_SPLIT = os.getenv("MUSIC_REMOTE_SPLIT", "train")
 REMOTE_INDEX_FILE = FEATURES_DIR / "remote_index.json"
 DEFAULT_REMOTE_SAMPLE_SIZE = int(os.getenv("MUSIC_REMOTE_SAMPLE_SIZE", "10"))

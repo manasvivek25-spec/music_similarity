@@ -437,6 +437,15 @@ def run_evaluation_suite(
     }
 
     results_json_path = out_dir / "evaluation_results.json"
+    if results_json_path.is_file():
+        try:
+            with open(results_json_path, "r", encoding="utf-8") as f:
+                existing_eval = json.load(f)
+            if "feature_1_similarity" in existing_eval:
+                existing_eval.update(results_data)
+                results_data = existing_eval
+        except Exception:
+            pass
     with open(results_json_path, "w", encoding="utf-8") as f:
         json.dump(results_data, f, indent=2)
 

@@ -143,9 +143,14 @@ def health_check():
         if r.get("estimated_genre") is not None and str(r.get("estimated_genre")).strip() and r.get("genre_source") == "estimated"
     )
 
-    total_indexed = len(ref_files) + len(human_files) + len(ai_files) + len(remote_tracks)
-    human_count = len(human_files) + remote_human
-    ai_count = len(ai_files) + remote_ai
+    if len(remote_tracks) > 0:
+        total_indexed = len(remote_tracks)
+        human_count = remote_human
+        ai_count = remote_ai
+    else:
+        total_indexed = len(ref_files) + len(human_files) + len(ai_files)
+        human_count = len(human_files)
+        ai_count = len(ai_files)
 
     global_null_path = FEATURES_DIR / "global_null_distribution.npy"
     null_pairs_global: Optional[int] = None
@@ -503,10 +508,15 @@ def rank_candidates_matrix(payload: CandidateRankMatrixRequest):
         p_val, k_val, N_val = null_distribution_test_detailed(res.similarity, DEFAULT_NULL_SCORES)
 
         from src.mimic import calculate_alignment_coverage
+        from src.similarity import extract_matching_segment_window
         cov, cov_pct, cov_interp = calculate_alignment_coverage(
             res.alignment_path,
             res.local_costs,
             total_query_frames=query_chroma.shape[1],
+        )
+        seg_info = extract_matching_segment_window(
+            res.alignment_path,
+            res.local_costs,
         )
 
         scored.append(CandidateScore(
@@ -521,6 +531,11 @@ def rank_candidates_matrix(payload: CandidateRankMatrixRequest):
             alignment_coverage=cov,
             coverage_percent=cov_pct,
             coverage_interpretation=cov_interp,
+            query_segment_start_sec=seg_info["query_segment_start_sec"],
+            query_segment_end_sec=seg_info["query_segment_end_sec"],
+            candidate_segment_start_sec=seg_info["candidate_segment_start_sec"],
+            candidate_segment_end_sec=seg_info["candidate_segment_end_sec"],
+            matching_segment_summary=seg_info["matching_segment_summary"],
         ))
 
     scored.sort(key=lambda c: c.similarity, reverse=True)
@@ -788,7 +803,7 @@ job_manager = AnalysisJobManager()
 
 class DatasetScanManager:
     """
-    Manages background incremental and full dataset scanning of SleepyJesse/ai_music_large.
+    Manages background incremental and full dataset scanning of GTZAN (100 Human) + Multi-Gen AI (100 AI) + 4 Ref.
     Provides cancellation, real-time progress callbacks, and SSE streaming.
     """
     def __init__(self):
@@ -829,7 +844,8 @@ class DatasetScanManager:
             return {"status": "stopping", "message": "Cancellation signal sent to dataset scanner."}
 
     def _worker(self, is_full: bool, sample_size: int, force_reindex: bool):
-        from src.remote_dataset import index_remote_dataset
+        from src.config import HUMAN_DIR, AI_DIR, REF_DIR, DATA_DIR
+        from src.utils import list_audio_files
         def _cb(item_idx: int, max_limit: int, info: Dict[str, Any]):
             with self._lock:
                 self._current_stats = dict(info)
@@ -841,13 +857,23 @@ class DatasetScanManager:
                 self._events.append(ev)
 
         try:
-            rep = index_remote_dataset(
-                sample_size=sample_size,
-                is_full=is_full,
-                force_reindex=force_reindex,
-                progress_callback=_cb,
-                cancel_event=self._cancel_event,
-            )
+            local_audio = list_audio_files(HUMAN_DIR) + list_audio_files(AI_DIR) + list_audio_files(REF_DIR)
+            if len(local_audio) > 0:
+                from src.remote_dataset import index_local_dataset
+                rep = index_local_dataset(
+                    data_dir=DATA_DIR,
+                    progress_callback=_cb,
+                    cancel_event=self._cancel_event,
+                )
+            else:
+                from src.remote_dataset import index_remote_dataset
+                rep = index_remote_dataset(
+                    sample_size=sample_size,
+                    is_full=is_full,
+                    force_reindex=force_reindex,
+                    progress_callback=_cb,
+                    cancel_event=self._cancel_event,
+                )
             with self._lock:
                 self._events.append({
                     "type": "finished",
@@ -912,7 +938,7 @@ class DatasetScanManager:
             total_indexed=len(tracks),
             is_complete=bool(idx.get("is_complete", False)),
             status=display_status,
-            dataset_name=idx.get("dataset_name", "SleepyJesse/ai_music_large"),
+            dataset_name=idx.get("dataset_name", "GTZAN (100 Human) + Multi-Gen AI (100 AI) + 4 Ref"),
             split=idx.get("split", "train"),
             records_scanned=stats.get("records_scanned", idx.get("records_scanned", len(tracks) + len(unresolved_list))),
             audio_indexed=stats.get("processed_records", len(tracks)),
@@ -1089,7 +1115,7 @@ def get_dataset_scan_status_endpoint():
 @app.post("/api/dataset/scan/start", tags=["Indexing"])
 def start_dataset_scan_endpoint(payload: Optional[DatasetScanStartRequest] = None):
     """
-    Start or resume streaming background dataset scan of SleepyJesse/ai_music_large.
+    Start or resume streaming background dataset scan of GTZAN (100 Human) + Multi-Gen AI (100 AI) + 4 Ref.
     """
     req = payload or DatasetScanStartRequest()
     return dataset_scan_manager.start_scan(

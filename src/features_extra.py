@@ -50,7 +50,12 @@ class ExtraAudioFeatures:
     extraction_version: str = EXTRA_FEATURE_VERSION
 
     def to_dict(self) -> Dict[str, Any]:
-        return asdict(self)
+        d = asdict(self)
+        # Add frontend-compatible aliases so dashboard cards render properly
+        d["hpss_harmonic_ratio"] = d.get("harmonic_ratio")
+        d["hpss_percussive_ratio"] = d.get("percussive_ratio")
+        d["spectral_rolloff_mean"] = d.get("spectral_rolloff_hz")
+        return d
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "ExtraAudioFeatures":

@@ -96,6 +96,12 @@ class GenreMapResult(BaseModel):
     is_cross_genre: bool = Field(..., description="Whether candidates span genres outside query's native genre")
     native_genre: Optional[str] = Field(None, description="Query track's declared or detected native genre")
     matched_genres: List[str] = Field(default_factory=list, description="Unique genres present among candidates")
+    predicted_distribution: Optional[List[Dict[str, Any]]] = Field(
+        default=None,
+        description="Predicted acoustic genre probability distribution for the uploaded query track"
+    )
+    top_predicted_genre: Optional[str] = Field(None, description="Top acoustically predicted genre")
+    top_genre_confidence: Optional[float] = Field(None, description="Confidence of top predicted genre")
 
 
 # ---------------------------------------------------------------------------
@@ -193,6 +199,9 @@ class MetadataContext(BaseModel):
     title: Optional[str] = None
     artist: Optional[str] = None
     genre: Optional[str] = None
+    estimated_genre: Optional[str] = None
+    genre_confidence: Optional[float] = None
+    top_genre_probabilities: Optional[List[Dict[str, Any]]] = None
     provided_key: Optional[str] = None
     estimated_key: Optional[str] = None
     provided_tempo: Optional[float] = None
@@ -235,6 +244,12 @@ class MimicCandidate(BaseModel):
     duration_sec: Optional[float] = Field(None, description="Candidate track duration in seconds")
     duration_disparity_warning: bool = Field(False, description="True if candidate duration is drastically different from query")
     disparity_explanation: Optional[str] = Field(None, description="Explanation of duration disparity and DTW path stretching")
+    query_segment_start_sec: Optional[float] = None
+    query_segment_end_sec: Optional[float] = None
+    candidate_segment_start_sec: Optional[float] = None
+    candidate_segment_end_sec: Optional[float] = None
+    segment_similarity: Optional[float] = None
+    matching_segment_summary: Optional[str] = None
 
 
 class MimicResponse(BaseModel):
@@ -263,6 +278,11 @@ class CandidateScore(BaseModel):
     alignment_coverage: Optional[float] = None
     coverage_percent: Optional[float] = None
     coverage_interpretation: Optional[str] = None
+    query_segment_start_sec: Optional[float] = None
+    query_segment_end_sec: Optional[float] = None
+    candidate_segment_start_sec: Optional[float] = None
+    candidate_segment_end_sec: Optional[float] = None
+    matching_segment_summary: Optional[str] = None
 
 
 class CandidateRankResponse(BaseModel):
@@ -354,6 +374,11 @@ class PipelineAnalysisResponse(BaseModel):
     extra_features: Optional[Dict[str, Any]] = Field(None, description="Independent acoustic and rhythmic descriptors (MFCC, HPSS, spectral, rhythm)")
     mert_status: Optional[Dict[str, Any]] = Field(None, description="MERT representation readiness and hardware status")
     final_verdict: FinalVerdict
+    matching_segment_summary: Optional[str] = Field(None, description="Best-matching segment timestamp window summary")
+    query_segment_start_sec: Optional[float] = None
+    query_segment_end_sec: Optional[float] = None
+    candidate_segment_start_sec: Optional[float] = None
+    candidate_segment_end_sec: Optional[float] = None
     disclaimer: str = Field(
         "System parameters focus exclusively on harmonic and melodic pitch space. "
         "Rhythmic-only mimicry, timbral similarity, production style, and lyrical content "

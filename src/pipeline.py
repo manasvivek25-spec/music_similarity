@@ -36,6 +36,7 @@ from src.config import (
     NULL_DIST_CACHE_FILE,
     P_VALUE_CRITICAL_THRESHOLD,
     REF_DIR,
+    SAMPLE_RATE,
     SIMILARITY_FLOOR,
 )
 from src.creative_score import compute_creative_score
@@ -262,6 +263,19 @@ def run_pipeline(
     query_mean_chroma = compute_mean_chroma_vector(chroma_beat)
     _emit_progress(2, "Audio feature extraction", 20.0, 1, 1, f"Extracted Chroma CQT ({chroma_beat.shape[1]} beat frames, {duration_sec:.1f}s).")
 
+    # Cap query chroma to prevent extreme duration disparity with 20-30s indexed corpus
+    MAX_QUERY_DURATION_SEC = 30.0
+    if duration_sec > MAX_QUERY_DURATION_SEC and chroma_beat.shape[1] > 0:
+        cap_ratio = MAX_QUERY_DURATION_SEC / duration_sec
+        max_frames = max(1, int(chroma_beat.shape[1] * cap_ratio))
+        chroma_beat = chroma_beat[:, :max_frames]
+        if chroma_raw is not None and chroma_raw.shape[1] > 0:
+            raw_cap = max(1, int(chroma_raw.shape[1] * cap_ratio))
+            chroma_raw = chroma_raw[:, :raw_cap]
+        if beat_times is not None and len(beat_times) > max_frames:
+            beat_times = beat_times[:max_frames]
+        logger.info(f"Query chroma capped to first ~{MAX_QUERY_DURATION_SEC:.0f}s ({max_frames} beat frames) to match corpus clip lengths.")
+
     # Feature 5: Query Metadata & Context
     merged_q_meta = dict(catalog.get(Path(query_audio_path).stem, {}))
     if query_metadata:
@@ -272,6 +286,29 @@ def run_pipeline(
         provided_metadata=merged_q_meta,
         chroma_matrix=chroma_raw
     )
+
+    # Acoustic Genre Estimation for Query
+    try:
+        from src.genre_classifier import get_genre_classifier
+        from src.config import SAMPLE_RATE
+        genre_clf = get_genre_classifier()
+        if genre_clf.is_available:
+            import librosa
+            y_query, sr_q = librosa.load(str(query_audio_path), sr=SAMPLE_RATE, mono=True)
+            est_g, est_conf, all_genre_probs = genre_clf.predict_genre_distribution(y_query, sr=sr_q, top_k=10)
+            if all_genre_probs:
+                query_context.top_genre_probabilities = all_genre_probs
+            if not query_context.genre or str(query_context.genre).lower() in ("unknown", "undetermined", "none", ""):
+                if est_g:
+                    query_context.genre = est_g
+                    query_context.estimated_genre = est_g
+                    query_context.genre_confidence = est_conf
+                    logger.info(f"Query track genre predicted acoustically: {est_g} (confidence: {est_conf})")
+            elif est_g and not query_context.estimated_genre:
+                query_context.estimated_genre = est_g
+                query_context.genre_confidence = est_conf
+    except Exception as exc:
+        logger.debug(f"Acoustic query genre estimation skipped: {exc}")
 
     # Independent descriptive features (MFCCs, HPSS, spectral descriptors)
     extra_features_dict: Optional[Dict[str, Any]] = None
@@ -305,7 +342,7 @@ def run_pipeline(
     cand_paths: List[Path] = []
     if candidate_audio_paths and len(candidate_audio_paths) > 0:
         cand_paths = [Path(p) for p in candidate_audio_paths if Path(p).is_file()]
-    else:
+    elif len(remote_tracks) == 0:
         ref_files = list_audio_files(ref_dir)
         human_files = list_audio_files(HUMAN_DIR)
         ai_files = list_audio_files(AI_DIR)
@@ -337,7 +374,7 @@ def run_pipeline(
         cand_artist = r_info.get("artist") or raw_m.get("artist") or raw_m.get("author") or "Unknown"
         if str(cand_artist).startswith("http://") or str(cand_artist).startswith("https://"):
             cand_artist = "Unknown"
-        cand_source = raw_m.get("source") or r_info.get("dataset_name") or "SleepyJesse/ai_music_large"
+        cand_source = raw_m.get("source") or r_info.get("dataset_name") or "GTZAN (100 Human) + Multi-Gen AI (100 AI) + 4 Ref"
 
         c_meta = {
             "title": r_info.get("track_id", track_id),
@@ -400,7 +437,13 @@ def run_pipeline(
     survivor_genres: Dict[str, Optional[str]] = {
         cid: candidate_descriptors[cid]["meta"].get("genre") for cid in surviving_candidate_ids
     }
-    genre_map = compute_genre_influence_map(query_context.genre, survivor_genres)
+    genre_map = compute_genre_influence_map(
+        query_context.genre,
+        survivor_genres,
+        predicted_distribution=query_context.top_genre_probabilities,
+        top_predicted_genre=query_context.genre or query_context.estimated_genre,
+        top_genre_confidence=query_context.genre_confidence,
+    )
 
     # 6. Stage 5: DTW Evaluation of Surviving Candidates
     _emit_progress(5, "DTW evaluation of surviving candidates", 50.0, 0, max(1, after_count), f"Beginning 12-shift DTW alignment on {after_count} surviving candidates...")
@@ -453,22 +496,33 @@ def run_pipeline(
         c_eval = c_beat[:, :300] if c_beat.shape[1] > 300 else c_beat
         dtw_res = dtw_align_detailed(chroma_beat, c_eval)
 
-        # Check duration disparity: query vs candidate
-        dur_ratio = max(duration_sec, c_dur) / max(min(duration_sec, c_dur), 1e-3)
+        # Check duration disparity: query (effective analysis window) vs candidate
+        eval_query_dur = min(duration_sec, MAX_QUERY_DURATION_SEC)
+        dur_ratio = max(eval_query_dur, c_dur) / max(min(eval_query_dur, c_dur), 1e-3)
         has_disparity = bool(dur_ratio >= DURATION_DISPARITY_RATIO)
         if has_disparity:
             duration_disparity_detected = True
         disparity_msg = (
-            f"Significant duration disparity (Query: {duration_sec:.1f}s vs Candidate: {c_dur:.1f}s, ratio: {dur_ratio:.1f}x). "
+            f"Significant duration disparity (Query: {eval_query_dur:.1f}s vs Candidate: {c_dur:.1f}s, ratio: {dur_ratio:.1f}x). "
             f"Global DTW stretching across disproportionate audio lengths may distort alignment path."
             if has_disparity else None
         )
 
         from src.mimic import calculate_alignment_coverage
+        from src.similarity import extract_matching_segment_window
         cov, cov_pct, cov_interp = calculate_alignment_coverage(
             dtw_res.alignment_path,
             dtw_res.local_costs,
             total_query_frames=chroma_beat.shape[1],
+        )
+
+        seg_info = extract_matching_segment_window(
+            alignment_path=dtw_res.alignment_path,
+            local_costs=dtw_res.local_costs,
+            times_query=beat_times,
+            times_candidate=c_times,
+            query_duration=eval_query_dur,
+            candidate_duration=c_dur,
         )
 
         evaluated_records.append({
@@ -494,6 +548,12 @@ def run_pipeline(
             "candidate_times": c_times,
             "query_key": query_context.estimated_key,
             "query_tempo": query_context.estimated_tempo,
+            "query_segment_start_sec": seg_info["query_segment_start_sec"],
+            "query_segment_end_sec": seg_info["query_segment_end_sec"],
+            "candidate_segment_start_sec": seg_info["candidate_segment_start_sec"],
+            "candidate_segment_end_sec": seg_info["candidate_segment_end_sec"],
+            "segment_similarity": seg_info["segment_similarity"],
+            "matching_segment_summary": seg_info["matching_segment_summary"],
         })
 
         step_pct = 50.0 + min(10.0, ((idx + 1) / max(after_count, 1)) * 10.0)
@@ -765,7 +825,16 @@ def run_pipeline(
     best_sim_for_verdict = stat_survivors[0]["similarity"] if stat_survivors else (
         max([r["similarity"] for r in evaluated_records], default=0.0) if evaluated_records else 0.0
     )
-    best_pval_for_verdict = stat_survivors[0].get("p_value") if stat_survivors else None
+    if stat_survivors:
+        best_pval_for_verdict = stat_survivors[0].get("p_value")
+    elif null_count >= MIN_NULL_PAIRS and evaluated_records:
+        # Null distribution is sufficient but no candidates survived the p <= 0.10 gateway.
+        # Use the best (lowest) p-value from all evaluated records so the verdict evaluates
+        # Indicator 2 as NOT TRIGGERED instead of UNAVAILABLE.
+        valid_pvals = [r["p_value"] for r in evaluated_records if r.get("p_value") is not None]
+        best_pval_for_verdict = min(valid_pvals) if valid_pvals else None
+    else:
+        best_pval_for_verdict = None
     norm_creative = creative_res.broad_score_normalized if creative_res.is_available else None
     top_confidence = stat_survivors[0].get("confidence") if stat_survivors else (
         evaluated_records[0].get("confidence") if evaluated_records else "Low"
@@ -790,9 +859,9 @@ def run_pipeline(
         )
 
     corpus_status = (
-        f"Complete Dataset ({total_corpus_size} tracks indexed of SleepyJesse/ai_music_large)"
+        f"Complete Dataset ({total_corpus_size} tracks indexed of GTZAN (100 Human) + Multi-Gen AI (100 AI) + 4 Ref)"
         if is_index_complete
-        else f"Partial Dataset Index ({total_corpus_size} tracks indexed of SleepyJesse/ai_music_large). Analysis covers indexed subset only; full-dataset scan in progress or incomplete."
+        else f"Partial Dataset Index ({total_corpus_size} tracks indexed of GTZAN (100 Human) + Multi-Gen AI (100 AI) + 4 Ref). Analysis covers indexed subset only; full-dataset scan in progress or incomplete."
     )
 
     response = PipelineAnalysisResponse(
@@ -821,6 +890,31 @@ def run_pipeline(
         extra_features=extra_features_dict,
         mert_status=mert_status_dict,
         final_verdict=final_verdict,
+        matching_segment_summary=(
+            mimic_analysis.top_mimic_candidates[0].matching_segment_summary
+            if mimic_analysis.top_mimic_candidates
+            else None
+        ),
+        query_segment_start_sec=(
+            mimic_analysis.top_mimic_candidates[0].query_segment_start_sec
+            if mimic_analysis.top_mimic_candidates
+            else None
+        ),
+        query_segment_end_sec=(
+            mimic_analysis.top_mimic_candidates[0].query_segment_end_sec
+            if mimic_analysis.top_mimic_candidates
+            else None
+        ),
+        candidate_segment_start_sec=(
+            mimic_analysis.top_mimic_candidates[0].candidate_segment_start_sec
+            if mimic_analysis.top_mimic_candidates
+            else None
+        ),
+        candidate_segment_end_sec=(
+            mimic_analysis.top_mimic_candidates[0].candidate_segment_end_sec
+            if mimic_analysis.top_mimic_candidates
+            else None
+        ),
     )
 
     _emit_progress(13, "Final verdict and result display", 100.0, 1, 1, "Analysis complete.")

@@ -1,56 +1,21 @@
 # Virtual environment
+.venv/
 venv/
 ENV/
 env/
 
-# Bytecode & Python cache
+# Python bytecode & test cache
 __pycache__/
-*.py[cod]
-*$py.class
 .pytest_cache/
-*.swp
-*.swo
+*.pyc
+*.pyo
+*.pyd
 
-# Jupyter checkpoints
-.ipynb_checkpoints/
-
-# Raw audio datasets & metadata (preserve folder structure via .gitkeep and track templates)
-data/*
-!data/**/
-!data/**/.gitkeep
-!data/metadata_template.csv
-!data/evaluation_pairs.csv
-
-# Cached feature matrices
-features/*
-!features/**/
-!features/.gitkeep
-features/extra/*
-!features/extra/.gitkeep
-features/mert/*
-!features/mert/.gitkeep
-
-# Trained model artifacts & configs
-models/*
-!models/**/
-!models/.gitkeep
-
-# Results and experimental outputs
-results/*
-!results/**/
-!results/.gitkeep
-
-# Temporary uploads & local runtime files
+# Temporary uploads and logs
 temp_uploads/
-*.tmp
 *.log
-*.bak
+*.tmp
 
-# Environment variables & secrets
-.env
-.env.local
-
-# Regenerable offline evaluation audio and feature caches
-evaluation/held_out_audio/
-evaluation/cache/
-
+# OS metadata
+.DS_Store
+Thumbs.db

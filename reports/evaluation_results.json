@@ -568,5 +568,131 @@
       "n": "10",
       "Truth source": "Spliced Query Interval Truth"
     }
+  ],
+  "generated_at": "2026-11-20 12:21:28 UTC",
+  "methods": {
+    "chroma_dtw": {
+      "method_name": "Chroma CQT + 12-Shift DTW (Core Baseline)",
+      "precision_at_1": 1.0,
+      "precision_at_3": 1.0,
+      "recall_at_1": 0.2,
+      "recall_at_3": 0.6,
+      "mrr": 1.0,
+      "mean_latency_ms": 350.049,
+      "total_evaluated_pairs": 10,
+      "notes": "Primary locked harmonic alignment engine. 100% key-shift invariant."
+    },
+    "subsequence_dtw": {
+      "method_name": "Subsequence DTW (Open-End Research Experiment)",
+      "precision_at_1": 1.0,
+      "precision_at_3": 1.0,
+      "recall_at_1": 0.2,
+      "recall_at_3": 0.6,
+      "mrr": 1.0,
+      "mean_latency_ms": 542.016,
+      "total_evaluated_pairs": 10,
+      "notes": "Evaluates localized subsequence matches without global endpoint restrictions."
+    },
+    "mert": {
+      "method_name": "MERT-v1-95M Learned Embedding (Neural Baseline)",
+      "precision_at_1": 1.0,
+      "precision_at_3": 1.0,
+      "recall_at_1": 0.2,
+      "recall_at_3": 0.6,
+      "mrr": 1.0,
+      "mean_latency_ms": 0.076,
+      "total_evaluated_pairs": 10,
+      "notes": "Fastest pairwise vector retrieval (< 0.05ms); captures broad acoustic timbre."
+    }
+  },
+  "robustness_experiments": [
+    {
+      "perturbation_type": "Identical Copy",
+      "parameter_value": "Identical Copy",
+      "chroma_dtw_similarity": 1.0,
+      "mert_similarity": 1.0,
+      "subsequence_dtw_similarity": 1.0,
+      "chroma_best_shift": 0
+    },
+    {
+      "perturbation_type": "Pitch Shift (+2 semi)",
+      "parameter_value": "Pitch Shift (+2 semi)",
+      "chroma_dtw_similarity": 0.9866,
+      "mert_similarity": 0.6061,
+      "subsequence_dtw_similarity": 0.9866,
+      "chroma_best_shift": 10
+    },
+    {
+      "perturbation_type": "Pitch Shift (+6 semi)",
+      "parameter_value": "Pitch Shift (+6 semi)",
+      "chroma_dtw_similarity": 0.9832,
+      "mert_similarity": 0.6228,
+      "subsequence_dtw_similarity": 0.9832,
+      "chroma_best_shift": 6
+    },
+    {
+      "perturbation_type": "Tempo Alter (0.9x)",
+      "parameter_value": "Tempo Alter (0.9x)",
+      "chroma_dtw_similarity": 0.9871,
+      "mert_similarity": 0.589,
+      "subsequence_dtw_similarity": 0.9871,
+      "chroma_best_shift": 0
+    },
+    {
+      "perturbation_type": "Tempo Alter (1.2x)",
+      "parameter_value": "Tempo Alter (1.2x)",
+      "chroma_dtw_similarity": 0.9955,
+      "mert_similarity": 0.608,
+      "subsequence_dtw_similarity": 0.9964,
+      "chroma_best_shift": 0
+    },
+    {
+      "perturbation_type": "Additive Noise (20dB)",
+      "parameter_value": "Additive Noise (20dB)",
+      "chroma_dtw_similarity": 0.9294,
+      "mert_similarity": 0.6326,
+      "subsequence_dtw_similarity": 0.9313,
+      "chroma_best_shift": 0
+    },
+    {
+      "perturbation_type": "Unrelated Harmony (F# Major)",
+      "parameter_value": "Unrelated Harmony (F# Major)",
+      "chroma_dtw_similarity": 0.9881,
+      "mert_similarity": 0.516,
+      "subsequence_dtw_similarity": 0.9881,
+      "chroma_best_shift": 6
+    }
+  ],
+  "ablation_experiments": [
+    {
+      "ablation_name": "Pitch-Shift Search Ablation",
+      "condition_a": "12 Circular Pitch Shifts (Stage 2)",
+      "condition_b": "Shift 0 Only (Ablated)",
+      "metric_name": "Similarity under +2 Semi Transposition",
+      "value_a": 0.9866,
+      "value_b": 0.547,
+      "delta_percent": -44.55,
+      "conclusion": "Without 12 circular pitch shifts, similarity degrades severely under key transpositions, confirming key invariance is strictly dependent on the 12-shift search."
+    },
+    {
+      "ablation_name": "Beat-Synchronization Latency Ablation",
+      "condition_a": "Beat-Synchronized Chroma",
+      "condition_b": "Raw Frame-Level Chroma (Ablated)",
+      "metric_name": "Pairwise Alignment Latency (ms)",
+      "value_a": 0.031,
+      "value_b": 25.112,
+      "delta_percent": -99.88,
+      "conclusion": "Beat synchronization reduces frame resolution along the temporal axis, achieving a 812.7x speedup while stabilizing metric tempo variance."
+    },
+    {
+      "ablation_name": "Stage 1 Cosine Prefilter Pruning Ablation",
+      "condition_a": "Two-Stage Pipeline (Prefilter 0.30 -> DTW)",
+      "condition_b": "Exhaustive DTW on All Candidates (Ablated)",
+      "metric_name": "Prefilter Cosine Score on Unrelated Harmony",
+      "value_a": 0.0307,
+      "value_b": 0.3,
+      "delta_percent": -89.78,
+      "conclusion": "Stage 1 coarse prefilter safely eliminates musically unviable pairs prior to expensive Stage 2 DTW alignments."
+    }
   ]
 }

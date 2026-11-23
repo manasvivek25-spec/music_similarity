@@ -1,0 +1,1436 @@
+{
+  "version": "2.0",
+  "corpus_name": "local_production_corpus",
+  "total_records": 204,
+  "records": {
+    "human_001_blues": {
+      "track_id": "human_001_blues",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Blues",
+      "duration_sec": 20.0
+    },
+    "human_002_blues": {
+      "track_id": "human_002_blues",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Blues",
+      "duration_sec": 20.0
+    },
+    "human_003_blues": {
+      "track_id": "human_003_blues",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Blues",
+      "duration_sec": 20.0
+    },
+    "human_004_blues": {
+      "track_id": "human_004_blues",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Blues",
+      "duration_sec": 20.0
+    },
+    "human_005_blues": {
+      "track_id": "human_005_blues",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Blues",
+      "duration_sec": 20.0
+    },
+    "human_006_blues": {
+      "track_id": "human_006_blues",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Blues",
+      "duration_sec": 20.0
+    },
+    "human_007_blues": {
+      "track_id": "human_007_blues",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Blues",
+      "duration_sec": 20.0
+    },
+    "human_008_blues": {
+      "track_id": "human_008_blues",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Blues",
+      "duration_sec": 20.0
+    },
+    "human_009_blues": {
+      "track_id": "human_009_blues",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Blues",
+      "duration_sec": 20.0
+    },
+    "human_010_blues": {
+      "track_id": "human_010_blues",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Blues",
+      "duration_sec": 20.0
+    },
+    "human_011_classical": {
+      "track_id": "human_011_classical",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Classical",
+      "duration_sec": 20.0
+    },
+    "human_012_classical": {
+      "track_id": "human_012_classical",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Classical",
+      "duration_sec": 20.0
+    },
+    "human_013_classical": {
+      "track_id": "human_013_classical",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Classical",
+      "duration_sec": 20.0
+    },
+    "human_014_classical": {
+      "track_id": "human_014_classical",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Classical",
+      "duration_sec": 20.0
+    },
+    "human_015_classical": {
+      "track_id": "human_015_classical",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Classical",
+      "duration_sec": 20.0
+    },
+    "human_016_classical": {
+      "track_id": "human_016_classical",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Classical",
+      "duration_sec": 20.0
+    },
+    "human_017_classical": {
+      "track_id": "human_017_classical",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Classical",
+      "duration_sec": 20.0
+    },
+    "human_018_classical": {
+      "track_id": "human_018_classical",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Classical",
+      "duration_sec": 20.0
+    },
+    "human_019_classical": {
+      "track_id": "human_019_classical",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Classical",
+      "duration_sec": 20.0
+    },
+    "human_020_classical": {
+      "track_id": "human_020_classical",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Classical",
+      "duration_sec": 20.0
+    },
+    "human_021_country": {
+      "track_id": "human_021_country",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Country",
+      "duration_sec": 20.0
+    },
+    "human_022_country": {
+      "track_id": "human_022_country",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Country",
+      "duration_sec": 20.0
+    },
+    "human_023_country": {
+      "track_id": "human_023_country",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Country",
+      "duration_sec": 20.0
+    },
+    "human_024_country": {
+      "track_id": "human_024_country",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Country",
+      "duration_sec": 20.0
+    },
+    "human_025_country": {
+      "track_id": "human_025_country",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Country",
+      "duration_sec": 20.0
+    },
+    "human_026_country": {
+      "track_id": "human_026_country",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Country",
+      "duration_sec": 20.0
+    },
+    "human_027_country": {
+      "track_id": "human_027_country",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Country",
+      "duration_sec": 20.0
+    },
+    "human_028_country": {
+      "track_id": "human_028_country",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Country",
+      "duration_sec": 20.0
+    },
+    "human_029_country": {
+      "track_id": "human_029_country",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Country",
+      "duration_sec": 20.0
+    },
+    "human_030_country": {
+      "track_id": "human_030_country",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Country",
+      "duration_sec": 20.0
+    },
+    "human_031_disco": {
+      "track_id": "human_031_disco",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Disco",
+      "duration_sec": 20.0
+    },
+    "human_032_disco": {
+      "track_id": "human_032_disco",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Disco",
+      "duration_sec": 20.0
+    },
+    "human_033_disco": {
+      "track_id": "human_033_disco",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Disco",
+      "duration_sec": 20.0
+    },
+    "human_034_disco": {
+      "track_id": "human_034_disco",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Disco",
+      "duration_sec": 20.0
+    },
+    "human_035_disco": {
+      "track_id": "human_035_disco",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Disco",
+      "duration_sec": 20.0
+    },
+    "human_036_disco": {
+      "track_id": "human_036_disco",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Disco",
+      "duration_sec": 20.0
+    },
+    "human_037_disco": {
+      "track_id": "human_037_disco",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Disco",
+      "duration_sec": 20.0
+    },
+    "human_038_disco": {
+      "track_id": "human_038_disco",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Disco",
+      "duration_sec": 20.0
+    },
+    "human_039_disco": {
+      "track_id": "human_039_disco",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Disco",
+      "duration_sec": 20.0
+    },
+    "human_040_disco": {
+      "track_id": "human_040_disco",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Disco",
+      "duration_sec": 20.0
+    },
+    "human_041_hiphop": {
+      "track_id": "human_041_hiphop",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Hiphop",
+      "duration_sec": 20.0
+    },
+    "human_042_hiphop": {
+      "track_id": "human_042_hiphop",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Hiphop",
+      "duration_sec": 20.0
+    },
+    "human_043_hiphop": {
+      "track_id": "human_043_hiphop",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Hiphop",
+      "duration_sec": 20.0
+    },
+    "human_044_hiphop": {
+      "track_id": "human_044_hiphop",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Hiphop",
+      "duration_sec": 20.0
+    },
+    "human_045_hiphop": {
+      "track_id": "human_045_hiphop",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Hiphop",
+      "duration_sec": 20.0
+    },
+    "human_046_hiphop": {
+      "track_id": "human_046_hiphop",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Hiphop",
+      "duration_sec": 20.0
+    },
+    "human_047_hiphop": {
+      "track_id": "human_047_hiphop",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Hiphop",
+      "duration_sec": 20.0
+    },
+    "human_048_hiphop": {
+      "track_id": "human_048_hiphop",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Hiphop",
+      "duration_sec": 20.0
+    },
+    "human_049_hiphop": {
+      "track_id": "human_049_hiphop",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Hiphop",
+      "duration_sec": 20.0
+    },
+    "human_050_hiphop": {
+      "track_id": "human_050_hiphop",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Hiphop",
+      "duration_sec": 20.0
+    },
+    "human_051_jazz": {
+      "track_id": "human_051_jazz",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Jazz",
+      "duration_sec": 20.0
+    },
+    "human_052_jazz": {
+      "track_id": "human_052_jazz",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Jazz",
+      "duration_sec": 20.0
+    },
+    "human_053_jazz": {
+      "track_id": "human_053_jazz",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Jazz",
+      "duration_sec": 20.0
+    },
+    "human_054_jazz": {
+      "track_id": "human_054_jazz",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Jazz",
+      "duration_sec": 20.0
+    },
+    "human_055_jazz": {
+      "track_id": "human_055_jazz",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Jazz",
+      "duration_sec": 20.0
+    },
+    "human_056_jazz": {
+      "track_id": "human_056_jazz",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Jazz",
+      "duration_sec": 20.0
+    },
+    "human_057_jazz": {
+      "track_id": "human_057_jazz",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Jazz",
+      "duration_sec": 20.0
+    },
+    "human_058_jazz": {
+      "track_id": "human_058_jazz",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Jazz",
+      "duration_sec": 20.0
+    },
+    "human_059_jazz": {
+      "track_id": "human_059_jazz",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Jazz",
+      "duration_sec": 20.0
+    },
+    "human_060_jazz": {
+      "track_id": "human_060_jazz",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Jazz",
+      "duration_sec": 20.0
+    },
+    "human_061_metal": {
+      "track_id": "human_061_metal",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Metal",
+      "duration_sec": 20.0
+    },
+    "human_062_metal": {
+      "track_id": "human_062_metal",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Metal",
+      "duration_sec": 20.0
+    },
+    "human_063_metal": {
+      "track_id": "human_063_metal",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Metal",
+      "duration_sec": 20.0
+    },
+    "human_064_metal": {
+      "track_id": "human_064_metal",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Metal",
+      "duration_sec": 20.0
+    },
+    "human_065_metal": {
+      "track_id": "human_065_metal",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Metal",
+      "duration_sec": 20.0
+    },
+    "human_066_metal": {
+      "track_id": "human_066_metal",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Metal",
+      "duration_sec": 20.0
+    },
+    "human_067_metal": {
+      "track_id": "human_067_metal",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Metal",
+      "duration_sec": 20.0
+    },
+    "human_068_metal": {
+      "track_id": "human_068_metal",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Metal",
+      "duration_sec": 20.0
+    },
+    "human_069_metal": {
+      "track_id": "human_069_metal",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Metal",
+      "duration_sec": 20.0
+    },
+    "human_070_metal": {
+      "track_id": "human_070_metal",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Metal",
+      "duration_sec": 20.0
+    },
+    "human_071_pop": {
+      "track_id": "human_071_pop",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Pop",
+      "duration_sec": 20.0
+    },
+    "human_072_pop": {
+      "track_id": "human_072_pop",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Pop",
+      "duration_sec": 20.0
+    },
+    "human_073_pop": {
+      "track_id": "human_073_pop",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Pop",
+      "duration_sec": 20.0
+    },
+    "human_074_pop": {
+      "track_id": "human_074_pop",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Pop",
+      "duration_sec": 20.0
+    },
+    "human_075_pop": {
+      "track_id": "human_075_pop",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Pop",
+      "duration_sec": 20.0
+    },
+    "human_076_pop": {
+      "track_id": "human_076_pop",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Pop",
+      "duration_sec": 20.0
+    },
+    "human_077_pop": {
+      "track_id": "human_077_pop",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Pop",
+      "duration_sec": 20.0
+    },
+    "human_078_pop": {
+      "track_id": "human_078_pop",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Pop",
+      "duration_sec": 20.0
+    },
+    "human_079_pop": {
+      "track_id": "human_079_pop",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Pop",
+      "duration_sec": 20.0
+    },
+    "human_080_pop": {
+      "track_id": "human_080_pop",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Pop",
+      "duration_sec": 20.0
+    },
+    "human_081_reggae": {
+      "track_id": "human_081_reggae",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Reggae",
+      "duration_sec": 20.0
+    },
+    "human_082_reggae": {
+      "track_id": "human_082_reggae",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Reggae",
+      "duration_sec": 20.0
+    },
+    "human_083_reggae": {
+      "track_id": "human_083_reggae",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Reggae",
+      "duration_sec": 20.0
+    },
+    "human_084_reggae": {
+      "track_id": "human_084_reggae",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Reggae",
+      "duration_sec": 20.0
+    },
+    "human_085_reggae": {
+      "track_id": "human_085_reggae",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Reggae",
+      "duration_sec": 20.0
+    },
+    "human_086_reggae": {
+      "track_id": "human_086_reggae",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Reggae",
+      "duration_sec": 20.0
+    },
+    "human_087_reggae": {
+      "track_id": "human_087_reggae",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Reggae",
+      "duration_sec": 20.0
+    },
+    "human_088_reggae": {
+      "track_id": "human_088_reggae",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Reggae",
+      "duration_sec": 20.0
+    },
+    "human_089_reggae": {
+      "track_id": "human_089_reggae",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Reggae",
+      "duration_sec": 20.0
+    },
+    "human_090_reggae": {
+      "track_id": "human_090_reggae",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Reggae",
+      "duration_sec": 20.0
+    },
+    "human_091_rock": {
+      "track_id": "human_091_rock",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Rock",
+      "duration_sec": 20.0
+    },
+    "human_092_rock": {
+      "track_id": "human_092_rock",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Rock",
+      "duration_sec": 20.0
+    },
+    "human_093_rock": {
+      "track_id": "human_093_rock",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Rock",
+      "duration_sec": 20.0
+    },
+    "human_094_rock": {
+      "track_id": "human_094_rock",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Rock",
+      "duration_sec": 20.0
+    },
+    "human_095_rock": {
+      "track_id": "human_095_rock",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Rock",
+      "duration_sec": 20.0
+    },
+    "human_096_rock": {
+      "track_id": "human_096_rock",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Rock",
+      "duration_sec": 20.0
+    },
+    "human_097_rock": {
+      "track_id": "human_097_rock",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Rock",
+      "duration_sec": 20.0
+    },
+    "human_098_rock": {
+      "track_id": "human_098_rock",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Rock",
+      "duration_sec": 20.0
+    },
+    "human_099_rock": {
+      "track_id": "human_099_rock",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Rock",
+      "duration_sec": 20.0
+    },
+    "human_100_rock": {
+      "track_id": "human_100_rock",
+      "terminal_status": "INDEXED",
+      "origin_label": "human",
+      "genre": "Rock",
+      "duration_sec": 20.0
+    },
+    "ai_001_rock": {
+      "track_id": "ai_001_rock",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Rock",
+      "duration_sec": 20.0
+    },
+    "ai_002_blues": {
+      "track_id": "ai_002_blues",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Blues",
+      "duration_sec": 20.0
+    },
+    "ai_003_classical": {
+      "track_id": "ai_003_classical",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Classical",
+      "duration_sec": 8.07
+    },
+    "ai_004_rock": {
+      "track_id": "ai_004_rock",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Rock",
+      "duration_sec": 20.0
+    },
+    "ai_005_rock": {
+      "track_id": "ai_005_rock",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Rock",
+      "duration_sec": 20.0
+    },
+    "ai_006_rock": {
+      "track_id": "ai_006_rock",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Rock",
+      "duration_sec": 20.0
+    },
+    "ai_007_blues": {
+      "track_id": "ai_007_blues",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Blues",
+      "duration_sec": 20.0
+    },
+    "ai_008_rock": {
+      "track_id": "ai_008_rock",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Rock",
+      "duration_sec": 20.0
+    },
+    "ai_009_classical": {
+      "track_id": "ai_009_classical",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Classical",
+      "duration_sec": 20.0
+    },
+    "ai_010_hiphop": {
+      "track_id": "ai_010_hiphop",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Hiphop",
+      "duration_sec": 20.0
+    },
+    "ai_011_rock": {
+      "track_id": "ai_011_rock",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Rock",
+      "duration_sec": 20.0
+    },
+    "ai_012_jazz": {
+      "track_id": "ai_012_jazz",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Jazz",
+      "duration_sec": 20.0
+    },
+    "ai_013_jazz": {
+      "track_id": "ai_013_jazz",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Jazz",
+      "duration_sec": 20.0
+    },
+    "ai_014_jazz": {
+      "track_id": "ai_014_jazz",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Jazz",
+      "duration_sec": 20.0
+    },
+    "ai_015_classical": {
+      "track_id": "ai_015_classical",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Classical",
+      "duration_sec": 20.0
+    },
+    "ai_016_hiphop": {
+      "track_id": "ai_016_hiphop",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Hiphop",
+      "duration_sec": 20.0
+    },
+    "ai_017_rock": {
+      "track_id": "ai_017_rock",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Rock",
+      "duration_sec": 20.0
+    },
+    "ai_018_jazz": {
+      "track_id": "ai_018_jazz",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Jazz",
+      "duration_sec": 20.0
+    },
+    "ai_019_rock": {
+      "track_id": "ai_019_rock",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Rock",
+      "duration_sec": 20.0
+    },
+    "ai_020_classical": {
+      "track_id": "ai_020_classical",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Classical",
+      "duration_sec": 20.0
+    },
+    "ai_021_jazz": {
+      "track_id": "ai_021_jazz",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Jazz",
+      "duration_sec": 20.0
+    },
+    "ai_022_blues": {
+      "track_id": "ai_022_blues",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Blues",
+      "duration_sec": 20.0
+    },
+    "ai_023_jazz": {
+      "track_id": "ai_023_jazz",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Jazz",
+      "duration_sec": 20.0
+    },
+    "ai_024_rock": {
+      "track_id": "ai_024_rock",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Rock",
+      "duration_sec": 20.0
+    },
+    "ai_025_classical": {
+      "track_id": "ai_025_classical",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Classical",
+      "duration_sec": 20.0
+    },
+    "ai_026_rock": {
+      "track_id": "ai_026_rock",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Rock",
+      "duration_sec": 20.0
+    },
+    "ai_027_rock": {
+      "track_id": "ai_027_rock",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Rock",
+      "duration_sec": 20.0
+    },
+    "ai_028_rock": {
+      "track_id": "ai_028_rock",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Rock",
+      "duration_sec": 20.0
+    },
+    "ai_029_rock": {
+      "track_id": "ai_029_rock",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Rock",
+      "duration_sec": 20.0
+    },
+    "ai_030_rock": {
+      "track_id": "ai_030_rock",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Rock",
+      "duration_sec": 20.0
+    },
+    "ai_031_jazz": {
+      "track_id": "ai_031_jazz",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Jazz",
+      "duration_sec": 20.0
+    },
+    "ai_032_rock": {
+      "track_id": "ai_032_rock",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Rock",
+      "duration_sec": 20.0
+    },
+    "ai_033_rock": {
+      "track_id": "ai_033_rock",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Rock",
+      "duration_sec": 20.0
+    },
+    "ai_034_rock": {
+      "track_id": "ai_034_rock",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Rock",
+      "duration_sec": 20.0
+    },
+    "ai_035_jazz": {
+      "track_id": "ai_035_jazz",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Jazz",
+      "duration_sec": 20.0
+    },
+    "ai_036_rock": {
+      "track_id": "ai_036_rock",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Rock",
+      "duration_sec": 20.0
+    },
+    "ai_037_rock": {
+      "track_id": "ai_037_rock",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Rock",
+      "duration_sec": 20.0
+    },
+    "ai_038_rock": {
+      "track_id": "ai_038_rock",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Rock",
+      "duration_sec": 20.0
+    },
+    "ai_039_rock": {
+      "track_id": "ai_039_rock",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Rock",
+      "duration_sec": 20.0
+    },
+    "ai_040_rock": {
+      "track_id": "ai_040_rock",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Rock",
+      "duration_sec": 20.0
+    },
+    "ai_041_jazz": {
+      "track_id": "ai_041_jazz",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Jazz",
+      "duration_sec": 20.0
+    },
+    "ai_042_jazz": {
+      "track_id": "ai_042_jazz",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Jazz",
+      "duration_sec": 20.0
+    },
+    "ai_043_rock": {
+      "track_id": "ai_043_rock",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Rock",
+      "duration_sec": 20.0
+    },
+    "ai_044_jazz": {
+      "track_id": "ai_044_jazz",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Jazz",
+      "duration_sec": 20.0
+    },
+    "ai_045_rock": {
+      "track_id": "ai_045_rock",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Rock",
+      "duration_sec": 20.0
+    },
+    "ai_046_classical": {
+      "track_id": "ai_046_classical",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Classical",
+      "duration_sec": 20.0
+    },
+    "ai_047_rock": {
+      "track_id": "ai_047_rock",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Rock",
+      "duration_sec": 20.0
+    },
+    "ai_048_rock": {
+      "track_id": "ai_048_rock",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Rock",
+      "duration_sec": 20.0
+    },
+    "ai_049_rock": {
+      "track_id": "ai_049_rock",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Rock",
+      "duration_sec": 20.0
+    },
+    "ai_050_rock": {
+      "track_id": "ai_050_rock",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Rock",
+      "duration_sec": 20.0
+    },
+    "ai_051_jazz": {
+      "track_id": "ai_051_jazz",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Jazz",
+      "duration_sec": 20.0
+    },
+    "ai_052_rock": {
+      "track_id": "ai_052_rock",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Rock",
+      "duration_sec": 20.0
+    },
+    "ai_053_hiphop": {
+      "track_id": "ai_053_hiphop",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Hiphop",
+      "duration_sec": 20.0
+    },
+    "ai_054_jazz": {
+      "track_id": "ai_054_jazz",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Jazz",
+      "duration_sec": 20.0
+    },
+    "ai_055_jazz": {
+      "track_id": "ai_055_jazz",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Jazz",
+      "duration_sec": 20.0
+    },
+    "ai_056_rock": {
+      "track_id": "ai_056_rock",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Rock",
+      "duration_sec": 20.0
+    },
+    "ai_057_rock": {
+      "track_id": "ai_057_rock",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Rock",
+      "duration_sec": 20.0
+    },
+    "ai_058_pop": {
+      "track_id": "ai_058_pop",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Pop",
+      "duration_sec": 20.0
+    },
+    "ai_059_rock": {
+      "track_id": "ai_059_rock",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Rock",
+      "duration_sec": 20.0
+    },
+    "ai_060_jazz": {
+      "track_id": "ai_060_jazz",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Jazz",
+      "duration_sec": 20.0
+    },
+    "ai_061_rock": {
+      "track_id": "ai_061_rock",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Rock",
+      "duration_sec": 20.0
+    },
+    "ai_062_rock": {
+      "track_id": "ai_062_rock",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Rock",
+      "duration_sec": 20.0
+    },
+    "ai_063_rock": {
+      "track_id": "ai_063_rock",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Rock",
+      "duration_sec": 20.0
+    },
+    "ai_064_rock": {
+      "track_id": "ai_064_rock",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Rock",
+      "duration_sec": 20.0
+    },
+    "ai_065_jazz": {
+      "track_id": "ai_065_jazz",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Jazz",
+      "duration_sec": 20.0
+    },
+    "ai_066_rock": {
+      "track_id": "ai_066_rock",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Rock",
+      "duration_sec": 20.0
+    },
+    "ai_067_jazz": {
+      "track_id": "ai_067_jazz",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Jazz",
+      "duration_sec": 20.0
+    },
+    "ai_068_jazz": {
+      "track_id": "ai_068_jazz",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Jazz",
+      "duration_sec": 20.0
+    },
+    "ai_069_rock": {
+      "track_id": "ai_069_rock",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Rock",
+      "duration_sec": 20.0
+    },
+    "ai_070_rock": {
+      "track_id": "ai_070_rock",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Rock",
+      "duration_sec": 20.0
+    },
+    "ai_071_rock": {
+      "track_id": "ai_071_rock",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Rock",
+      "duration_sec": 20.0
+    },
+    "ai_072_rock": {
+      "track_id": "ai_072_rock",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Rock",
+      "duration_sec": 20.0
+    },
+    "ai_073_classical": {
+      "track_id": "ai_073_classical",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Classical",
+      "duration_sec": 20.0
+    },
+    "ai_074_rock": {
+      "track_id": "ai_074_rock",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Rock",
+      "duration_sec": 20.0
+    },
+    "ai_075_blues": {
+      "track_id": "ai_075_blues",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Blues",
+      "duration_sec": 20.0
+    },
+    "ai_076_rock": {
+      "track_id": "ai_076_rock",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Rock",
+      "duration_sec": 20.0
+    },
+    "ai_077_rock": {
+      "track_id": "ai_077_rock",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Rock",
+      "duration_sec": 20.0
+    },
+    "ai_078_blues": {
+      "track_id": "ai_078_blues",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Blues",
+      "duration_sec": 20.0
+    },
+    "ai_079_rock": {
+      "track_id": "ai_079_rock",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Rock",
+      "duration_sec": 20.0
+    },
+    "ai_080_rock": {
+      "track_id": "ai_080_rock",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Rock",
+      "duration_sec": 20.0
+    },
+    "ai_081_rock": {
+      "track_id": "ai_081_rock",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Rock",
+      "duration_sec": 20.0
+    },
+    "ai_082_metal": {
+      "track_id": "ai_082_metal",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Metal",
+      "duration_sec": 20.0
+    },
+    "ai_083_classical": {
+      "track_id": "ai_083_classical",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Classical",
+      "duration_sec": 20.0
+    },
+    "ai_084_rock": {
+      "track_id": "ai_084_rock",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Rock",
+      "duration_sec": 20.0
+    },
+    "ai_085_jazz": {
+      "track_id": "ai_085_jazz",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Jazz",
+      "duration_sec": 20.0
+    },
+    "ai_086_jazz": {
+      "track_id": "ai_086_jazz",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Jazz",
+      "duration_sec": 20.0
+    },
+    "ai_087_jazz": {
+      "track_id": "ai_087_jazz",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Jazz",
+      "duration_sec": 20.0
+    },
+    "ai_088_jazz": {
+      "track_id": "ai_088_jazz",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Jazz",
+      "duration_sec": 20.0
+    },
+    "ai_089_rock": {
+      "track_id": "ai_089_rock",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Rock",
+      "duration_sec": 20.0
+    },
+    "ai_090_rock": {
+      "track_id": "ai_090_rock",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Rock",
+      "duration_sec": 20.0
+    },
+    "ai_091_jazz": {
+      "track_id": "ai_091_jazz",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Jazz",
+      "duration_sec": 20.0
+    },
+    "ai_092_blues": {
+      "track_id": "ai_092_blues",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Blues",
+      "duration_sec": 20.0
+    },
+    "ai_093_rock": {
+      "track_id": "ai_093_rock",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Rock",
+      "duration_sec": 20.0
+    },
+    "ai_094_blues": {
+      "track_id": "ai_094_blues",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Blues",
+      "duration_sec": 20.0
+    },
+    "ai_095_rock": {
+      "track_id": "ai_095_rock",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Rock",
+      "duration_sec": 20.0
+    },
+    "ai_096_rock": {
+      "track_id": "ai_096_rock",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Rock",
+      "duration_sec": 20.0
+    },
+    "ai_097_rock": {
+      "track_id": "ai_097_rock",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Rock",
+      "duration_sec": 20.0
+    },
+    "ai_098_rock": {
+      "track_id": "ai_098_rock",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Rock",
+      "duration_sec": 20.0
+    },
+    "ai_099_blues": {
+      "track_id": "ai_099_blues",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Blues",
+      "duration_sec": 20.0
+    },
+    "ai_100_blues": {
+      "track_id": "ai_100_blues",
+      "terminal_status": "INDEXED",
+      "origin_label": "ai_generated",
+      "genre": "Blues",
+      "duration_sec": 20.0
+    },
+    "ref_pitch_minus3": {
+      "track_id": "ref_pitch_minus3",
+      "terminal_status": "INDEXED",
+      "origin_label": "reference",
+      "genre": null,
+      "duration_sec": 20.0
+    },
+    "ref_pitch_plus3": {
+      "track_id": "ref_pitch_plus3",
+      "terminal_status": "INDEXED",
+      "origin_label": "reference",
+      "genre": null,
+      "duration_sec": 20.0
+    },
+    "ref_tempo_090x": {
+      "track_id": "ref_tempo_090x",
+      "terminal_status": "INDEXED",
+      "origin_label": "reference",
+      "genre": null,
+      "duration_sec": 20.0
+    },
+    "ref_tempo_110x": {
+      "track_id": "ref_tempo_110x",
+      "terminal_status": "INDEXED",
+      "origin_label": "reference",
+      "genre": null,
+      "duration_sec": 18.18
+    }
+  },
+  "created_at": "2026-11-20T12:16:20Z"
+}

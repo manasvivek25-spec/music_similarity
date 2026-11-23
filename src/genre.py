@@ -134,7 +134,10 @@ def resolve_track_genre(
 
 def compute_genre_influence_map(
     query_genre: Optional[str],
-    candidate_genres: Dict[str, Optional[str]]
+    candidate_genres: Dict[str, Optional[str]],
+    predicted_distribution: Optional[List[Dict[str, Any]]] = None,
+    top_predicted_genre: Optional[str] = None,
+    top_genre_confidence: Optional[float] = None,
 ) -> GenreMapResult:
     """
     Group candidates by genre, compute percentage breakdown, and detect cross-genre presence.
@@ -198,4 +201,7 @@ def compute_genre_influence_map(
         is_cross_genre=is_cross_genre,
         native_genre=norm_query_genre,
         matched_genres=matched_genres,
+        predicted_distribution=predicted_distribution,
+        top_predicted_genre=top_predicted_genre,
+        top_genre_confidence=top_genre_confidence,
     )

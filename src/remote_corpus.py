@@ -562,7 +562,7 @@ class RemoteCorpusManager:
         n_temp_mix = sum(1 for t in tracks.values() if t.get("track_category") == "temporal_mix")
         n_unknown = len(tracks) - (n_human + n_ai + n_hybrid + n_temp_mix)
 
-        datasets = sorted(list(set(t.get("dataset_name", "SleepyJesse/ai_music_large") for t in tracks.values())))
+        datasets = sorted(list(set(t.get("dataset_name", "GTZAN (100 Human) + Multi-Gen AI (100 AI) + 4 Ref") for t in tracks.values())))
 
         # Measure disk usage of derived .npy feature files
         total_cache_bytes = 0

@@ -1,0 +1,85 @@
+{
+  "analysis": "F4_Origin_Classifier_Diagnostics",
+  "seed": 42,
+  "metrics_56dim": {
+    "feature_dim_label": "56-dim (Acoustic Descriptors)",
+    "n_samples": 200,
+    "confusion_matrix": {
+      "TN": 98,
+      "FP": 2,
+      "FN": 9,
+      "TP": 91
+    },
+    "accuracy": 0.945,
+    "accuracy_wilson_95ci": [
+      0.9042,
+      0.969
+    ],
+    "sensitivity_ai_recall": 0.91,
+    "sensitivity_wilson_95ci": [
+      0.8377,
+      0.9519
+    ],
+    "specificity_human_recall": 0.98,
+    "specificity_wilson_95ci": [
+      0.93,
+      0.9945
+    ],
+    "balanced_accuracy": 0.945,
+    "roc_auc": 0.992,
+    "eer": 0.035,
+    "precision": 0.9785,
+    "f1": 0.943
+  },
+  "metrics_133dim": {
+    "feature_dim_label": "133-dim (Full Rich Acoustic Vectors)",
+    "n_samples": 200,
+    "confusion_matrix": {
+      "TN": 99,
+      "FP": 1,
+      "FN": 10,
+      "TP": 90
+    },
+    "accuracy": 0.945,
+    "accuracy_wilson_95ci": [
+      0.9042,
+      0.969
+    ],
+    "sensitivity_ai_recall": 0.9,
+    "sensitivity_wilson_95ci": [
+      0.8256,
+      0.9448
+    ],
+    "specificity_human_recall": 0.99,
+    "specificity_wilson_95ci": [
+      0.9455,
+      0.9982
+    ],
+    "balanced_accuracy": 0.945,
+    "roc_auc": 0.992,
+    "eer": 0.065,
+    "precision": 0.989,
+    "f1": 0.9424
+  },
+  "baselines": {
+    "majority_class": {
+      "feature_dim_label": "0-d (No features)",
+      "accuracy": 0.5,
+      "balanced_accuracy": 0.5,
+      "rule": "Predict majority class (balanced 50/50)"
+    },
+    "genre_heuristic_rock_jazz": {
+      "feature_dim_label": "Metadata-only (Genre label)",
+      "accuracy": 0.79,
+      "balanced_accuracy": 0.79,
+      "rule": "Predict AI if genre is Rock or Jazz, else Human"
+    },
+    "metadata_empirical_prior": {
+      "feature_dim_label": "Metadata-only (Corpus genre empirical base rate)",
+      "accuracy": 0.79,
+      "balanced_accuracy": 0.79,
+      "rule": "Predict AI if genre AI-rate in corpus > 0.50"
+    }
+  },
+  "leave_one_generator_out": {}
+}

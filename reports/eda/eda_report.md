@@ -1,8 +1,8 @@
 # Exploratory Data Analysis (EDA) Report
 **Project:** Statistical Analysis of Similarity in Human- and AI-Generated Music  
 **Dataset:** `SleepyJesse/ai_music_large` (split: `train`)  
-**Generated At:** 2026-10-31 20:07:59 UTC  
-**Total Indexed Tracks:** 261  
+**Generated At:** 2026-11-20 12:20:49 UTC  
+**Total Indexed Tracks:** 204  
 
 ---
 
@@ -10,32 +10,32 @@
 
 | Metric | Value | Notes / Description |
 |---|---|---|
-| **Total Indexed Tracks** | 261 | Successfully precomputed 12-dim mean chroma and beat matrices |
-| **Human Acoustic Baseline** | 111 | Verified via metadata origin flag |
-| **AI-Generated Tracks** | 24 | Verified synthetic / generative origin |
-| **Unknown Origin Tracks** | 126 | Ambiguous or missing origin labels (excluded from baseline) |
-| **Mean Track Duration** | 133.23s | Sample average duration |
-| **Median Track Duration** | 117.26s | 50th percentile |
-| **Duration Variance** | 23524.41s² | Sample variance |
-| **Duration Standard Deviation** | 153.38s | Dispersion of audio length |
-| **Duration Quartiles (Q1, Q3)** | 60.00s, 178.00s | 25th and 75th percentiles |
-| **Duration Interquartile Range (IQR)** | 118.00s | Midspread of duration |
-| **Duration Min / Max** | 10.00s – 1984.19s | Shortest to longest track in indexed corpus |
-| **Duration Skewness** | 7.2308 | Fisher-Pearson coefficient of distribution asymmetry |
-| **Verified Metadata Genres** | 9 | Genuine genre tags from dataset |
+| **Total Indexed Tracks** | 204 | Successfully precomputed 12-dim mean chroma and beat matrices |
+| **Human Acoustic Baseline** | 100 | Verified via metadata origin flag |
+| **AI-Generated Tracks** | 100 | Verified synthetic / generative origin |
+| **Unknown Origin Tracks** | 4 | Ambiguous or missing origin labels (excluded from baseline) |
+| **Mean Track Duration** | 19.93s | Sample average duration |
+| **Median Track Duration** | 20.00s | 50th percentile |
+| **Duration Variance** | 0.71s² | Sample variance |
+| **Duration Standard Deviation** | 0.84s | Dispersion of audio length |
+| **Duration Quartiles (Q1, Q3)** | 20.00s, 20.00s | 25th and 75th percentiles |
+| **Duration Interquartile Range (IQR)** | 0.00s | Midspread of duration |
+| **Duration Min / Max** | 8.07s – 20.00s | Shortest to longest track in indexed corpus |
+| **Duration Skewness** | -13.7400 | Fisher-Pearson coefficient of distribution asymmetry |
+| **Verified Metadata Genres** | 200 | Genuine genre tags from dataset |
 | **Model Estimated Genres** | 0 | Provisional acoustic predictions |
-| **Unknown Genre Tracks** | 252 | Unlabeled (no arbitrary ambient fallback) |
-| **Unique Artists** | 15 | Documented artist identities |
-| **Unresolved / Failed Records** | 51 | Records requiring streaming retry |
-| **Duplicate Records Detected** | 0 | Identical audio content hashes skipped |
+| **Unknown Genre Tracks** | 4 | Unlabeled (no arbitrary ambient fallback) |
+| **Unique Artists** | 0 | Documented artist identities |
+| **Unresolved / Failed Records** | 0 | Records requiring streaming retry |
+| **Duplicate Records Detected** | 2 | Identical audio content hashes skipped |
 
 ---
 
 ## 2. Origin and Demographic Distribution
 
-* **Human Tracks:** 111 (42.5%)
-* **AI-Generated Tracks:** 24 (9.2%)
-* **Unknown Tracks:** 126 (48.3%)
+* **Human Tracks:** 100 (49.0%)
+* **AI-Generated Tracks:** 100 (49.0%)
+* **Unknown Tracks:** 4 (2.0%)
 
 > [!NOTE]
 > Unknown origin tracks are strictly isolated and prevented from contaminating either the Human reference baseline or the AI evaluation pool.
@@ -46,18 +46,18 @@
 
 | Pitch Class | Mean Energy | Std Dev |
 |---|---|---|
-| C | 0.4428 | 0.1771 |
-| C# | 0.3719 | 0.1791 |
-| D | 0.4247 | 0.1795 |
-| D# | 0.3771 | 0.1720 |
-| E | 0.4211 | 0.1746 |
-| F | 0.4059 | 0.1672 |
-| F# | 0.3810 | 0.1597 |
-| G | 0.4562 | 0.1708 |
-| G# | 0.3760 | 0.1575 |
-| A | 0.4317 | 0.1812 |
-| A# | 0.3651 | 0.1579 |
-| B | 0.3865 | 0.1665 |
+| C | 0.4432 | 0.2098 |
+| C# | 0.3887 | 0.1984 |
+| D | 0.4559 | 0.1952 |
+| D# | 0.3744 | 0.1940 |
+| E | 0.4411 | 0.2139 |
+| F | 0.4166 | 0.2053 |
+| F# | 0.3933 | 0.1969 |
+| G | 0.4698 | 0.2138 |
+| G# | 0.3872 | 0.1908 |
+| A | 0.4587 | 0.2171 |
+| A# | 0.3694 | 0.1903 |
+| B | 0.3875 | 0.1926 |
 
 ---
 
@@ -65,10 +65,7 @@
 
 | Feature | Mean | Std Dev | Median | Range (Min – Max) |
 |---|---|---|---|---|
-| Harmonic Ratio | 0.6732 | 0.1529 | 0.6641 | 0.1757 – 0.9710 |
-| Percussive Ratio | 0.3268 | 0.1529 | 0.3359 | 0.0290 – 0.8243 |
-| Spectral Rolloff Hz | 3541.7571 | 1794.4385 | 3317.3000 | 319.7000 – 8473.2000 |
-| Rhythm Regularity | 8.1221 | 4.4948 | 6.9113 | 3.2273 – 34.7175 |
+| None Extracted | — | — | — | — |
 
 ---
 
@@ -76,15 +73,16 @@
 
 | Genre | Count | Percentage |
 |---|---|---|
-| Rock | 1 | 0.4% |
-| Electronic | 1 | 0.4% |
-| Classical | 1 | 0.4% |
-| Pop | 1 | 0.4% |
-| Folk | 1 | 0.4% |
-| Hiphop | 1 | 0.4% |
-| Soundtrack | 1 | 0.4% |
-| Metal | 1 | 0.4% |
-| Funk | 1 | 0.4% |
+| Rock | 65 | 31.9% |
+| Jazz | 33 | 16.2% |
+| Blues | 19 | 9.3% |
+| Classical | 18 | 8.8% |
+| Hiphop | 13 | 6.4% |
+| Metal | 11 | 5.4% |
+| Pop | 11 | 5.4% |
+| Country | 10 | 4.9% |
+| Disco | 10 | 4.9% |
+| Reggae | 10 | 4.9% |
 
 *(Note: Tracks without verified metadata genres are reported as Unknown rather than artificially labeled.)*
 
@@ -101,7 +99,7 @@
 
 ## 7. Generated Visual Artifacts
 
-The following figures were generated and saved in `C:\Users\len\music_similarity\music_similarity\reports\eda`:
+The following figures were generated and saved in `D:\idse_music_similarity\music_similarity\reports\eda`:
 - `reports/eda/origin_distribution.png`
 - `reports/eda/duration_distribution.png`
 - `reports/eda/chroma_feature_distributions.png`

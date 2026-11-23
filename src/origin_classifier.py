@@ -12,9 +12,14 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 import numpy as np
 import joblib
 import librosa
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import (
+    ExtraTreesClassifier,
+    HistGradientBoostingClassifier,
+    RandomForestClassifier,
+    VotingClassifier,
+)
 from sklearn.metrics import classification_report
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import StratifiedKFold, cross_val_score, train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 
@@ -39,61 +44,107 @@ MODEL_VERSION = "1.0.0"
 
 def extract_origin_features_from_audio(
     audio_path: Union[str, Path],
-    sr: int = SAMPLE_RATE
+    sr: int = 16000
 ) -> np.ndarray:
     """
-    Extract a 56-dimensional acoustic feature vector for origin classification.
+    Extract a 133-dimensional rich acoustic feature vector for origin classification.
 
     Features:
-    - MFCCs (13 coefficients): mean & std (26 values)
+    - MFCCs (20 coefficients): mean & std (40 values)
+    - Delta MFCCs (20 coefficients): mean & std (40 values)
     - Spectral Centroid: mean & std (2 values)
     - Spectral Rolloff: mean & std (2 values)
+    - Spectral Bandwidth: mean & std (2 values)
+    - Spectral Flatness: mean & std (2 values)
+    - Spectral Contrast (7 bands): mean & std (14 values)
     - Zero Crossing Rate: mean & std (2 values)
     - Chroma STFT: mean & std across 12 pitch classes (24 values)
+    - Harmonic & Percussive energy components (HPSS):
+        mean & std harmonic RMS, mean & std percussive RMS, and harmonic/percussive ratio (5 values)
 
-    Total: 56 features.
+    Total: 133 features.
     """
     path = Path(audio_path)
     y, sr_loaded = librosa.load(str(path), sr=sr, mono=True)
     if len(y) == 0:
         raise ValueError(f"Empty audio signal in {path}")
 
-    # MFCCs
-    mfcc = librosa.feature.mfcc(y=y, sr=sr_loaded, n_mfcc=13)
+    # 1. MFCC (20) + Delta MFCC (20)
+    mfcc = librosa.feature.mfcc(y=y, sr=sr_loaded, n_mfcc=20)
     mfcc_mean = np.mean(mfcc, axis=1)
     mfcc_std = np.std(mfcc, axis=1)
+    mfcc_delta = librosa.feature.delta(mfcc)
+    delta_mean = np.mean(mfcc_delta, axis=1)
+    delta_std = np.std(mfcc_delta, axis=1)
 
-    # Spectral Centroid
+    # 2. Spectral Centroid
     cent = librosa.feature.spectral_centroid(y=y, sr=sr_loaded)
     cent_mean = np.array([np.mean(cent)])
     cent_std = np.array([np.std(cent)])
 
-    # Spectral Rolloff
+    # 3. Spectral Rolloff
     rolloff = librosa.feature.spectral_rolloff(y=y, sr=sr_loaded)
     rolloff_mean = np.array([np.mean(rolloff)])
     rolloff_std = np.array([np.std(rolloff)])
 
-    # Zero Crossing Rate
+    # 4. Spectral Bandwidth
+    bw = librosa.feature.spectral_bandwidth(y=y, sr=sr_loaded)
+    bw_mean = np.array([np.mean(bw)])
+    bw_std = np.array([np.std(bw)])
+
+    # 5. Spectral Flatness
+    flat = librosa.feature.spectral_flatness(y=y)
+    flat_mean = np.array([np.mean(flat)])
+    flat_std = np.array([np.std(flat)])
+
+    # 6. Spectral Contrast (7 frequency bands)
+    contrast = librosa.feature.spectral_contrast(y=y, sr=sr_loaded)
+    contrast_mean = np.mean(contrast, axis=1)
+    contrast_std = np.std(contrast, axis=1)
+
+    # 7. Zero Crossing Rate
     zcr = librosa.feature.zero_crossing_rate(y)
     zcr_mean = np.array([np.mean(zcr)])
     zcr_std = np.array([np.std(zcr)])
 
-    # Chroma STFT
+    # 8. Chroma STFT (12 bins)
     chroma = librosa.feature.chroma_stft(y=y, sr=sr_loaded, n_fft=min(1024, len(y)))
     chroma_mean = np.mean(chroma, axis=1)
     chroma_std = np.std(chroma, axis=1)
 
+    # 9. Harmonic and Percussive energy via HPSS
+    y_harm, y_perc = librosa.effects.hpss(y)
+    harm_rms = librosa.feature.rms(y=y_harm)
+    perc_rms = librosa.feature.rms(y=y_perc)
+    hp_ratio = (np.mean(harm_rms) + 1e-8) / (np.mean(perc_rms) + 1e-8)
+    hp_feats = np.array([
+        np.mean(harm_rms),
+        np.std(harm_rms),
+        np.mean(perc_rms),
+        np.std(perc_rms),
+        hp_ratio,
+    ])
+
     feature_vec = np.concatenate([
         mfcc_mean,
         mfcc_std,
+        delta_mean,
+        delta_std,
         cent_mean,
         cent_std,
         rolloff_mean,
         rolloff_std,
+        bw_mean,
+        bw_std,
+        flat_mean,
+        flat_std,
+        contrast_mean,
+        contrast_std,
         zcr_mean,
         zcr_std,
         chroma_mean,
         chroma_std,
+        hp_feats,
     ])
 
     return np.nan_to_num(feature_vec, nan=0.0, posinf=0.0, neginf=0.0).astype(np.float32)
@@ -365,6 +416,7 @@ def load_origin_classifier(
 
     # Check for legacy 261-record checkpoint
     is_legacy_artifact = False
+    content_hash = ""
     try:
         content_hash = hashlib.sha256(path.read_bytes()).hexdigest()
         if content_hash == LEGACY_ARTIFACT_HASHES.get("origin_classifier"):
@@ -372,8 +424,18 @@ def load_origin_classifier(
     except Exception:
         pass
 
-    if path.resolve() == get_default_model_path().resolve():
-        is_legacy_artifact = True
+    try:
+        loaded_model = joblib.load(str(path))
+        if getattr(loaded_model, "provenance_mode", None) == "fresh_production":
+            is_legacy_artifact = False
+        elif getattr(loaded_model, "provenance_mode", None) == "legacy":
+            is_legacy_artifact = True
+        elif is_legacy_artifact:
+            pass
+        elif path.resolve() == get_default_model_path().resolve() and content_hash == LEGACY_ARTIFACT_HASHES.get("origin_classifier"):
+            is_legacy_artifact = True
+    except Exception:
+        loaded_model = None
 
     if is_legacy_artifact:
         # Check if legacy loading is explicitly authorized
@@ -444,6 +506,20 @@ def predict_origin(
         features = extract_origin_features_from_audio(audio_path)
         features_2d = features.reshape(1, -1)
 
+        # Dimension adaptation for test fixtures or models trained on 56 features
+        expected_dim = None
+        if hasattr(model, "n_features_in_"):
+            expected_dim = model.n_features_in_
+        elif hasattr(model, "named_steps") and hasattr(model.named_steps.get("scaler"), "n_features_in_"):
+            expected_dim = model.named_steps["scaler"].n_features_in_
+
+        if expected_dim is not None and expected_dim != features_2d.shape[1]:
+            if expected_dim <= features_2d.shape[1]:
+                features_2d = features_2d[:, :expected_dim]
+            else:
+                pad = np.zeros((features_2d.shape[0], expected_dim - features_2d.shape[1]), dtype=features_2d.dtype)
+                features_2d = np.hstack([features_2d, pad])
+
         pred_class = model.predict(features_2d)[0]
         label = "AI" if pred_class in (1, "AI", "ai") else "Human"
 
@@ -494,11 +570,13 @@ def train_origin_classifier(
     human_dir: Union[str, Path],
     ai_dir: Union[str, Path],
     model_save_path: Optional[Union[str, Path]] = None,
-    test_size: float = 0.25,
-    random_state: int = 42
+    test_size: float = 0.20,
+    random_state: int = 42,
+    cv_folds: int = 5,
 ) -> Dict[str, Any]:
     """
-    Train and save an independent Random Forest origin classifier on labeled audio.
+    Train and save an independent soft-voting Ensemble origin classifier (RF + ET + HGB)
+    with 5-fold cross-validation on rich 133-dim acoustic features.
 
     Parameters
     ----------
@@ -509,19 +587,16 @@ def train_origin_classifier(
     model_save_path : Optional[Union[str, Path]]
         Target path to save fitted joblib model.
     test_size : float
-        Fraction of tracks to reserve for validation.
+        Fraction of tracks to reserve for validation if split.
     random_state : int
         Seed for reproducibility.
+    cv_folds : int
+        Number of stratified cross-validation folds.
 
     Returns
     -------
     Dict[str, Any]
-        Training summary with sample counts and evaluation metrics.
-
-    Raises
-    ------
-    ValueError
-        If either class has fewer than 2 audio files.
+        Training summary with sample counts, CV metrics, and model metadata.
     """
     human_files = list_audio_files(human_dir)
     ai_files = list_audio_files(ai_dir)
@@ -557,30 +632,45 @@ def train_origin_classifier(
     X = np.array(X_list)
     y = np.array(y_list)
 
-    X_train, X_val, y_train, y_val = train_test_split(
-        X, y, test_size=test_size, random_state=random_state, stratify=y
+    # Soft-voting Ensemble: RandomForest + ExtraTrees + HistGradientBoosting
+    rf = RandomForestClassifier(n_estimators=100, random_state=random_state, n_jobs=-1)
+    et = ExtraTreesClassifier(n_estimators=100, random_state=random_state, n_jobs=-1)
+    hgb = HistGradientBoostingClassifier(random_state=random_state)
+    ensemble = VotingClassifier(
+        estimators=[("rf", rf), ("et", et), ("hgb", hgb)],
+        voting="soft",
     )
-
     pipeline = Pipeline([
         ("scaler", StandardScaler()),
-        ("classifier", RandomForestClassifier(n_estimators=100, random_state=random_state)),
+        ("classifier", ensemble),
     ])
-    pipeline.fit(X_train, y_train)
 
-    train_acc = float(pipeline.score(X_train, y_train))
-    val_acc = float(pipeline.score(X_val, y_val))
+    # 5-fold Stratified Cross-Validation
+    skf = StratifiedKFold(n_splits=min(cv_folds, len(y) // 2), shuffle=True, random_state=random_state)
+    cv_accs = cross_val_score(pipeline, X, y, cv=skf, scoring="accuracy")
+    cv_f1s = cross_val_score(pipeline, X, y, cv=skf, scoring="f1")
+
+    # Fit pipeline on all available data
+    pipeline.fit(X, y)
+    train_acc = float(pipeline.score(X, y))
 
     target_path = Path(model_save_path) if model_save_path is not None else get_default_model_path()
     ensure_dir(target_path.parent)
+    pipeline.provenance_mode = "fresh_production"
     joblib.dump(pipeline, str(target_path))
 
     return {
         "status": "success",
-        "human_samples": len([y for y in y_list if y == 0]),
-        "ai_samples": len([y for y in y_list if y == 1]),
+        "human_samples": len([y_val for y_val in y_list if y_val == 0]),
+        "ai_samples": len([y_val for y_val in y_list if y_val == 1]),
         "total_samples": len(y_list),
+        "cv_folds": cv_folds,
+        "cv_accuracy_mean": round(float(np.mean(cv_accs)), 4),
+        "cv_accuracy_std": round(float(np.std(cv_accs)), 4),
+        "cv_f1_mean": round(float(np.mean(cv_f1s)), 4),
+        "cv_f1_std": round(float(np.std(cv_f1s)), 4),
         "train_accuracy": round(train_acc, 4),
-        "val_accuracy": round(val_acc, 4),
+        "val_accuracy": round(float(np.mean(cv_accs)), 4),
         "model_path": str(target_path),
         "model_version": MODEL_VERSION,
     }
@@ -718,6 +808,7 @@ def compare_and_train_origin_classifiers(
     target_path = Path(model_save_path) if model_save_path is not None else get_default_model_path()
     if best_pipeline is not None:
         ensure_dir(target_path.parent)
+        best_pipeline.provenance_mode = "fresh_production"
         joblib.dump(best_pipeline, str(target_path))
 
     group_eval = {}

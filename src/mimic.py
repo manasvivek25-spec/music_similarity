@@ -254,6 +254,12 @@ def build_mimic_analysis(
             duration_sec=rec.get("duration_sec"),
             duration_disparity_warning=bool(rec.get("duration_disparity_warning", False)),
             disparity_explanation=rec.get("disparity_explanation"),
+            query_segment_start_sec=rec.get("query_segment_start_sec"),
+            query_segment_end_sec=rec.get("query_segment_end_sec"),
+            candidate_segment_start_sec=rec.get("candidate_segment_start_sec"),
+            candidate_segment_end_sec=rec.get("candidate_segment_end_sec"),
+            segment_similarity=rec.get("segment_similarity"),
+            matching_segment_summary=rec.get("matching_segment_summary"),
         )
         candidates_out.append(cand_obj)
 

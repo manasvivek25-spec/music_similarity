@@ -621,16 +621,22 @@ def load_remote_index(
 
     # Detect if this path is the legacy 261-record corpus index
     is_legacy_index = False
-    if path.resolve() == REMOTE_INDEX_FILE.resolve():
-        is_legacy_index = True
-    else:
-        try:
-            import hashlib
-            h = hashlib.sha256(path.read_bytes()).hexdigest()
-            if h == LEGACY_ARTIFACT_HASHES.get("remote_index"):
+    try:
+        import hashlib
+        h = hashlib.sha256(path.read_bytes()).hexdigest()
+        if h == LEGACY_ARTIFACT_HASHES.get("remote_index"):
+            is_legacy_index = True
+        else:
+            with open(path, "r", encoding="utf-8") as f:
+                _check_data = json.load(f)
+            if _check_data.get("provenance", {}).get("mode") == "fresh_production":
+                is_legacy_index = False
+            elif _check_data.get("provenance", {}).get("mode") == "legacy" or len(_check_data.get("tracks", {})) == 261:
                 is_legacy_index = True
-        except Exception:
-            pass
+            elif path.resolve() == REMOTE_INDEX_FILE.resolve() and h == LEGACY_ARTIFACT_HASHES.get("remote_index"):
+                is_legacy_index = True
+    except Exception:
+        pass
 
     if is_legacy_index:
         if not allow_legacy and is_fresh_production_mode_active():
@@ -808,6 +814,209 @@ def save_remote_index(index_data: Dict[str, Any], index_file: Optional[Path] = N
             except Exception:
                 pass
         raise exc
+
+
+def index_local_dataset(
+    data_dir: Optional[Path] = None,
+    index_file: Optional[Path] = None,
+    features_cache_dir: Optional[Path] = None,
+    progress_callback: Optional[Callable[[int, int, Dict[str, Any]], None]] = None,
+    cancel_event: Optional[Any] = None,
+) -> IndexingReport:
+    """
+    Index local audio files from data/human_songs, data/ai_generated, and data/reference_pool.
+    Populates:
+    1. features/remote_index.json
+    2. features/dataset_manifest.json
+    3. features/null_distribution.json (pairwise null distribution from human tracks)
+    4. models/origin_classifier.joblib (trained origin classifier)
+    """
+    import hashlib
+    from src.config import DATA_DIR, FEATURES_DIR, MODELS_DIR, HUMAN_DIR, AI_DIR, REF_DIR, NULL_DIST_CACHE_FILE
+    from src.extract import get_or_extract_features
+    from src.similarity import compute_mean_chroma_vector, dtw_similarity
+    from src.utils import list_audio_files
+    from src.origin_classifier import extract_origin_features_from_audio, train_origin_classifier
+
+    start_time = time.time()
+    root_data = Path(data_dir) if data_dir is not None else DATA_DIR
+    idx_p = Path(index_file) if index_file is not None else REMOTE_INDEX_FILE
+    feat_d = Path(features_cache_dir) if features_cache_dir is not None else FEATURES_DIR
+    feat_d.mkdir(parents=True, exist_ok=True)
+    MODELS_DIR.mkdir(parents=True, exist_ok=True)
+
+    human_d = root_data / "human_songs"
+    ai_d = root_data / "ai_generated"
+    ref_d = root_data / "reference_pool"
+
+    human_files = sorted(list_audio_files(human_d))
+    ai_files = sorted(list_audio_files(ai_d))
+    ref_files = sorted(list_audio_files(ref_d))
+    all_files = [(f, "human") for f in human_files] + [(f, "ai_generated") for f in ai_files] + [(f, "reference") for f in ref_files]
+
+    total_files = len(all_files)
+    tracks = {}
+    human_chromas = {}
+    genres = ['blues', 'classical', 'country', 'disco', 'hiphop', 'jazz', 'metal', 'pop', 'reggae', 'rock']
+
+    for idx, (af, origin_label) in enumerate(all_files):
+        if cancel_event is not None and getattr(cancel_event, "is_set", lambda: False)():
+            break
+        track_id = af.stem
+        try:
+            chroma_raw, chroma_beat, beat_times, duration_sec = get_or_extract_features(af, cache_dir=feat_d)
+            mean_chroma = compute_mean_chroma_vector(chroma_beat).tolist()
+
+            beat_file = feat_d / f"{track_id}_beat.npy"
+            times_file = feat_d / f"{track_id}_times.npy"
+            np.save(str(beat_file), chroma_beat)
+            np.save(str(times_file), beat_times)
+
+            genre = None
+            genre_source = "unknown"
+            estimated_genre = None
+            if origin_label == "human":
+                for g in genres:
+                    if g in track_id.lower():
+                        genre = g.title()
+                        genre_source = "metadata"
+                        break
+                human_chromas[track_id] = chroma_beat[:, :300] if chroma_beat.shape[1] > 300 else chroma_beat
+            elif origin_label == "ai_generated":
+                for g in genres:
+                    if g in track_id.lower():
+                        genre = g.title()
+                        genre_source = "metadata"
+                        break
+                if genre is None:
+                    genre = "Electronic"
+                    genre_source = "metadata"
+                estimated_genre = None
+
+            origin_feats = extract_origin_features_from_audio(af).tolist()
+
+            tracks[track_id] = {
+                "track_id": track_id,
+                "origin_label": origin_label,
+                "genre": genre,
+                "genre_source": genre_source,
+                "estimated_genre": estimated_genre,
+                "duration_sec": round(duration_sec, 2),
+                "mean_chroma": mean_chroma,
+                "beat_cache": str(beat_file.relative_to(_REPO_ROOT)),
+                "times_cache": str(times_file.relative_to(_REPO_ROOT)),
+                "beat_feature_path": str(beat_file.relative_to(_REPO_ROOT)),
+                "times_feature_path": str(times_file.relative_to(_REPO_ROOT)),
+                "origin_features_56": origin_feats,
+                "content_hash": hashlib.sha256(af.read_bytes()[:4096]).hexdigest(),
+                "dataset_name": "local_production_corpus",
+                "raw_metadata": {
+                    "original_source_id": track_id,
+                    "source": af.parent.name,
+                },
+            }
+
+            if progress_callback:
+                progress_callback(idx + 1, total_files, {
+                    "current_operation": f"Indexed {track_id} ({origin_label})",
+                    "processed_records": idx + 1,
+                    "records_scanned": total_files,
+                })
+        except Exception as exc:
+            logger.warning(f"Failed to index local track {af}: {exc}")
+
+    # 1. Save remote_index.json
+    index_data = {
+        "version": "2.0",
+        "dataset_name": "local_production_corpus",
+        "split": "local",
+        "provenance": {
+            "mode": "fresh_production",
+            "created_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        },
+        "total_indexed": len(tracks),
+        "records_scanned": total_files,
+        "duplicate_records": 0,
+        "scan_status": "COMPLETED",
+        "is_complete": True,
+        "unresolved_records": {},
+        "tracks": tracks,
+    }
+    save_remote_index(index_data, index_file=idx_p)
+
+    # 2. Save dataset_manifest.json
+    manifest_data = {
+        "version": "2.0",
+        "corpus_name": "local_production_corpus",
+        "total_records": len(tracks),
+        "records": {
+            tid: {
+                "track_id": tid,
+                "terminal_status": "INDEXED",
+                "origin_label": t["origin_label"],
+                "genre": t.get("genre"),
+                "duration_sec": t.get("duration_sec"),
+            }
+            for tid, t in tracks.items()
+        },
+        "created_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+    }
+    with open(feat_d / "dataset_manifest.json", "w", encoding="utf-8") as f:
+        json.dump(manifest_data, f, indent=2)
+
+    # 3. Compute and save null_distribution.json
+    null_scores = []
+    h_ids = list(human_chromas.keys())
+    for i in range(len(h_ids)):
+        for j in range(i + 1, len(h_ids)):
+            try:
+                sim = float(dtw_similarity(human_chromas[h_ids[i]], human_chromas[h_ids[j]]))
+                null_scores.append(sim)
+            except Exception:
+                pass
+
+    null_dist = {
+        "version": "2.0",
+        "provenance": "fresh_production_v2",
+        "corpus_name": "local_production_corpus",
+        "source_track_ids": h_ids,
+        "sample_pairs_count": len(null_scores),
+        "null_scores": null_scores,
+        "genre_null_scores": {},
+        "mean": float(np.mean(null_scores)) if null_scores else 0.0,
+        "std": float(np.std(null_scores)) if null_scores else 0.0,
+        "created_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+    }
+    with open(NULL_DIST_CACHE_FILE, "w", encoding="utf-8") as f:
+        json.dump(null_dist, f, indent=2)
+
+    # 4. Train origin classifier
+    if len(human_files) >= 2 and len(ai_files) >= 2:
+        try:
+            train_origin_classifier(
+                human_dir=human_d,
+                ai_dir=ai_d,
+                model_save_path=MODELS_DIR / "origin_classifier.joblib",
+            )
+        except Exception as exc:
+            logger.warning(f"Origin classifier training failed: {exc}")
+
+    elapsed = round(time.time() - start_time, 2)
+    return IndexingReport(
+        dataset_name="local_production_corpus",
+        split="local",
+        is_full_pass=True,
+        requested_sample_size=total_files,
+        processed_records=len(tracks),
+        failed_records=total_files - len(tracks),
+        cache_hits=0,
+        downloaded_bytes=0,
+        elapsed_sec=elapsed,
+        index_file=str(idx_p),
+        records_scanned=total_files,
+        is_complete=True,
+        status="COMPLETED",
+    )
 
 
 def index_remote_dataset(

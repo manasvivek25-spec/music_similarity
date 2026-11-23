@@ -1,7 +1,7 @@
 # Scientific Retrieval & Robustness Experiment Report
 **Project:** Statistical Analysis of Similarity in Human- and AI-Generated Music  
 **Evaluation Standard:** Controlled Perturbations & Pairwise Retrieval  
-**Generated At:** 2026-10-31 20:08:13 UTC  
+**Generated At:** 2026-11-20 12:21:28 UTC  
 
 ---
 
@@ -9,9 +9,9 @@
 
 | Evaluation Method | P@1 | P@3 | R@1 | R@3 | MRR | Latency / Pair | Status & Role |
 |---|---|---|---|---|---|---|---|
-| **Chroma CQT + 12-Shift DTW** | 1.00 | 1.00 | 0.20 | 0.60 | 1.00 | 204.06 ms | **Core Locked Pipeline** (Primary Ground Truth) |
-| **Subsequence DTW** | 1.00 | 1.00 | 0.20 | 0.60 | 1.00 | 303.71 ms | **Research Experiment** (Open-End Matching) |
-| **MERT-v1-95M Embedding** | 1.00 | 1.00 | 0.20 | 0.60 | 1.00 | 0.054 ms | **Independent Representation** (Timbral Embedding) |
+| **Chroma CQT + 12-Shift DTW** | 1.00 | 1.00 | 0.20 | 0.60 | 1.00 | 350.05 ms | **Core Locked Pipeline** (Primary Ground Truth) |
+| **Subsequence DTW** | 1.00 | 1.00 | 0.20 | 0.60 | 1.00 | 542.02 ms | **Research Experiment** (Open-End Matching) |
+| **MERT-v1-95M Embedding** | 1.00 | 1.00 | 0.20 | 0.60 | 1.00 | 0.076 ms | **Independent Representation** (Timbral Embedding) |
 
 ---
 
@@ -24,7 +24,7 @@
 | Pitch Shift (+6 semi) | 0.9832 | 0.9832 | 0.6228 | +6 semi |
 | Tempo Alter (0.9x) | 0.9871 | 0.9871 | 0.5890 | +0 semi |
 | Tempo Alter (1.2x) | 0.9955 | 0.9964 | 0.6080 | +0 semi |
-| Additive Noise (20dB) | 0.9299 | 0.9329 | 0.6326 | +0 semi |
+| Additive Noise (20dB) | 0.9294 | 0.9313 | 0.6326 | +0 semi |
 | Unrelated Harmony (F# Major) | 0.9881 | 0.9881 | 0.5160 | +6 semi |
 
 ### Findings & Analytical Conclusions:
@@ -39,7 +39,7 @@
 | Ablation Experiment | Standard Condition | Ablated Condition | Quantitative Impact | Empirical Conclusion |
 |---|---|---|---|---|
 | Pitch-Shift Search Ablation | 12 Circular Pitch Shifts (Stage 2) | Shift 0 Only (Ablated) | 0.9866 vs 0.547 (-44.5%) | Without 12 circular pitch shifts, similarity degrades severely under key transpositions, confirming key invariance is strictly dependent on the 12-shift search. |
-| Beat-Synchronization Latency Ablation | Beat-Synchronized Chroma | Raw Frame-Level Chroma (Ablated) | 0.023 vs 17.578 (-99.9%) | Beat synchronization reduces frame resolution along the temporal axis, achieving a 764.2x speedup while stabilizing metric tempo variance. |
+| Beat-Synchronization Latency Ablation | Beat-Synchronized Chroma | Raw Frame-Level Chroma (Ablated) | 0.031 vs 25.112 (-99.9%) | Beat synchronization reduces frame resolution along the temporal axis, achieving a 812.7x speedup while stabilizing metric tempo variance. |
 | Stage 1 Cosine Prefilter Pruning Ablation | Two-Stage Pipeline (Prefilter 0.30 -> DTW) | Exhaustive DTW on All Candidates (Ablated) | 0.0307 vs 0.3 (-89.8%) | Stage 1 coarse prefilter safely eliminates musically unviable pairs prior to expensive Stage 2 DTW alignments. |
 
 ---

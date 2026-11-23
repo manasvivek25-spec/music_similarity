@@ -56,7 +56,7 @@ def test_cli_parser_defaults():
     """Verify CLI defaults to small sample for development and full=False."""
     parser = build_cli_parser()
     args = parser.parse_args([])
-    assert args.dataset == "SleepyJesse/ai_music_large"
+    assert args.dataset == "GTZAN (100 Human) + Multi-Gen AI (100 AI) + 4 Ref"
     assert args.split == "train"
     assert args.sample == 10
     assert args.full is False

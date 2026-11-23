@@ -399,7 +399,7 @@ def run_exploratory_data_analysis(
 
     report_md = f"""# Exploratory Data Analysis (EDA) Report
 **Project:** Statistical Analysis of Similarity in Human- and AI-Generated Music  
-**Dataset:** `SleepyJesse/ai_music_large` (split: `train`)  
+**Dataset:** `GTZAN (100 Human) + Multi-Gen AI (100 AI) + 4 Ref` (split: `train`)  
 **Generated At:** {now_str}  
 **Total Indexed Tracks:** {total}  
 

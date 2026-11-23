@@ -420,15 +420,21 @@ def load_null_distribution(
         return {}
 
     is_legacy_dist = False
-    if target_file.resolve() == NULL_DIST_CACHE_FILE.resolve():
-        is_legacy_dist = True
-    else:
-        try:
-            h = hashlib.sha256(target_file.read_bytes()).hexdigest()
-            if h == LEGACY_ARTIFACT_HASHES.get("null_distribution"):
+    try:
+        h = hashlib.sha256(target_file.read_bytes()).hexdigest()
+        if h == LEGACY_ARTIFACT_HASHES.get("null_distribution"):
+            is_legacy_dist = True
+        else:
+            with open(target_file, "r", encoding="utf-8") as f:
+                _nd_check = json.load(f)
+            if _nd_check.get("provenance") in ("fresh_production", "fresh_production_v2"):
+                is_legacy_dist = False
+            elif _nd_check.get("provenance") == "legacy" or _nd_check.get("sample_pairs_count") == 6105:
                 is_legacy_dist = True
-        except Exception:
-            pass
+            elif target_file.resolve() == NULL_DIST_CACHE_FILE.resolve() and h == LEGACY_ARTIFACT_HASHES.get("null_distribution"):
+                is_legacy_dist = True
+    except Exception:
+        pass
 
     if is_legacy_dist:
         if not allow_legacy and is_fresh_production_mode_active():
@@ -492,15 +498,21 @@ def get_or_build_cached_null_distribution(
     eval_ids = sorted(list(eval_chroma.keys()))
 
     is_legacy_dist = False
-    if target_file.resolve() == NULL_DIST_CACHE_FILE.resolve():
-        is_legacy_dist = True
-    else:
-        try:
-            h = hashlib.sha256(target_file.read_bytes()).hexdigest()
-            if h == LEGACY_ARTIFACT_HASHES.get("null_distribution"):
+    try:
+        h = hashlib.sha256(target_file.read_bytes()).hexdigest()
+        if h == LEGACY_ARTIFACT_HASHES.get("null_distribution"):
+            is_legacy_dist = True
+        else:
+            with open(target_file, "r", encoding="utf-8") as f:
+                _nd_check = json.load(f)
+            if _nd_check.get("provenance") in ("fresh_production", "fresh_production_v2"):
+                is_legacy_dist = False
+            elif _nd_check.get("provenance") == "legacy" or _nd_check.get("sample_pairs_count") == 6105:
                 is_legacy_dist = True
-        except Exception:
-            pass
+            elif target_file.resolve() == NULL_DIST_CACHE_FILE.resolve() and h == LEGACY_ARTIFACT_HASHES.get("null_distribution"):
+                is_legacy_dist = True
+    except Exception:
+        pass
 
     if is_legacy_dist and not allow_legacy and is_fresh_production_mode_active():
         if strict:

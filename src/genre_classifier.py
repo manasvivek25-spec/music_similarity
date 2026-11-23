@@ -183,6 +183,59 @@ class GenreClassifier:
             logger.warning(f"Genre prediction failed: {exc}")
             return (None, None)
 
+    def predict_genre_distribution(
+        self,
+        waveform: np.ndarray,
+        sr: int = SAMPLE_RATE,
+        top_k: int = 10,
+    ) -> Tuple[Optional[str], Optional[float], List[Dict[str, Any]]]:
+        """
+        Predict top genre, confidence, and top-k probabilities from audio waveform.
+
+        Returns
+        -------
+        Tuple[Optional[str], Optional[float], List[Dict[str, Any]]]
+            (top_genre, confidence, top_k_probabilities) where each item has
+            'genre', 'probability', and 'percentage'.
+        """
+        if not self.is_available:
+            return (None, None, [])
+
+        try:
+            raw_feats = extract_genre_features(waveform, sr=sr)
+            if raw_feats is None:
+                return (None, None, [])
+
+            features = raw_feats.reshape(1, -1)
+            if self.scaler is not None:
+                features = self.scaler.transform(features)
+
+            classes = list(getattr(self.model, "classes_", self.classes_))
+            confidence: Optional[float] = None
+            top_probs: List[Dict[str, Any]] = []
+            pred_genre: Optional[str] = None
+
+            if hasattr(self.model, "predict_proba"):
+                probs = self.model.predict_proba(features)[0]
+                class_probs = list(zip(classes, probs))
+                class_probs.sort(key=lambda x: x[1], reverse=True)
+                confidence = float(class_probs[0][1])
+                pred_genre = str(class_probs[0][0]).title()
+                for g, p in class_probs[:top_k]:
+                    top_probs.append({
+                        "genre": str(g).title(),
+                        "probability": round(float(p), 4),
+                        "percentage": round(float(p) * 100, 2),
+                    })
+            else:
+                pred_genre = str(self.model.predict(features)[0]).title()
+                top_probs = [{"genre": pred_genre, "probability": 1.0, "percentage": 100.0}]
+
+            return (pred_genre, round(confidence, 4) if confidence is not None else None, top_probs)
+        except Exception as exc:
+            logger.warning(f"Genre prediction failed: {exc}")
+            return (None, None, [])
+
 
 def load_genre_classifier(model_path: Optional[Union[str, Path]] = None) -> GenreClassifier:
     """Load or initialize a GenreClassifier from the given model path."""
@@ -247,20 +300,41 @@ def train_genre_classifier(
 
     valid_exts = {".wav", ".mp3", ".flac", ".ogg", ".au"}
 
-    for genre_folder in data_path.iterdir():
-        if not genre_folder.is_dir():
-            continue
-        genre_name = genre_folder.name.lower()
-        for audio_file in genre_folder.iterdir():
-            if audio_file.suffix.lower() not in valid_exts:
+    direct_files = [f for f in data_path.iterdir() if f.is_file() and f.suffix.lower() in valid_exts]
+    if direct_files:
+        for audio_file in direct_files:
+            parts = audio_file.stem.lower().split("_")
+            detected_genre = None
+            for p in reversed(parts):
+                if p in GTZAN_GENRES:
+                    detected_genre = p
+                    break
+            if detected_genre is None:
                 continue
             try:
                 wave, sr_loaded = librosa.load(str(audio_file), sr=sr, mono=True)
                 feat = extract_genre_features(wave, sr=sr_loaded)
-                X.append(feat)
-                y.append(genre_name)
+                if feat is not None:
+                    X.append(feat)
+                    y.append(detected_genre)
             except Exception as exc:
                 logger.debug(f"Skipping {audio_file}: {exc}")
+    else:
+        for genre_folder in data_path.iterdir():
+            if not genre_folder.is_dir():
+                continue
+            genre_name = genre_folder.name.lower()
+            for audio_file in genre_folder.iterdir():
+                if audio_file.suffix.lower() not in valid_exts:
+                    continue
+                try:
+                    wave, sr_loaded = librosa.load(str(audio_file), sr=sr, mono=True)
+                    feat = extract_genre_features(wave, sr=sr_loaded)
+                    if feat is not None:
+                        X.append(feat)
+                        y.append(genre_name)
+                except Exception as exc:
+                    logger.debug(f"Skipping {audio_file}: {exc}")
 
     if len(X) < 10:
         raise ValueError(f"Insufficient training data in {dataset_dir}: extracted only {len(X)} samples.")
@@ -287,6 +361,9 @@ def train_genre_classifier(
     dest.parent.mkdir(parents=True, exist_ok=True)
     joblib.dump(pipeline, str(dest))
     logger.info(f"Saved trained genre classifier to {dest} with test accuracy: {acc:.4f}")
+
+    global _classifier_instance
+    _classifier_instance = None
 
     return {
         "status": "success",

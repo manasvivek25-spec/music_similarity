@@ -1,0 +1,127 @@
+{
+  "analysis": "AI_vs_Human_200x200_Similarity_Matrix",
+  "seed": 42,
+  "execution_time_seconds": 1067.58,
+  "corpus": {
+    "n_human_tracks": 100,
+    "n_ai_tracks": 100,
+    "total_matrix_size": [
+      200,
+      200
+    ]
+  },
+  "distributions": {
+    "human_human": {
+      "n_pairs": 4950,
+      "mean": 0.5064,
+      "std": 0.0417,
+      "min": 0.3591,
+      "max": 0.6561,
+      "p95": 0.5707
+    },
+    "ai_ai": {
+      "n_pairs": 4950,
+      "mean": 0.4962,
+      "std": 0.0671,
+      "min": 0.309,
+      "max": 0.849,
+      "p95": 0.6008
+    },
+    "human_ai": {
+      "n_pairs": 10000,
+      "mean": 0.4951,
+      "std": 0.0501,
+      "min": 0.3236,
+      "max": 0.7521,
+      "p95": 0.5733
+    }
+  },
+  "hypothesis_test": {
+    "test_statistic_name": "mean_within_ai_minus_mean_within_human",
+    "observed_statistic": -0.010167,
+    "permutation_test": {
+      "n_shuffles": 10000,
+      "null_mean": -2.5e-05,
+      "null_std": 0.005596,
+      "p_value_two_tailed": 0.0698,
+      "p_value_one_tailed": 0.9639
+    },
+    "effect_size": {
+      "cohens_d": -0.182,
+      "mann_whitney_u": 10948424.0,
+      "mann_whitney_p": 5.05289513463241e-20,
+      "rank_biserial_r": 0.1063
+    }
+  },
+  "within_genre_comparisons": {
+    "Blues": {
+      "n_human_tracks": 10,
+      "n_ai_tracks": 9,
+      "n_human_human_pairs": 45,
+      "n_ai_ai_pairs": 36,
+      "n_human_ai_pairs": 90,
+      "within_human_mean": 0.542,
+      "within_human_std": 0.025,
+      "within_ai_mean": 0.4969,
+      "within_ai_std": 0.0696,
+      "cross_human_ai_mean": 0.5065,
+      "cross_human_ai_std": 0.0378,
+      "difference_ai_minus_human": -0.0451,
+      "mann_whitney_p": 0.00044493579865382686
+    },
+    "Classical": {
+      "n_human_tracks": 10,
+      "n_ai_tracks": 8,
+      "n_human_human_pairs": 45,
+      "n_ai_ai_pairs": 28,
+      "n_human_ai_pairs": 80,
+      "within_human_mean": 0.5055,
+      "within_human_std": 0.0171,
+      "within_ai_mean": 0.5449,
+      "within_ai_std": 0.0705,
+      "cross_human_ai_mean": 0.4954,
+      "cross_human_ai_std": 0.0268,
+      "difference_ai_minus_human": 0.0394,
+      "mann_whitney_p": 0.006816285089669317
+    },
+    "Jazz": {
+      "n_human_tracks": 10,
+      "n_ai_tracks": 23,
+      "n_human_human_pairs": 45,
+      "n_ai_ai_pairs": 253,
+      "n_human_ai_pairs": 230,
+      "within_human_mean": 0.4886,
+      "within_human_std": 0.0187,
+      "within_ai_mean": 0.5258,
+      "within_ai_std": 0.0453,
+      "cross_human_ai_mean": 0.4831,
+      "cross_human_ai_std": 0.0259,
+      "difference_ai_minus_human": 0.0372,
+      "mann_whitney_p": 3.5700130600338107e-09
+    },
+    "Rock": {
+      "n_human_tracks": 10,
+      "n_ai_tracks": 55,
+      "n_human_human_pairs": 45,
+      "n_ai_ai_pairs": 1485,
+      "n_human_ai_pairs": 550,
+      "within_human_mean": 0.5207,
+      "within_human_std": 0.0268,
+      "within_ai_mean": 0.5027,
+      "within_ai_std": 0.0629,
+      "cross_human_ai_mean": 0.5114,
+      "cross_human_ai_std": 0.0396,
+      "difference_ai_minus_human": -0.018,
+      "mann_whitney_p": 0.02177529930059904
+    }
+  },
+  "per_generator_breakdown": {
+    "multi-gen-ai": {
+      "n_tracks": 100,
+      "within_generator_mean": 0.4962,
+      "within_generator_std": 0.0671,
+      "similarity_to_human_mean": 0.4951,
+      "similarity_to_human_std": 0.0501
+    }
+  }
+}
